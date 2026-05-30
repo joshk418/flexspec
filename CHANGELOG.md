@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/joshk418/flexspec/compare/v0.1.1...v0.1.2) (2026-05-30)
+
+
+### Features
+
+* Added UI for monitoring project spec files ([848267a](https://github.com/joshk418/flexspec/commit/848267a2cb52554750323a01dddf9da3b67f348c))
+* Replaced list command output with simplified version ([#5](https://github.com/joshk418/flexspec/issues/5)) ([1dbc267](https://github.com/joshk418/flexspec/commit/1dbc26722218904ba1fc3ff35b1661581287ff20))
+
 ## [0.1.1](https://github.com/joshk418/flexspec/compare/v0.1.0...v0.1.1) (2026-05-30)
 
 
