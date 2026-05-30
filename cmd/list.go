@@ -9,9 +9,10 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/spf13/cobra"
+
 	"github.com/joshk418/flexspec/internal/config"
 	"github.com/joshk418/flexspec/internal/spec"
-	"github.com/spf13/cobra"
 )
 
 // listCmd represents the list command
