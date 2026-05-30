@@ -14,3 +14,9 @@ formatters:
     goimports:
       local-prefixes:
         - github.com/joshk418/flexspec
+
+issues:
+  exclude-rules:
+    - linters:
+        - errcheck
+      source: "^\t*defer "

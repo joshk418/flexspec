@@ -63,7 +63,7 @@ func runUI(cmd *cobra.Command, _ []string) error {
 		if listenErr == nil {
 			_ = ln.Close()
 			if i > 0 {
-				fmt.Fprintf(cmd.OutOrStdout(), "Port %d in use, using %d\n", port, tryPort)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Port %d in use, using %d\n", port, tryPort)
 			}
 			break
 		}
@@ -73,13 +73,13 @@ func runUI(cmd *cobra.Command, _ []string) error {
 	}
 
 	url := fmt.Sprintf("http://%s", srv.Addr())
-	fmt.Fprintf(cmd.OutOrStdout(), "FlexSpec UI at %s\n", url)
-	fmt.Fprintf(cmd.OutOrStdout(), "Press Ctrl+C to stop\n")
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "FlexSpec UI at %s\n", url)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Press Ctrl+C to stop\n")
 
 	shouldOpen := uiOpen && !uiNoOpen
 	if shouldOpen {
 		if err := openBrowser(url); err != nil {
-			fmt.Fprintf(cmd.ErrOrStderr(), "could not open browser: %v\n", err)
+			_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "could not open browser: %v\n", err)
 		}
 	}
 
