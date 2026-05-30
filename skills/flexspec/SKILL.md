@@ -91,6 +91,26 @@ built on guesses produces wrong implementations.
 
 When in doubt: ask, don't assume.
 
+## Application charter
+
+Every feature spec must align with the **application charter** at `.flexspec/charter.md`.
+The charter holds product-wide vision, capabilities, constraints, and boundaries — not
+individual feature details.
+
+- **Always read** `.flexspec/charter.md` at the start of Phase 1 (before repo exploration).
+- **Classify charter state** using the same sentinels as `/flexspec-charter`:
+  - **Empty** — zero-length or whitespace only.
+  - **Template-only** — `{` placeholders, `<!--` guidance comments, or frontmatter `status: draft`.
+  - **Active** — `status: active`, no placeholders or guidance comments.
+- **If missing, empty, or template-only**: stop and recommend `/flexspec-charter` first.
+  Offer a minimal inline charter pass only if the user **insists** on proceeding without it.
+- **When authoring specs**: align Summary, NFRs, architecture, and conventions with the
+  charter; cite charter sections where helpful. **Flag conflicts** between the feature
+  request and charter §8 (boundaries) or §7 (standards) — ask which wins.
+- **Charter freshness (required)** — During and after spec authoring, detect material
+  deltas vs. the charter: §2 vision/goals, §3 users, §4 capabilities, §5–§6 stack/architecture,
+  §7 conventions, §8 boundaries, §9 glossary.
+
 ## Where Specs Are Written
 
 Specs are created on disk, not just in chat. The `flexspec` CLI owns scaffolding.
@@ -148,8 +168,9 @@ they prefer before proceeding.
 
 ## Workflow
 
-1. **Gather context.** Read the user's request and explore the repo (relevant files,
-   existing patterns, constraints). Note what you know vs. what you don't.
+1. **Gather context.** Read `.flexspec/charter.md` first (see Application charter).
+   Then read the user's request and explore the repo (relevant files, existing patterns,
+   constraints). Note what you know vs. what you don't.
 2. **Choose the template** (simple vs expanded) per the rules above; confirm with the
    user if borderline or if they have a preference.
 3. **Scaffold the spec directory with the CLI.** Run `flexspec new` to create the
@@ -168,11 +189,26 @@ they prefer before proceeding.
    removing the `<!-- -->` guidance comments.
 7. **Self-check** against the Definition of Ready. If anything is only testable with
    rework, rework the implementation plan.
-8. **Finalize the spec.** When no open questions remain, the design is agreed, and the
-   task list is complete, move `status` through `refined` to `planned`.
-9. **End the phase.** Summarize the spec and **ask the user to continue**: "Spec
-   `NNN-slug` is planned and ready. Run `/flexspec` again to begin implementation."
-   Stop here unless running `--one-shot`.
+8. **Charter freshness check** (before `planned`):
+   1. Detect concrete charter deltas implied by this spec (by section: §2, §3, §4, §5–§6, §7, §8, §9).
+   2. **Deltas-only prompt:**
+      - **No deltas** → state "No charter changes detected" and continue. **Do not ask.**
+      - **Deltas detected** → list bullets by section, then ask: "Based on this spec, does
+        `.flexspec/charter.md` need to be updated?" (yes / no / partial).
+   3. **If yes or partial** (non-one-shot): recommend `/flexspec-charter` with the delta list,
+      or apply targeted charter edits **only after user confirms** each change; append a §11
+      revision row referencing the spec slug.
+   4. **Gating (non-one-shot)** — When deltas exist, do not set `planned` until the charter
+      question is answered. If the user defers, record a note in the spec's §5 Other, then proceed.
+   5. **One-shot (`--one-shot` / `always_one_shot`)** — Do not block on the charter prompt:
+      - Deltas that **conflict** with charter §8 or §7 are **blocking** → stop and ask even in one-shot.
+      - Other deltas → record a "charter follow-up" note in spec §5 Other and continue; do not edit
+        the charter unattended.
+9. **Finalize the spec.** When no open questions remain, the design is agreed, the task list
+   is complete, and the charter freshness check is resolved, move `status` through `refined` to `planned`.
+10. **End the phase.** Summarize the spec and **ask the user to continue**: "Spec
+    `NNN-slug` is planned and ready. Run `/flexspec` again to begin implementation."
+    Stop here unless running `--one-shot`.
 
 ## Section-by-Section Guide (both templates)
 
@@ -287,6 +323,8 @@ Fill:
       open questions.
 - [ ] Every functional requirement is covered by at least one `TC-` test.
 - [ ] No open/blocking questions remain anywhere.
+- [ ] Charter read; spec does not contradict charter §7 (standards) or §8 (boundaries).
+- [ ] Charter freshness checked — if deltas exist, update question asked and resolved (or deferred in §5 Other).
 - [ ] `status` set to `planned` (Phase 1 complete).
 
 ---
@@ -357,7 +395,7 @@ Quick red-flag checklist (any hit = not slop-free):
 - [ ] Every new dependency is real and actually used (no hallucinated packages).
 - [ ] No secrets, tokens, or keys committed.
 - [ ] No SQL/command/template injection; trust boundaries validate + authorize input.
-- [ ] No duplicated logic that should reuse existing code; patterns match the codebase.
+- [ ] No duplicated logic that should reuse existing code; patterns match the codebase and charter §7 where applicable.
 - [ ] Errors and edge cases handled; no happy-path-only code.
 - [ ] Tests assert real behavior (not stubs/tautologies) and would fail if the code broke.
 - [ ] No dead code, needless abstraction, or unexplained bloat.

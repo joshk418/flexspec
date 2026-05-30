@@ -35,15 +35,22 @@ cd flexspec
 go build -o flexspec .
 ```
 
-## Installing the Flexspec Skill
+## Installing Flexspec Skills
 
-The `/flexspec` agent skill lives in this repo at [`skills/flexspec/`](skills/flexspec/SKILL.md). Install it into your coding agent with [`npx skills`](https://github.com/vercel-labs/skills):
+Agent skills live under [`skills/`](skills/):
+
+| Skill | Path | Command |
+| --- | --- | --- |
+| Spec lifecycle | [`skills/flexspec/`](skills/flexspec/SKILL.md) | `/flexspec` |
+| Application charter | [`skills/flexspec-charter/`](skills/flexspec-charter/SKILL.md) | `/flexspec-charter` |
+
+Install both into your coding agent with [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add joshk418/flexspec
 ```
 
-This auto-detects your installed agents (Cursor, Claude Code, Codex, and 50+ others) and installs the skill. Useful variants:
+This auto-detects your installed agents (Cursor, Claude Code, Codex, and 50+ others) and installs all skills in the repo. Useful variants:
 
 ```bash
 # Install for all projects instead of just the current one
@@ -56,7 +63,13 @@ npx skills add joshk418/flexspec --agent cursor
 npx skills add joshk418/flexspec --list
 ```
 
-Once installed, reload your agent and invoke it with `/flexspec`. Run `flexspec init` in your project first so `.flexspec/templates/` and `.flexspec/config.yaml` exist for the skill to read.
+### Recommended workflow
+
+1. Run `flexspec init` in your project — creates `.flexspec/config.yaml`, `.flexspec/charter.md`, and `.flexspec/templates/`.
+2. Run `/flexspec-charter` — interview to fill the application charter (vision, capabilities, constraints).
+3. Run `/flexspec` per feature — specs use the charter as product context; when a spec implies charter changes, the agent prompts you to update the charter (deltas only).
+
+Once installed, reload your agent before invoking `/flexspec` or `/flexspec-charter`.
 
 ## Usage
 

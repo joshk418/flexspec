@@ -18,14 +18,15 @@ import (
 var TemplatesFS embed.FS
 
 const (
-	flexspecDir  = ".flexspec"
-	configFile   = "config.yaml"
-	charterFile  = "charter.md"
-	templatesDir = "templates"
-	embedRootDir = "templates"
-	defaultSpecs = "specs"
-	dirPerm      = 0o755
-	filePerm     = 0o644
+	flexspecDir      = ".flexspec"
+	configFile       = "config.yaml"
+	charterFile      = "charter.md"
+	templatesDir     = "templates"
+	embedRootDir     = "templates"
+	embedCharterPath = "templates/charter.md"
+	defaultSpecs     = "specs"
+	dirPerm          = 0o755
+	filePerm         = 0o644
 )
 
 var (
@@ -70,7 +71,7 @@ This will create the following files and directories:
 			return fmt.Errorf("write %s: %w", configFile, err)
 		}
 
-		if err := writeFileIfAbsent(filepath.Join(base, charterFile), nil); err != nil {
+		if err := writeCharter(filepath.Join(base, charterFile)); err != nil {
 			return fmt.Errorf("write %s: %w", charterFile, err)
 		}
 
@@ -78,8 +79,12 @@ This will create the following files and directories:
 			return fmt.Errorf("scaffold templates: %w", err)
 		}
 
-		fmt.Fprintf(cmd.OutOrStdout(), "Initialized FlexSpec in %s\n", base)
-		fmt.Fprintf(cmd.OutOrStdout(), "  specs directory: %s\n  always_one_shot: %t\n", specsDir, alwaysOneShot)
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Initialized FlexSpec in %s\n", base); err != nil {
+			return err
+		}
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "  specs directory: %s\n  always_one_shot: %t\n", specsDir, alwaysOneShot); err != nil {
+			return err
+		}
 		return nil
 	},
 }
@@ -99,6 +104,15 @@ always_one_shot: %t
 	return os.WriteFile(path, []byte(content), filePerm)
 }
 
+// writeCharter copies the embedded charter template into .flexspec/charter.md.
+func writeCharter(path string) error {
+	data, err := TemplatesFS.ReadFile(embedCharterPath)
+	if err != nil {
+		return fmt.Errorf("read embedded charter: %w", err)
+	}
+	return writeFileIfAbsent(path, data)
+}
+
 // copyTemplates walks the embedded template tree and writes it into dest,
 // preserving the directory structure.
 func copyTemplates(dest string) error {
@@ -110,6 +124,9 @@ func copyTemplates(dest string) error {
 		rel, err := filepath.Rel(embedRootDir, p)
 		if err != nil {
 			return err
+		}
+		if rel == charterFile {
+			return nil
 		}
 		target := filepath.Join(dest, rel)
 

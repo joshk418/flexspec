@@ -1,11 +1,13 @@
 ---
-name: ''
-status: [initial,refined,planned,in_progress,in_review,complete]
-created: '{datetime}'
-implementation_start: 'datetime' 
-implementation_finished: 'datetime'
-priority: [low,medium,high,critical]
+name: ""
+description: ""
+status: [initial, refined, planned, in_progress, in_review, complete]
+created: "{datetime}"
+implementation_start: "datetime"
+implementation_finished: "datetime"
+priority: [low, medium, high, critical]
 tags: []
+spec_type: simple
 ---
 
 # {name}
@@ -42,9 +44,9 @@ List every relevant file in the table below.
 
 {architecture_overview}
 
-| File / Component | Type | Role in this spec |
-| --- | --- | --- |
-| `path/to/file` | new / modified / reference | What it does / why it matters |
+| File / Component | Type                       | Role in this spec             |
+| ---------------- | -------------------------- | ----------------------------- |
+| `path/to/file`   | new / modified / reference | What it does / why it matters |
 
 ### 2.2 Code Map
 
@@ -109,10 +111,10 @@ requirement is met. If something cannot be tested, rework the implementation
 plan (Section 3) until it can. Map tests back to requirement/task IDs.
 -->
 
-| Test ID | Verifies | Description | Type |
-| --- | --- | --- | --- |
-| TC-001 | FR-001 | {what is asserted} | unit / integration / e2e |
-| TC-002 | NF-001 | {what is asserted} | unit / integration / e2e |
+| Test ID | Verifies | Description        | Type                     |
+| ------- | -------- | ------------------ | ------------------------ |
+| TC-001  | FR-001   | {what is asserted} | unit / integration / e2e |
+| TC-002  | NF-001   | {what is asserted} | unit / integration / e2e |
 
 ## 5. Other
 

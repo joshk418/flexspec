@@ -6,16 +6,18 @@ AI coding agents share the same definition of done.
 
 ## Templates
 
-| File | Mode | Use when |
+| File | Location after `flexspec init` | Use when |
 | --- | --- | --- |
-| `flexspec-simple.md` | Simple (single file) | Small, focused changes (bug fixes, copy/styling tweaks, adding one form). |
-| `expanded/flexspec-expanded.md` | Expanded (root spec) | Large features spanning multiple layers/subsystems (new endpoint sets + DB + UI, auth systems, adding a test suite). |
-| `expanded/flexspec-expanded-task.md` | Expanded (task) | One self-contained task file under an expanded spec's `tasks/` directory. |
+| `charter.md` | `.flexspec/charter.md` | Application-wide product context (vision, capabilities, boundaries). Filled via `/flexspec-charter`; not a feature spec. |
+| `flexspec-simple.md` | `.flexspec/templates/` | Small, focused changes (bug fixes, copy/styling tweaks, adding one form). |
+| `expanded/flexspec-expanded.md` | `.flexspec/templates/expanded/` | Large features spanning multiple layers/subsystems (new endpoint sets + DB + UI, auth systems, adding a test suite). |
+| `expanded/flexspec-expanded-task.md` | `.flexspec/templates/expanded/` | One self-contained task file under an expanded spec's `tasks/` directory. |
 
-> Authoring guidance (how to fill each section, how to choose between simple and
-> expanded, and the required question-asking workflow) lives in the **flexspec
-> skill** at `skills/flexspec/SKILL.md`, not here. This README is the static
-> reference for the template structure and metadata.
+> `charter.md` is embedded from this folder but written to `.flexspec/charter.md` only — it is **not** copied into `.flexspec/templates/`.
+
+> Authoring guidance lives in agent skills, not here: **charter** →
+> `skills/flexspec-charter/SKILL.md`; **specs** → `skills/flexspec/SKILL.md`.
+> This README is the static reference for template structure and metadata.
 
 ## Where Specs Live
 
@@ -46,6 +48,7 @@ Every spec starts with YAML frontmatter:
 | Field | Values | Meaning |
 | --- | --- | --- |
 | `name` | string | Human-readable spec title. |
+| `description` | string | Short summary shown in listings (e.g. `flexspec list`). |
 | `status` | `initial` · `refined` · `planned` · `in_progress` · `in_review` · `complete` | Current lifecycle stage. |
 | `created` | datetime | When the spec was created. |
 | `implementation_start` | datetime | When implementation began. |

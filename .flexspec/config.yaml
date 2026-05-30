@@ -1,0 +1,9 @@
+# FlexSpec project configuration.
+
+# Directory (relative to the project root) where specs are created by
+# `flexspec new`. The directory is created on demand if it does not exist.
+specs_dir: specs
+
+# When true, `/flexspec` runs all lifecycle phases back-to-back without
+# stopping between them, as if --one-shot were always passed.
+always_one_shot: false

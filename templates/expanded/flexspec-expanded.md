@@ -1,5 +1,6 @@
 ---
 name: ''
+description: ''
 status: [initial,refined,planned,in_progress,in_review,complete]
 created: '{datetime}'
 implementation_start: 'datetime' 
