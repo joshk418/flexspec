@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -26,9 +27,8 @@ var listCmd = &cobra.Command{
 	Long: `List all specs in the configured specs directory.
 
 Reads specs_dir from .flexspec/config.yaml, then for each spec folder
-(NNN-slug/README.md) prints name, description, status, and spec_type from
-YAML frontmatter. For expanded specs, also lists tasks under tasks/ with
-id, name, and status.`,
+(NNN-slug/README.md) prints the directory name, status, and task count
+from YAML frontmatter. Use --json for full spec and task details.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		root, err := os.Getwd()
 		if err != nil {
@@ -61,35 +61,18 @@ id, name, and status.`,
 		}
 
 		w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-		if _, err := fmt.Fprintln(w, "ID\tNAME\tDESCRIPTION\tSTATUS\tTYPE"); err != nil {
+		if _, err := fmt.Fprintln(w, "IDENTIFIER\tSTATUS\tTASKS"); err != nil {
 			return err
 		}
 
 		for _, e := range entries {
-			_, err := fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
-				e.ID,
-				displayOrDash(e.Meta.Name),
-				displayOrDash(e.Meta.Description),
+			_, err := fmt.Fprintf(w, "%s\t%s\t%s\n",
+				e.Dir,
 				displayOrDash(e.Meta.Status),
-				displayOrDash(e.Meta.SpecType),
+				strconv.Itoa(len(e.Tasks)),
 			)
 			if err != nil {
 				return err
-			}
-
-			for _, t := range e.Tasks {
-				id := displayOrDash(t.Meta.ID)
-				if id == "-" && t.File != "" {
-					id = strings.TrimSuffix(t.File, ".md")
-				}
-				_, err := fmt.Fprintf(w, " \t%s\t%s\t%s\t\n",
-					id,
-					displayOrDash(t.Meta.Name),
-					displayOrDash(t.Meta.Status),
-				)
-				if err != nil {
-					return err
-				}
 			}
 		}
 		return w.Flush()

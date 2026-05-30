@@ -88,7 +88,7 @@ From your project root (after `flexspec init`):
 | --------------------------------------------------- | ------------------------------------------------------------------- |
 | `flexspec init`                                     | Create `.flexspec/`, config, charter, and templates                 |
 | `flexspec new <name> --template <simple\|expanded>` | Scaffold a new spec under the configured specs directory            |
-| `flexspec list`                                     | List specs and expanded-spec tasks from frontmatter                 |
+| `flexspec list`                                     | Compact table of spec directory identifiers, statuses, and task counts |
 | `flexspec list --json`                              | Same data as JSON (scripts, CI)                                     |
 | `flexspec validate`                                 | Check config, charter, templates, and specs for structural problems |
 | `flexspec ui`                                       | Start local management UI (default http://127.0.0.1:3000)           |
