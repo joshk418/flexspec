@@ -1,5 +1,7 @@
 # FlexSpec
 
+[![CI](https://github.com/joshk418/flexspec/actions/workflows/ci.yml/badge.svg)](https://github.com/joshk418/flexspec/actions/workflows/ci.yml)
+
 FlexSpec is a spec-driven development CLI for generating and tracking feature specifications. Use markdown files and templates, or connect adapters for issue trackers like Jira, Shortcut, and GitHub Issues.
 
 ## Why FlexSpec
@@ -40,9 +42,9 @@ go build -o flexspec .
 
 Agent skills live under [`skills/`](skills/):
 
-| Skill | Path | Command |
-| --- | --- | --- |
-| Spec lifecycle | [`skills/flexspec/`](skills/flexspec/SKILL.md) | `/flexspec` |
+| Skill               | Path                                                           | Command             |
+| ------------------- | -------------------------------------------------------------- | ------------------- |
+| Spec lifecycle      | [`skills/flexspec/`](skills/flexspec/SKILL.md)                 | `/flexspec`         |
 | Application charter | [`skills/flexspec-charter/`](skills/flexspec-charter/SKILL.md) | `/flexspec-charter` |
 
 Install both into your coding agent with [`npx skills`](https://github.com/vercel-labs/skills):
@@ -77,12 +79,12 @@ Once installed, reload your agent before invoking `/flexspec` or `/flexspec-char
 
 From your project root (after `flexspec init`):
 
-| Command | Purpose |
-| --- | --- |
-| `flexspec init` | Create `.flexspec/`, config, charter, and templates |
-| `flexspec new <name> --template <simple\|expanded>` | Scaffold a new spec under the configured specs directory |
-| `flexspec list` | List specs and expanded-spec tasks from frontmatter |
-| `flexspec validate` | Check config, charter, templates, and specs for structural problems |
+| Command                                             | Purpose                                                             |
+| --------------------------------------------------- | ------------------------------------------------------------------- |
+| `flexspec init`                                     | Create `.flexspec/`, config, charter, and templates                 |
+| `flexspec new <name> --template <simple\|expanded>` | Scaffold a new spec under the configured specs directory            |
+| `flexspec list`                                     | List specs and expanded-spec tasks from frontmatter                 |
+| `flexspec validate`                                 | Check config, charter, templates, and specs for structural problems |
 
 ```bash
 flexspec --help
