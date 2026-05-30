@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/joshk418/flexspec/compare/v0.1.2...v0.2.0) (2026-05-30)
+
+
+### Features
+
+* release 0.2.0 ([#9](https://github.com/joshk418/flexspec/issues/9)) ([b09d607](https://github.com/joshk418/flexspec/commit/b09d607d9eac4ccc03b9506389c7258f9efbe638))
+
 ## [0.1.2](https://github.com/joshk418/flexspec/compare/v0.1.1...v0.1.2) (2026-05-30)
 
 
