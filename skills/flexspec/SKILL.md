@@ -136,7 +136,7 @@ Section 1 Summary:
 Section 2 Design:
 - architecture plan with concrete files/components
 - markdown file table (`File / Type / Role`) covering all touched/referenced files
-- valid `mermaid` code map
+- valid `mermaid` **executable flow** code map (§2.2) — see Code Map Quality Bar
 - requirements:
   - functional: `FR-XXX`
   - non-functional: `NF-XXX`
@@ -147,10 +147,41 @@ Expanded-only Section 2:
 - External Interfaces (APIs/routes/events/CLI/integrations)
 
 Section 3 Implementation Plan:
-- implementation dependency/order `mermaid` map
+- implementation dependency/order `mermaid` map (§3.1) with T-XXX linked to files/symbols
 - tasks:
   - simple: in-file `T-XXX` list with satisfies mapping
   - expanded: index table + separate task files in `tasks/`
+
+## Code Map Quality Bar (Phase 1)
+
+Code maps must show **how code runs**, not restate §2.1 as boxes. Before setting `planned`, both §2.2 and §3.1 must pass this bar.
+
+### §2.2 Design Code Map (runtime flow)
+
+- **Start-to-finish**: trigger (HTTP route, CLI, event, UI action) through every layer to outcome.
+- **Node labels**: `path/to/file :: symbol` — handler, `Class.method`, route, or command. No bare `Component` / `Service` / `Handler`.
+- **Edges**: labeled with action (`calls`, `reads`, `writes`, `returns`, `handles error`).
+- **Boundaries**: at least one `subgraph` (entry, app, data, external).
+- **Requirements**: each `FR-XXX` appears on a node or edge where it is satisfied at runtime; `NF-XXX` on relevant paths (e.g. validation, perf).
+- **Expanded**: multiple diagrams OK (subsystem, error path) — each still uses file/symbol nodes.
+
+### §3.1 Implementation Code Map (build order)
+
+- **Tasks + code**: every `T-XXX` node includes primary file(s)/symbol(s) touched, not task ID alone.
+- **Order**: matches `depends_on` / logical build sequence from §3.2.
+- **Coverage**: every file in §2.1 table appears on at least one task node; symbols align with §2.2 where applicable.
+- **Parallel work**: show branches when tasks are independent; merge before integration tasks.
+
+### Anti-patterns (reject and rewrite)
+
+- Generic nodes with no path or symbol.
+- Diagram that only mirrors the file table without call/order flow.
+- Task-only graph (`T-001 → T-002`) with no file/function references.
+- Orphan files in §2.1 not referenced in §3.1.
+
+### When symbols are unknown
+
+Use nearest concrete anchor (`routes/foo.ts`, `cmd/bar.go`, `POST /path`) and record uncertainty in §5 Other. Do not block `planned` on perfect symbol names if flow and files are otherwise clear.
 
 Section 4 Testing Criteria:
 - `TC-XXX` test criteria map to requirements (and task where relevant)
@@ -200,7 +231,7 @@ Task constraints:
 - [ ] Scaffold done via CLI (`flexspec init`/`flexspec new` as needed).
 - [ ] Correct template chosen.
 - [ ] All placeholders/comments removed.
-- [ ] Required sections complete, with valid mermaid blocks.
+- [ ] Required sections complete, with valid mermaid blocks passing Code Map Quality Bar.
 - [ ] FR/NF specific and testable.
 - [ ] Tasks mapped to requirements.
 - [ ] Every FR mapped to >=1 TC.

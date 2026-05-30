@@ -65,17 +65,44 @@ Reference concrete files, packages, services, and components an implementer
 ### 2.2 Code Map
 
 <!--
-Mermaid diagram(s) showing the components of the service and how they relate.
-Show data flow, call relationships, and boundaries. For larger features, use
-multiple diagrams (e.g. one per subsystem). Replace the example below.
+EXECUTABLE FLOW MAP (not an architecture bubble chart).
+
+Show how this feature runs start-to-finish across subsystems. For large
+features, use multiple diagrams (e.g. happy path + error path, or one per
+subsystem) — each must still be traceable with file/symbol nodes.
+
+Required:
+- Node label format: `path/to/file :: symbol` (or route/CLI/event when needed).
+- Ordered flow per diagram: trigger → layers → outcome.
+- Labeled edges describing calls, reads, writes, returns, errors.
+- `subgraph` per boundary (API, domain, persistence, queue, external).
+- Tie FR-XXX / NF-XXX to nodes or edges where they apply at runtime.
+
+Avoid: generic nodes without file/symbol. Note uncertain symbols in §5 Other.
+
+Replace the example below (add more diagrams if needed).
 -->
 
 ```mermaid
 flowchart TD
-    A[Entry point] --> B[Service / handler]
-    B --> C[Domain logic]
-    C --> D[(Database)]
-    B --> E[External API]
+    subgraph entry [Entry]
+        cli["flexspec validate :: cmd/validate.go"]
+    end
+    subgraph app [Application]
+        runCmd["validateCmd.RunE :: cmd/validate.go"]
+        runner["validate.RunAll :: internal/validate/validate.go"]
+        checkSpecs["CheckSpecs :: internal/validate/specs.go"]
+    end
+    subgraph data [Filesystem]
+        specsDir["specs/NNN-slug/README.md"]
+    end
+
+    cli -->|invokes FR-001| runCmd
+    runCmd -->|calls| runner
+    runner -->|calls FR-001| checkSpecs
+    checkSpecs -->|reads| specsDir
+    checkSpecs -->|findings NF-001| runCmd
+    runCmd -->|exit code| cli
 ```
 
 ### 2.3 Data Model
@@ -140,13 +167,32 @@ that an LLM can complete one without losing context.
 
 ### 3.1 Implementation Code Map
 
-<!-- Mermaid diagram showing how tasks build on each other (dependencies / order). -->
+<!--
+BUILD / EXECUTION ORDER MAP.
+
+Task dependency graph with concrete file/symbol targets per task. Parallel
+branches are OK when tasks do not depend on each other; merge before integration
+tasks.
+
+Required:
+- Each node: `T-XXX` + primary file(s)/symbol(s) from §2.2.
+- Edges = `depends_on` / build order from §3.2 task table.
+- Cross-cutting tasks should show all touched layers (e.g. wiring + tests).
+
+Replace the example below.
+-->
 
 ```mermaid
-flowchart LR
-    T1[T-001 ...] --> T2[T-002 ...]
-    T1 --> T3[T-003 ...]
-    T2 --> T4[T-004 ...]
+flowchart TD
+    T001["T-001 :: internal/validate/specs.go :: CheckSpecs"]
+    T002["T-002 :: cmd/validate.go :: validateCmd"]
+    T003["T-003 :: internal/validate/specs_test.go"]
+    T004["T-004 :: docs + skills/flexspec/SKILL.md"]
+
+    T001 --> T002
+    T001 --> T003
+    T002 --> T004
+    T003 --> T004
 ```
 
 ### 3.2 Task List

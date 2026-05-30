@@ -51,14 +51,50 @@ List every relevant file in the table below.
 ### 2.2 Code Map
 
 <!--
-Mermaid diagram(s) showing the components of the service and how they relate.
-Show data flow, call relationships, and boundaries. Replace the example below.
+EXECUTABLE FLOW MAP (not an architecture bubble chart).
+
+Show how this feature runs start-to-finish when implemented. A reader should
+trace the trigger through every file/function that executes, including errors
+and external I/O, without re-reading §2.1 prose.
+
+Required:
+- Node label format: `path/to/file :: symbol` (handler, class.method, route,
+  CLI command, or event name when no function exists yet).
+- Ordered flow: trigger → validation/auth → domain logic → persistence/external
+  → response or side effect.
+- Labeled edges: what happens (`calls`, `reads`, `writes`, `returns`,
+  `publishes`, `handles error`).
+- At least one `subgraph` for boundaries (entry, app, data, external).
+- Map each FR-XXX on a node or edge label where it is satisfied at runtime.
+
+Avoid: generic nodes (`Component`, `Service`, `Handler`) with no file/symbol.
+If a symbol is uncertain, use the nearest concrete name and note it in §5 Other.
+
+Replace the example below with repo-accurate paths and symbols.
 -->
 
 ```mermaid
 flowchart TD
-    A[Entry point] --> B[Component]
-    B --> C[(Store / external system)]
+    subgraph entry [Entry]
+        trigger["POST /api/orders :: routes/order.ts"]
+    end
+    subgraph app [Application]
+        handler["orderHandler :: handlers/order.ts"]
+        service["OrderService.create :: services/order.ts"]
+    end
+    subgraph data [Persistence]
+        repo["OrderRepository.insert :: repos/order.ts"]
+        db[(orders)]
+    end
+
+    trigger -->|receives body| handler
+    handler -->|calls FR-001| service
+    service -->|validates| service
+    service -->|writes FR-001| repo
+    repo -->|INSERT| db
+    repo -->|row| service
+    service -->|201 + id| handler
+    handler -->|JSON response| trigger
 ```
 
 ### 2.3 Requirements
@@ -89,12 +125,30 @@ so the FlexSpec system can reference, track, and order it.
 
 ### 3.1 Implementation Code Map
 
-<!-- Mermaid diagram showing how the implementation pieces fit together / build order. -->
+<!--
+BUILD / EXECUTION ORDER MAP.
+
+Show task dependency order AND which files/functions each task touches. Task IDs
+alone are not enough — link T-XXX to concrete symbols from §2.2.
+
+Required:
+- Tasks in dependency order (left-to-right or top-to-bottom).
+- Each task node cites T-XXX plus primary file(s)/symbol(s) changed.
+- Edges show build order; optional dotted edges for shared dependencies.
+- Every file in §2.1 table should appear on at least one task node.
+
+Replace the example below.
+-->
 
 ```mermaid
 flowchart LR
-    T1[T-001 ...] --> T2[T-002 ...]
-    T2 --> T3[T-003 ...]
+    T001["T-001 :: migrations/001_orders.sql"]
+    T002["T-002 :: repos/order.ts :: OrderRepository"]
+    T003["T-003 :: services/order.ts :: OrderService.create"]
+    T004["T-004 :: handlers/order.ts :: orderHandler"]
+    T005["T-005 :: tests/order.test.ts"]
+
+    T001 --> T002 --> T003 --> T004 --> T005
 ```
 
 ### 3.2 Task List

@@ -89,8 +89,8 @@ design depth and moves tasks into separate files.
 | # | Section | Simple | Expanded (adds) |
 | --- | --- | --- | --- |
 | 1 | Summary | Overview, scope, outcome. | Same, for a larger feature. |
-| 2 | Design | Architecture + file map, mermaid code map, FR/NF requirements. | Adds Data Model (`erDiagram`) and External Interfaces. |
-| 3 | Implementation Plan | Code map + ID'd task list in-file. | Task list is an index table; each task is its own file in `tasks/`. |
+| 2 | Design | Architecture + file map, **executable-flow** mermaid code map (§2.2), FR/NF requirements. | Adds Data Model (`erDiagram`) and External Interfaces. |
+| 3 | Implementation Plan | **Build-order** code map (§3.1) + ID'd task list in-file. | Task list is an index table; each task is its own file in `tasks/`. |
 | 4 | Testing Criteria | Tests proving each requirement; everything must be testable. | Also maps each test to the implementing task. |
 | 5 | Other | Open questions, assumptions, risks, observations. | Same, plus rollout/migration notes. |
 
@@ -100,6 +100,23 @@ Each `tasks/T-XXX-<slug>.md` is self-contained so an agent can execute it withou
 drifting: frontmatter (`id`, `parent_spec`, `status`, `satisfies`, `depends_on`,
 `verified_by`), Objective, Context, Files In Scope, Implementation Steps,
 Acceptance Criteria, Testing, Out of Scope, Open Questions, References.
+
+## Code Map Conventions
+
+FlexSpec uses two mermaid diagrams per spec. They are **flow maps**, not architecture bubble charts.
+
+| Section | Purpose | Must show |
+| --- | --- | --- |
+| **§2.2 Code Map** | Runtime / feature execution | Trigger → layers → outcome with `path/to/file :: symbol` nodes, labeled edges, and `subgraph` boundaries |
+| **§3.1 Implementation Code Map** | Build and task order | `T-XXX` nodes linked to files/symbols touched, in dependency order |
+
+**Node label format:** `` `path/to/file :: handlerOrMethod` `` (or route/CLI/event when no function yet).
+
+**Edge labels:** describe the action — `calls`, `reads`, `writes`, `returns`, `handles error`.
+
+**Linkage:** each `FR-XXX` should appear on §2.2 or §3.1 (or both); every file in §2.1 should appear on §3.1.
+
+Authoring rules and anti-patterns: `skills/flexspec/SKILL.md` → **Code Map Quality Bar**.
 
 ## ID Conventions
 
