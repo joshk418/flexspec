@@ -18,7 +18,7 @@ var template string
 var rootCmd = &cobra.Command{
 	Use:   "flexspec",
 	Short: "Spec-driven development CLI for generating and tracking feature specs",
-	Long: `Flexspec is a spec-driven development CLI that helps teams generate,
+	Long: `FlexSpec is a spec-driven development CLI that helps teams generate,
 organize, and keep track of feature specifications.
 
 Write specs as simple markdown files from built-in templates, or connect

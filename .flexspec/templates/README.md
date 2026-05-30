@@ -1,6 +1,6 @@
-# Flexspec Templates
+# FlexSpec Templates
 
-This folder holds the markdown templates Flexspec uses to scaffold spec files. A
+This folder holds the markdown templates FlexSpec uses to scaffold spec files. A
 spec is a structured document agreed on **before** code is written, so humans and
 AI coding agents share the same definition of done.
 

@@ -3,12 +3,12 @@ name: flexspec-charter
 description: >
   Interview the user and create or update .flexspec/charter.md for application-wide
   context. Use when the user runs /flexspec-charter or asks to define product vision,
-  scope, stack, or conventions before writing Flexspec specs.
+  scope, stack, or conventions before writing FlexSpec specs.
 ---
 
-# Flexspec Application Charter (`/flexspec-charter`)
+# FlexSpec Application Charter (`/flexspec-charter`)
 
-The charter is the **durable product context** for every Flexspec spec. It captures
+The charter is the **durable product context** for every FlexSpec spec. It captures
 vision, capabilities, technical constraints, and boundaries at the application level —
 not individual features.
 

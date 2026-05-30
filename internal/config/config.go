@@ -17,6 +17,10 @@ const (
 type Config struct {
 	SpecsDir      string `yaml:"specs_dir"`
 	AlwaysOneShot bool   `yaml:"always_one_shot"`
+	// SpecTemplate optionally forces the template /flexspec uses ("simple" or
+	// "expanded"). It has no default: an empty value means /flexspec infers the
+	// template from the work's size.
+	SpecTemplate string `yaml:"spec_template"`
 }
 
 // Load reads .flexspec/config.yaml under root.

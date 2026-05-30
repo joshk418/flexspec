@@ -1,12 +1,12 @@
-# Flexspec
+# FlexSpec
 
-Flexspec is a spec-driven development CLI for generating and tracking feature specifications. Use markdown files and templates, or connect adapters for issue trackers like Jira, Shortcut, and GitHub Issues.
+FlexSpec is a spec-driven development CLI for generating and tracking feature specifications. Use markdown files and templates, or connect adapters for issue trackers like Jira, Shortcut, and GitHub Issues.
 
-## Why Flexspec
+## Why FlexSpec
 
-Spec-driven development helps teams and AI coding agents agree on what to build before writing code. Flexspec focuses on keeping specs clear, structured, and easy to maintain.
+Spec-driven development helps teams and AI coding agents agree on what to build before writing code. FlexSpec focuses on keeping specs clear, structured, and easy to maintain.
 
-Compared with tools such as [Spec Kit](https://github.com/github/spec-kit), Spec Kitty, and [OpenSpec](https://github.com/Fission-AI/OpenSpec), Flexspec gives you two modes:
+Compared with tools such as [Spec Kit](https://github.com/github/spec-kit), Spec Kitty, and [OpenSpec](https://github.com/Fission-AI/OpenSpec), FlexSpec gives you two modes:
 
 - **Simple specs** — Create easy-to-read markdown files from provided templates for small, focused features.
 - **Linked specs** — Build larger features as multi-file specifications with explicit links between related docs.
@@ -35,7 +35,7 @@ cd flexspec
 go build -o flexspec .
 ```
 
-## Installing Flexspec Skills
+## Installing FlexSpec Skills
 
 Agent skills live under [`skills/`](skills/):
 

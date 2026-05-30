@@ -1,142 +1,144 @@
 ---
-product_name: "{product_name}"
+product_name: "FlexSpec"
 version: "0.1"
-last_updated: "{last_updated}"
-status: draft
+last_updated: "2026-05-30"
+status: active
 ---
 
-# {product_name}
+# FlexSpec
 
-> **Charter status**: {status} · **Version**: {version} · **Last updated**: {last_updated}
-
-<!--
-APPLICATION CHARTER — product-wide context for all Flexspec specs. Keep under
-~1500–2500 tokens. Fill via /flexspec-charter. Remove guidance comments and
-{placeholders} when active. Do not embed individual feature specs here.
--->
+> **Charter status**: active · **Version**: 0.1 · **Last updated**: 2026-05-30
 
 ## 1. Product overview
 
-<!--
-Name, one-liner, problem, intended outcome. A reader should grasp what this
-application is before reading any feature spec.
--->
+**One-liner:** A spec-driven development CLI (Go) for generating and tracking feature specifications via markdown templates, with optional adapters for external issue trackers.
 
-**One-liner:** {one_liner}
+**Problem:** Most spec-driven development tools cause prompt and context fatigue by introducing too many files, which erodes token efficiency over time. FlexSpec keeps workflows simple — a single file per spec for simple tasks, and a more expanded multi-file structure for complex tasks, but only expanded enough to add the context that complexity demands. Users keep the "flexibility": they can override which spec structure is created and freely modify templates and configuration so the system fits how they work.
 
-**Problem:** {problem}
-
-**Intended outcome:** {intended_outcome}
+**Intended outcome:** Teams adopt a full spec-driven workflow that documents changes across an ever-evolving project. As features are added, the spec corpus and charter stay current, keeping humans and AI agents informed and aligned. FlexSpec skills ensure agents update only the charter, never external files outside the system.
 
 ## 2. Vision and goals
 
-<!--
-North star and measurable success criteria for the product as a whole.
--->
-
-**North star:** {north_star}
+**North star:** Keep humans and AI agents aligned on intent without context fatigue.
 
 **Success criteria:**
 
-{success_criteria}
+- **Adoption** — installs, `flexspec init` runs, and GitHub stars trend up.
+- **Reduced agent drift** — fewer off-spec edits per implementation.
+- **Retention** — projects keep adding specs after 30 days.
 
 ## 3. Users and stakeholders
 
-<!--
-Primary personas and jobs-to-be-done. Use a table when helpful.
--->
+FlexSpec serves both solo developers and teams, but the desired outcome is **adoption within teams**.
 
 | Persona | Role | Primary needs |
 | --- | --- | --- |
-| {persona_1} | {role_1} | {needs_1} |
+| Solo developer | Builds with AI coding agents | Quick spec creation, focused implementation |
+| Development team | Shared spec discipline | Consistent specs, living docs, agent alignment |
+| AI coding agent | Consumer of specs (Cursor, Codex, Claude, Pi, Zed, etc.) | Clear, structured context to stay on-track during implementation |
+| Engineering leads / Product managers | Oversight & process | Visibility into what is being built and why |
 
 **Jobs to be done:**
 
-{jobs_to_be_done}
+- Quick spec creation for a new feature.
+- Focused implementation that stays within the spec's intent.
+- Keep documentation and charter current as the project evolves.
 
 ## 4. Capabilities
 
-<!--
-High-level capability map (domains/features at product level). Not spec IDs.
-Update when new product areas emerge from shipped specs.
--->
+**Available today:**
 
-{capabilities}
+- Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
+- Charter management — product-wide context authored via `/flexspec-charter`.
+- CLI — `flexspec init` (scaffold `.flexspec/`) and `flexspec list`.
+- Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter).
+- Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
+
+**Planned:**
+
+- Adapters for external systems (Jira, Shortcut, GitHub Issues, and more).
+- A management UI to track and view specs.
 
 ## 5. Technical context
 
-<!--
-Stack, deployment, integrations, hard constraints agents must respect.
--->
+- **Language/runtime:** Go 1.26.2.
+- **CLI framework:** `spf13/cobra`.
+- **Config/data:** YAML (`gopkg.in/yaml.v3`); markdown-first spec and charter files.
+- **Templates:** bundled via `embed.FS` and scaffolded on `init`.
+- **Distribution:** `go install github.com/joshk418/flexspec@latest`; skills installed via `npx skills`.
 
-{technical_context}
+**Constraints agents must respect:**
+
+- Go ≥ 1.26 floor (CI uses the `go.mod` version).
+- Minimal dependencies — only Cobra + `yaml.v3`; avoid heavy new deps.
+- Skills write only inside `.flexspec/` and the configured spec directory; agents may modify code files during implementation but must not touch `README`, `AGENTS.md`, or related docs unless explicitly instructed.
+- `init` never clobbers user edits unless `--force` is passed.
+- Cross-platform — build paths with `filepath`.
+- CI gate: `go test -race`, `gofmt`, `go vet`, `golangci-lint`.
 
 ## 6. Architecture
 
-<!--
-Optional system-context view. Use mermaid when it clarifies boundaries.
--->
-
-{architecture_description}
+`main` embeds the template tree and wires the Cobra command set. Commands scaffold and list project state under `.flexspec/`. Agent skills then read the charter and templates to drive the spec lifecycle (author → implement → review). Future adapters sit behind a spec-source interface.
 
 ```mermaid
-{architecture_diagram}
+flowchart TD
+    main[main + embed.FS templates] --> cli[Cobra CLI]
+    cli -->|init| fs[.flexspec/: config, charter, templates]
+    cli -->|list| fs
+    skills[Agent skills: /flexspec, /flexspec-charter] -->|read| fs
+    skills -->|author / implement / review| specs[specs_dir/NNN-slug/]
+    adapters[(Adapters: Jira / Shortcut / GitHub Issues — planned)] -.-> skills
 ```
 
-**Boundaries:** {architecture_boundaries}
+**Boundaries:** the CLI scaffolds and lists; skills handle authoring, implementation, and review. Adapters (future) sit behind a spec-source interface.
 
 ## 7. Standards and conventions
 
-<!--
-Testing, security, naming, patterns — defaults for all specs and implementations.
--->
-
-{standards_and_conventions}
+- **Testing:** table-driven tests, one test file per source file, and a single table-driven test per tested function (e.g. `config_test.go`, `metadata_test.go`).
+- **CI must pass:** `go test -race`, `gofmt` clean, `go vet`, `golangci-lint`.
+- **Code conventions:** one Cobra command per file under `cmd/`; wrap errors with `%w`; document exported functions; no narrating comments.
 
 ## 8. Product boundaries
 
-<!--
-Global non-goals (distinct from per-spec out-of-scope). What this product will
-not do or defer intentionally.
--->
+FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor, Codex, Claude, Pi, Zed, etc.) on-track during implementation via the provided skills. It will **not**:
 
-{product_boundaries}
+- Be a project-management tool or issue tracker itself.
+- Be an AI agent or LLM runtime.
+- Modify `README`, `AGENTS.md`, or related documentation files unless explicitly instructed (it does modify code files during implementation).
+- Run as a hosted service.
 
 ## 9. Domain glossary
 
-<!--
-Terms and definitions used across the product.
--->
-
 | Term | Definition |
 | --- | --- |
-| {term_1} | {definition_1} |
+| Charter | Product-wide context (this file) used by every spec. |
+| Spec | A feature specification, simple or expanded, under the configured specs directory. |
+| Simple spec | A single-file markdown spec for small, focused features. |
+| Expanded spec | A multi-file specification for complex features, with linked task files. |
+| Task file | A per-task file within an expanded spec. |
+| Adapter | Pluggable connector to an external issue tracker (planned). |
+| Phase | A stage in the `/flexspec` lifecycle: author, implement, or review. |
+| One-shot | Running all `/flexspec` phases back-to-back without stopping (`always_one_shot` / `--one-shot`). |
 
 ## 10. Assumptions and open questions
 
-<!--
-Blocking items must be resolved before charter is active. Non-blocking notes OK.
--->
-
 **Assumptions:**
 
-{assumptions}
+- Users run AI coding agents that support skills.
+- Specs and the charter live in git.
+- One charter per repository.
 
 **Open questions (blocking):**
 
-{open_questions_blocking}
+- None.
 
 **Open questions (non-blocking):**
 
-{open_questions_nonblocking}
+- Which issue-tracker adapter ships first.
+- Design and scope of the planned management UI for tracking and viewing specs.
 
 ## 11. Revision history
 
-<!--
-Append a row after each /flexspec-charter session or confirmed charter update
-from a spec. Include originating spec slug when applicable.
--->
-
 | Date | Summary | Source |
 | --- | --- | --- |
-| {revision_date} | {revision_summary} | {revision_source} |
+| 2026-05-30 | Initial charter authored — product overview, vision, users, capabilities, technical context, architecture, standards, boundaries, glossary. | /flexspec-charter |

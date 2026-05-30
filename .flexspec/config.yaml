@@ -7,3 +7,8 @@ specs_dir: specs
 # When true, `/flexspec` runs all lifecycle phases back-to-back without
 # stopping between them, as if --one-shot were always passed.
 always_one_shot: false
+
+# Force which template `/flexspec` uses: `simple` or `expanded`.
+# Intentionally has no default — leave it blank so the default workflow infers
+# whether to create a simple or expanded spec. The `--template` flag overrides it.
+spec_template:

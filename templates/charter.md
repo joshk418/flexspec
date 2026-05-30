@@ -10,7 +10,7 @@ status: draft
 > **Charter status**: {status} · **Version**: {version} · **Last updated**: {last_updated}
 
 <!--
-APPLICATION CHARTER — product-wide context for all Flexspec specs. Keep under
+APPLICATION CHARTER — product-wide context for all FlexSpec specs. Keep under
 ~1500–2500 tokens. Fill via /flexspec-charter. Remove guidance comments and
 {placeholders} when active. Do not embed individual feature specs here.
 -->

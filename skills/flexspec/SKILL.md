@@ -1,9 +1,9 @@
 ---
 name: flexspec
 description: >
-  Drive the full Flexspec spec-driven development lifecycle, invoked with /flexspec.
+  Drive the full FlexSpec spec-driven development lifecycle, invoked with /flexspec.
   Use when the user runs /flexspec or asks to create, draft, refine, implement, or
-  review a Flexspec spec. The skill is a status-driven, three-phase state machine —
+  review a FlexSpec spec. The skill is a status-driven, three-phase state machine —
   author the spec, implement it, then review the diffs for spec coverage and AI
   "slop" — advancing one phase per prompt (unless --one-shot). Covers choosing
   between the simple and expanded templates, where specs are written on disk, each
@@ -12,7 +12,7 @@ description: >
   user before implementation, and a slop-detection review checklist.
 ---
 
-# Flexspec Lifecycle (`/flexspec`)
+# FlexSpec Lifecycle (`/flexspec`)
 
 A spec is the agreed definition of a feature, written **before** code. This skill
 drives the whole lifecycle — authoring the spec, implementing it, and reviewing the
@@ -64,6 +64,21 @@ one-shot mode regardless of config.
 
 If no flag is given **and** `always_one_shot` is `false` (or config is missing),
 default to the one-phase-per-prompt behavior above.
+
+### `spec_template` Config and `--template` Flag
+
+By default `/flexspec` **infers** which template to use (simple vs expanded) from
+the work's size — see "Choosing a Template". Two overrides exist, highest precedence
+first:
+
+1. **`--template <simple|expanded>` flag** — an explicit `/flexspec --template expanded`
+   forces that template for this run, overriding the config and inference.
+2. **`spec_template` in `.flexspec/config.yaml`** — if set to `simple` or `expanded`,
+   use it. It has **no default**: when the key is blank or absent, fall back to
+   inference so the normal workflow still chooses simple or expanded on its own.
+
+Only `simple` and `expanded` are valid; treat any other value as unset and infer (or
+ask the user if borderline).
 
 ---
 
@@ -147,8 +162,9 @@ Expanded spec layout:
 
 ## Choosing a Template
 
-Pick the template that matches the size and surface area of the work. **The user can
-always override**; if they specify simple or expanded, honor it. Otherwise infer:
+Pick the template that matches the size and surface area of the work. **An explicit
+`--template` flag or `spec_template` config wins** (see the override rules above); if
+the user forces simple or expanded by either means, honor it. Otherwise infer:
 
 **Use the simple template** for small, focused changes — typically one file/area, no
 new architecture:

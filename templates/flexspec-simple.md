@@ -84,7 +84,7 @@ Use stable IDs so other sections and tasks can reference them.
 <!--
 Built off the technical plan. Enumerate everything that will be created or
 modified to complete the spec. Each task gets a stable internal ID (T-001...)
-so the flexspec system can reference, track, and order it.
+so the FlexSpec system can reference, track, and order it.
 -->
 
 ### 3.1 Implementation Code Map
