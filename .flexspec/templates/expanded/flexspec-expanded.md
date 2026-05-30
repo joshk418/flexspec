@@ -65,18 +65,56 @@ Reference concrete files, packages, services, and components an implementer
 ### 2.2 Code Map
 
 <!--
-Mermaid diagram(s) showing the components of the service and how they relate.
-Show data flow, call relationships, and boundaries. For larger features, use
-multiple diagrams (e.g. one per subsystem). Replace the example below.
+CODE EXECUTION MAP — runtime path(s) through this feature across subsystems.
+
+Reviewers (human or LLM) must be able to follow execution step-by-step: call order,
+symbols invoked, data in/out, and branch points. Not an architecture overview.
+
+Required per path (happy + material error/async paths):
+1. Mermaid with ordered execution (`sequenceDiagram` + `autonumber` preferred;
+   extra `flowchart` OK for one subsystem). Use `alt`/`opt`/`par` for branches.
+2. Execution trace table — one row per numbered step (split tables if >15 steps).
+
+Diagram: `path/to/file :: symbol`; label edges with verb + payload; FR/NF on steps.
+Large features: multiple diagram+table pairs (e.g. CLI path, worker path).
+
+Avoid: generic nodes; diagram without matching trace rows.
+
+Replace below; add diagrams for additional execution paths as needed.
 -->
 
 ```mermaid
-flowchart TD
-    A[Entry point] --> B[Service / handler]
-    B --> C[Domain logic]
-    C --> D[(Database)]
-    B --> E[External API]
+sequenceDiagram
+    autonumber
+    participant User as shell
+    participant CLI as cmd/validate.go::validateCmd
+    participant Run as internal/validate/validate.go::RunAll
+    participant Specs as internal/validate/specs.go::CheckSpecs
+    participant FS as specs/NNN-slug/README.md
+
+    User->>CLI: flexspec validate FR-001
+    CLI->>Run: RunAll(root, opts)
+    Run->>Specs: CheckSpecs(root, cfg)
+    Specs->>FS: read README + parse frontmatter
+    FS-->>Specs: file bytes
+    alt parse error
+        Specs-->>Run: Finding severity=error
+        Run-->>CLI: findings[], exit 1 NF-001
+    else ok
+        Specs-->>Run: findings[] (maybe warnings)
+        Run-->>CLI: aggregated findings
+        CLI-->>User: stdout + exit 0|1
+    end
 ```
+
+| Step | Location | Executes | Input / condition | Output / side effect | FR/NF |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `cmd/validate.go :: validateCmd` | Cobra RunE | argv, cwd | invokes RunAll | FR-001 |
+| 2 | `internal/validate/validate.go :: RunAll` | orchestrate checks | root, opts | calls CheckSpecs | — |
+| 3 | `internal/validate/specs.go :: CheckSpecs` | spec validation | specs dir config | reads each README | FR-001 |
+| 4 | `specs/NNN-slug/README.md` | filesystem read | path | bytes / missing file | — |
+| 5 | `CheckSpecs` | emit findings | parse result | `[]Finding` | NF-001 |
+| 6 | `validateCmd` | exit process | findings | code 0 or 1 | NF-001 |
 
 ### 2.3 Data Model
 
@@ -140,14 +178,46 @@ that an LLM can complete one without losing context.
 
 ### 3.1 Implementation Code Map
 
-<!-- Mermaid diagram showing how tasks build on each other (dependencies / order). -->
+<!--
+IMPLEMENTATION + EXECUTION ENABLEMENT MAP.
+
+Link task build order to §2.2 execution steps. Parallel task branches OK; show
+which runtime steps each task implements and what becomes runnable when it merges.
+
+Required:
+- Mermaid: `T-XXX :: file :: symbol`; solid = depends_on; dotted = enables §2.2 step(s).
+- Task execution table (required) — mirrors §3.2 dependencies.
+
+Replace examples below.
+-->
 
 ```mermaid
-flowchart LR
-    T1[T-001 ...] --> T2[T-002 ...]
-    T1 --> T3[T-003 ...]
-    T2 --> T4[T-004 ...]
+flowchart TD
+    subgraph exec [§2.2 steps enabled]
+        e3["steps 3-5: CheckSpecs → FS → findings"]
+        e6["step 6: validateCmd exit"]
+    end
+    subgraph build [Task build order]
+        T001["T-001 :: specs.go :: CheckSpecs"]
+        T002["T-002 :: validate.go :: validateCmd"]
+        T003["T-003 :: specs_test.go"]
+        T004["T-004 :: SKILL.md docs"]
+    end
+
+    T001 --> T002
+    T001 --> T003
+    T002 --> T004
+    T003 --> T004
+    T001 -.->|enables| e3
+    T002 -.->|enables| e6
 ```
+
+| Task | Build after | Implements §2.2 steps | Symbols added/changed | Execution unlocked |
+| --- | --- | --- | --- | --- |
+| T-001 | — | 3–5 | `CheckSpecs`, finding types | spec scan path runs |
+| T-002 | T-001 | 1–2, 6 | `validateCmd.RunE` wiring | CLI invokes full pipeline |
+| T-003 | T-001 | 3–5 (assert) | `specs_test.go` | TC proves trace steps |
+| T-004 | T-002, T-003 | — (docs) | `skills/flexspec/SKILL.md` | authoring rules updated |
 
 ### 3.2 Task List
 
