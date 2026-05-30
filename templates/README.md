@@ -19,6 +19,15 @@ AI coding agents share the same definition of done.
 > `skills/flexspec-charter/SKILL.md`; **specs** → `skills/flexspec/SKILL.md`.
 > This README is the static reference for template structure and metadata.
 
+## CLI commands
+
+| Command | Purpose |
+| --- | --- |
+| `flexspec init` | Scaffold `.flexspec/`, config, charter, and templates |
+| `flexspec new <name> --template <simple\|expanded>` | Create `NNN-slug/README.md` (and `tasks/` for expanded) |
+| `flexspec list` | List specs and task frontmatter in the specs directory |
+| `flexspec validate` | Structural validation of config, charter, templates, and specs |
+
 ## Where Specs Live
 
 Specs are written to a user-configured specs directory. Each spec gets its own

@@ -16,6 +16,7 @@ That range lets you start lightweight and scale up when a feature needs more det
 ## Features
 
 - Generate and manage spec files from the command line
+- Validate project structure, templates, and spec frontmatter before other commands fail
 - Markdown-first workflow with reusable templates
 - Adapter support for external systems (Jira, Shortcut, GitHub Issues, and more)
 - Single-file specs for quick features
@@ -68,16 +69,30 @@ npx skills add joshk418/flexspec --list
 1. Run `flexspec init` in your project — creates `.flexspec/config.yaml`, `.flexspec/charter.md`, and `.flexspec/templates/`.
 2. Run `/flexspec-charter` — interview to fill the application charter (vision, capabilities, constraints).
 3. Run `/flexspec` per feature — specs use the charter as product context; when a spec implies charter changes, the agent prompts you to update the charter (deltas only).
+4. Run `flexspec validate` after setup or when specs change — catches broken config and unreadable frontmatter (useful in CI; exit code 1 on errors).
 
 Once installed, reload your agent before invoking `/flexspec` or `/flexspec-charter`.
 
 ## Usage
 
+From your project root (after `flexspec init`):
+
+| Command | Purpose |
+| --- | --- |
+| `flexspec init` | Create `.flexspec/`, config, charter, and templates |
+| `flexspec new <name> --template <simple\|expanded>` | Scaffold a new spec under the configured specs directory |
+| `flexspec list` | List specs and expanded-spec tasks from frontmatter |
+| `flexspec validate` | Check config, charter, templates, and specs for structural problems |
+
 ```bash
 flexspec --help
+flexspec init
+flexspec new my-feature --template simple
+flexspec list
+flexspec validate
 ```
 
-More commands and workflows will be documented here as they are added.
+`flexspec validate` prints findings as `severity`, `path`, `rule`, `message` (tab-separated), then a summary. It exits **0** when there are no errors and **1** when any error-severity finding exists (warnings alone do not fail). If config is missing, it reports that and skips deeper checks.
 
 ## License
 

@@ -50,7 +50,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
 - Charter management — product-wide context authored via `/flexspec-charter`.
-- CLI — `flexspec init` (scaffold `.flexspec/`) and `flexspec list`.
+- CLI — `flexspec init` (scaffold `.flexspec/`), `flexspec new` (create a spec from a template), `flexspec list` (list specs and tasks), `flexspec validate` (check config, templates, and spec files for structural problems).
 - Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter).
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
@@ -78,19 +78,22 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 ## 6. Architecture
 
-`main` embeds the template tree and wires the Cobra command set. Commands scaffold and list project state under `.flexspec/`. Agent skills then read the charter and templates to drive the spec lifecycle (author → implement → review). Future adapters sit behind a spec-source interface.
+`main` embeds the template tree and wires the Cobra command set. Commands scaffold, list, and validate project state under `.flexspec/` and the configured specs directory. Agent skills then read the charter and templates to drive the spec lifecycle (author → implement → review). Future adapters sit behind a spec-source interface.
 
 ```mermaid
 flowchart TD
     main[main + embed.FS templates] --> cli[Cobra CLI]
     cli -->|init| fs[.flexspec/: config, charter, templates]
-    cli -->|list| fs
+    cli -->|new| specs[specs_dir/NNN-slug/]
+    cli -->|list| specs
+    cli -->|validate| fs
+    cli -->|validate| specs
     skills[Agent skills: /flexspec, /flexspec-charter] -->|read| fs
-    skills -->|author / implement / review| specs[specs_dir/NNN-slug/]
+    skills -->|author / implement / review| specs
     adapters[(Adapters: Jira / Shortcut / GitHub Issues — planned)] -.-> skills
 ```
 
-**Boundaries:** the CLI scaffolds and lists; skills handle authoring, implementation, and review. Adapters (future) sit behind a spec-source interface.
+**Boundaries:** the CLI scaffolds, lists, and validates; skills handle authoring, implementation, and review. Adapters (future) sit behind a spec-source interface.
 
 ## 7. Standards and conventions
 
@@ -119,6 +122,7 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Adapter | Pluggable connector to an external issue tracker (planned). |
 | Phase | A stage in the `/flexspec` lifecycle: author, implement, or review. |
 | One-shot | Running all `/flexspec` phases back-to-back without stopping (`always_one_shot` / `--one-shot`). |
+| Validate | `flexspec validate` — read-only structural checks on `.flexspec/`, templates, and specs (exit 1 on errors). |
 
 ## 10. Assumptions and open questions
 
@@ -142,3 +146,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Date | Summary | Source |
 | --- | --- | --- |
 | 2026-05-30 | Initial charter authored — product overview, vision, users, capabilities, technical context, architecture, standards, boundaries, glossary. | /flexspec-charter |
+| 2026-05-30 | §4/§6/§9 — document full CLI (`init`, `new`, `list`, `validate`); architecture diagram updated. | 001-cli-validate |

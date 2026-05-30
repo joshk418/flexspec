@@ -29,6 +29,9 @@ jobs:
       - name: Run tests
         run: go test -race -count=1 ./...
 
+      - name: Validate FlexSpec project
+        run: go run . validate
+
   lint:
     runs-on: ubuntu-latest
     steps:

@@ -6,7 +6,7 @@ description: >
   review a FlexSpec spec. The skill is a status-driven, three-phase state machine —
   author the spec, implement it, then review the diffs for spec coverage and AI
   "slop" — advancing one phase per prompt (unless --one-shot). **Always scaffold
-  specs with the `flexspec` CLI** (`init`, `new --template`, `list`) — never
+  specs with the `flexspec` CLI** (`init`, `new --template`, `list`, `validate`) — never
   hand-create spec directories or copy templates. Covers choosing between the simple
   and expanded templates, where specs are written on disk, each section's meaning
   and required format (mermaid, FR/NF/T/TC IDs), the per-task file format for
@@ -149,6 +149,7 @@ numbering and template selection.
 | `flexspec init` | `.flexspec/` missing | Bootstrap `.flexspec/`, `config.yaml`, `charter.md`, and embedded templates |
 | `flexspec new <name> --template <simple\|expanded>` | Starting a new spec | Create `NNN-<slug>/`, seed `README.md` from the chosen template, and (expanded) `tasks/` |
 | `flexspec list` | Discovering existing specs | List specs, statuses, and tasks from frontmatter |
+| `flexspec validate` | Before `list`/`new`, after editing specs, or in CI | Structural checks on config, charter, templates, and specs; exit 1 on errors |
 
 ### `flexspec init`
 
@@ -188,6 +189,23 @@ creates the directory only, not individual task files).
 
 Template resolution order in the CLI (for reference): `--template` flag →
 `spec_template` in config → default `simple`.
+
+### `flexspec validate`
+
+Run from the project root to catch broken config, missing templates, or unreadable
+spec frontmatter before other commands fail opaquely:
+
+```bash
+flexspec validate
+```
+
+- Prints one tab-separated line per finding (`severity`, `path`, `rule`, `message`), then a summary count.
+- Exit **0** when there are no error-severity findings; exit **1** when one or more errors (warnings alone do not fail).
+- If `.flexspec/config.yaml` is missing, reports `config.missing` and skips other checks.
+- Optional `--strict` is reserved for future semantic checks (structural-only in v1).
+
+Agents should run `flexspec validate` after scaffolding or editing specs and before
+marking implementation complete when validation is part of the project's CI habit.
 
 ## Where Specs Live
 
@@ -252,6 +270,7 @@ they prefer before proceeding.
      chosen in step 2. **Do not** create directories or `README.md` yourself.
    - Confirm success from CLI output (`Created spec NNN-slug`, `path`, `template`).
    - Optionally run `flexspec list` to verify the new spec appears.
+   - Optionally run `flexspec validate` to confirm the project and new spec parse cleanly.
 4. **Edit the CLI-created spec files (do not re-scaffold).** Open the `README.md` the
    CLI wrote and fill frontmatter (`name`, `priority`, `tags`, `status: initial`,
    `created`) plus every section. For expanded specs, add one task file per task under
@@ -406,6 +425,7 @@ Fill:
 - [ ] No open/blocking questions remain anywhere.
 - [ ] Charter read; spec does not contradict charter §7 (standards) or §8 (boundaries).
 - [ ] Charter freshness checked — if deltas exist, update question asked and resolved (or deferred in §5 Other).
+- [ ] Optional: `flexspec validate` reports no errors after spec files are finalized.
 - [ ] `status` set to `planned` (Phase 1 complete).
 
 ---
@@ -428,8 +448,8 @@ write the code that fulfills the spec, and advance status to `in_review`.
 4. **Implement to the requirements, not just "make it run".** Satisfy every `FR-`/`NF-`
    and write the tests named in the Testing Criteria (`TC-` ids). Match existing
    codebase patterns and conventions.
-5. **Verify locally.** Run the tests/build. Everything in scope must pass before the
-   phase ends.
+5. **Verify locally.** Run the tests/build and `flexspec validate` when the project is
+   initialized. Everything in scope must pass before the phase ends.
 6. **End the phase.** Set spec `status` to `in_review`, summarize what was built and
    which tasks/requirements are done, and **ask the user to continue**: "Implementation
    complete. Run `/flexspec` again to review the diffs." Stop unless `--one-shot`.

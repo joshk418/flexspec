@@ -62,7 +62,7 @@ Map answers into the template sections. Sample questions:
 | §1 Product overview | Product name? One-liner? What problem does it solve? What outcome defines success? |
 | §2 Vision and goals | North star in one sentence? 2–3 measurable success criteria? |
 | §3 Users | Who are the primary personas? What jobs must the product enable? |
-| §4 Capabilities | What major capability domains exist today? What domains are planned? |
+| §4 Capabilities | What major capability domains exist today? What domains are planned? For FlexSpec itself, include CLI commands (`init`, `new`, `list`, `validate`) and skills. |
 | §5 Technical context | Stack, hosting, key integrations, hard constraints (languages, compliance)? |
 | §6 Architecture | Main components and boundaries? Optional: sketch data/control flow. |
 | §7 Standards | Testing expectations? Security defaults? Naming/repo conventions agents must follow? |
@@ -95,8 +95,9 @@ Before handoff, confirm:
 
 ### 7. Handoff
 
-Tell the user to run `/flexspec` for feature specs. The charter is now the application
-context source for Phase 1 authoring.
+Tell the user to run `/flexspec` for feature specs and `flexspec validate` to confirm
+the project structure is sound. The charter is now the application context source
+for Phase 1 authoring.
 
 ---
 
