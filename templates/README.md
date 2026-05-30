@@ -25,7 +25,7 @@ AI coding agents share the same definition of done.
 | --- | --- |
 | `flexspec init` | Scaffold `.flexspec/`, config, charter, and templates |
 | `flexspec new <name> --template <simple\|expanded>` | Create `NNN-slug/README.md` (and `tasks/` for expanded) |
-| `flexspec list` | List specs and task frontmatter in the specs directory |
+| `flexspec list` | List specs, statuses, and task counts |
 | `flexspec list --json` | Machine-readable spec list |
 | `flexspec validate` | Structural validation of config, charter, templates, and specs |
 | `flexspec ui` | Local management UI (board, spec browser, settings) |
@@ -60,7 +60,7 @@ Every spec starts with YAML frontmatter:
 | Field | Values | Meaning |
 | --- | --- | --- |
 | `name` | string | Human-readable spec title. |
-| `description` | string | Short summary shown in listings (e.g. `flexspec list`). |
+| `description` | string | Short summary shown in listings (e.g. management UI, `flexspec list --json`). |
 | `status` | `initial` · `refined` · `planned` · `in_progress` · `in_review` · `complete` | Current lifecycle stage. |
 | `created` | datetime | When the spec was created. |
 | `implementation_start` | datetime | When implementation began. |

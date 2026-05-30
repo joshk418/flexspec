@@ -153,3 +153,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-05-30 | Initial charter authored — product overview, vision, users, capabilities, technical context, architecture, standards, boundaries, glossary. | /flexspec-charter |
 | 2026-05-30 | §4/§6/§9 — document full CLI (`init`, `new`, `list`, `validate`); architecture diagram updated. | 001-cli-validate |
 | 2026-05-30 | §4/§5/§6/§9 — management UI (`flexspec ui`), `list --json`, `status set`; architecture + glossary. | 002-management-ui |
+| 2026-05-30 | §4 — compact list output by default; `--json` still has full detail. | 003-simplify-list-command |
