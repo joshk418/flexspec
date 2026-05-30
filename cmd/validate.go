@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joshk418/flexspec/internal/validate"
 	"github.com/spf13/cobra"
+
+	"github.com/joshk418/flexspec/internal/validate"
 )
 
 var validateStrict bool

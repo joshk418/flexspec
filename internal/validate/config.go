@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/joshk418/flexspec/internal/config"
 	"gopkg.in/yaml.v3"
+
+	"github.com/joshk418/flexspec/internal/config"
 )
 
 const (

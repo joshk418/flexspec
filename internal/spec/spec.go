@@ -8,8 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/joshk418/flexspec/internal/config"
 	"gopkg.in/yaml.v3"
+
+	"github.com/joshk418/flexspec/internal/config"
 )
 
 // SpecMeta is YAML frontmatter from a spec README.md.
