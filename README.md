@@ -35,6 +35,29 @@ cd flexspec
 go build -o flexspec .
 ```
 
+## Installing the Flexspec Skill
+
+The `/flexspec` agent skill lives in this repo at [`skills/flexspec/`](skills/flexspec/SKILL.md). Install it into your coding agent with [`npx skills`](https://github.com/vercel-labs/skills):
+
+```bash
+npx skills add joshk418/flexspec
+```
+
+This auto-detects your installed agents (Cursor, Claude Code, Codex, and 50+ others) and installs the skill. Useful variants:
+
+```bash
+# Install for all projects instead of just the current one
+npx skills add joshk418/flexspec --global
+
+# Target a specific agent
+npx skills add joshk418/flexspec --agent cursor
+
+# Preview the skills in the repo without installing
+npx skills add joshk418/flexspec --list
+```
+
+Once installed, reload your agent and invoke it with `/flexspec`. Run `flexspec init` in your project first so `.flexspec/templates/` and `.flexspec/config.yaml` exist for the skill to read.
+
 ## Usage
 
 ```bash
