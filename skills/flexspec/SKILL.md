@@ -5,11 +5,13 @@ description: >
   Use when the user runs /flexspec or asks to create, draft, refine, implement, or
   review a FlexSpec spec. The skill is a status-driven, three-phase state machine —
   author the spec, implement it, then review the diffs for spec coverage and AI
-  "slop" — advancing one phase per prompt (unless --one-shot). Covers choosing
-  between the simple and expanded templates, where specs are written on disk, each
-  section's meaning and required format (mermaid, FR/NF/T/TC IDs), the per-task file
-  format for expanded specs, the mandatory rule of resolving every unknown with the
-  user before implementation, and a slop-detection review checklist.
+  "slop" — advancing one phase per prompt (unless --one-shot). **Always scaffold
+  specs with the `flexspec` CLI** (`init`, `new --template`, `list`) — never
+  hand-create spec directories or copy templates. Covers choosing between the simple
+  and expanded templates, where specs are written on disk, each section's meaning
+  and required format (mermaid, FR/NF/T/TC IDs), the per-task file format for
+  expanded specs, the mandatory rule of resolving every unknown with the user before
+  implementation, and a slop-detection review checklist.
 ---
 
 # FlexSpec Lifecycle (`/flexspec`)
@@ -34,7 +36,7 @@ and reviewing.
 
 | Phase | Invoke when status is | Does | Ends at status |
 | --- | --- | --- | --- |
-| **1 · Author** | none yet / `initial` / `refined` | Scaffold the spec dir, author + refine the spec, resolve all unknowns. | `planned` |
+| **1 · Author** | none yet / `initial` / `refined` | Run `flexspec new` to scaffold, then author + refine the spec and resolve all unknowns. | `planned` |
 | **2 · Implement** | `planned` / `in_progress` | Write the code/tasks defined in the spec. | `in_review` |
 | **3 · Review** | `in_review` | Diff-review against the spec + scan for AI slop. | `complete` |
 
@@ -79,6 +81,15 @@ first:
 
 Only `simple` and `expanded` are valid; treat any other value as unset and infer (or
 ask the user if borderline).
+
+When scaffolding, pass the same template to the CLI:
+
+```bash
+flexspec new <spec-name> --template <simple|expanded>
+```
+
+The `/flexspec --template` flag and `spec_template` config govern skill behavior;
+`flexspec new --template` is what actually writes the scaffold on disk.
 
 ---
 
@@ -126,36 +137,82 @@ individual feature details.
   deltas vs. the charter: §2 vision/goals, §3 users, §4 capabilities, §5–§6 stack/architecture,
   §7 conventions, §8 boundaries, §9 glossary.
 
-## Where Specs Are Written
+## CLI Commands (mandatory)
 
-Specs are created on disk, not just in chat. The `flexspec` CLI owns scaffolding.
+**The `flexspec` CLI owns all spec scaffolding.** Run these commands in the shell from
+the project root. Do **not** use file-write tools, `mkdir`, or manual template copies
+to create spec directories or initial `README.md` files — that bypasses deterministic
+numbering and template selection.
 
-- **Project setup** — `flexspec init` bootstraps a project: it creates `.flexspec/`
-  (with `config.yaml` and `charter.md`) and the `templates/` directory. If a project
-  isn't initialized yet, run `flexspec init` first.
-- **Location** — the specs directory is defined by `specs_dir` in
-  `.flexspec/config.yaml`. Resolve it from there; never hard-code a path. If config
-  is missing/unreadable, run `flexspec init` or **ask the user**.
-- **One directory per spec** — `flexspec new` creates the spec folder named with a
-  zero-padded auto-incrementing sequence number and a short slug: `NNN-<spec_name>`
-  (e.g. `001-user-auth`). The number auto-increments from existing folders.
-- **The spec is `README.md`** inside that folder. For expanded specs the CLI also
-  creates the `tasks/` directory.
+| Command | When | Purpose |
+| --- | --- | --- |
+| `flexspec init` | `.flexspec/` missing | Bootstrap `.flexspec/`, `config.yaml`, `charter.md`, and embedded templates |
+| `flexspec new <name> --template <simple\|expanded>` | Starting a new spec | Create `NNN-<slug>/`, seed `README.md` from the chosen template, and (expanded) `tasks/` |
+| `flexspec list` | Discovering existing specs | List specs, statuses, and tasks from frontmatter |
 
-Simple spec layout:
+### `flexspec init`
+
+Run when the project is not initialized:
+
+```bash
+flexspec init
+```
+
+Optional flags: `--specs-dir <dir>` (default `specs`), `--always-one-shot`, `--force`.
+
+### `flexspec new` (required for every new spec)
+
+After choosing simple vs expanded, scaffold with **both** a name and template:
+
+```bash
+flexspec new <spec-name> --template simple
+# or
+flexspec new <spec-name> --template expanded
+```
+
+- **`<spec-name>`** — short feature name (words become a slug, e.g. `user auth` → `user-auth`).
+- **`--template` / `-t`** — **always pass explicitly** when authoring via this skill,
+  matching the template you chose (simple or expanded). Do not rely on the CLI default
+  (`simple`) or on guessing `spec_template` from config unless the user explicitly
+  wants config to drive template choice.
+- The CLI prints `Created spec NNN-slug`, `path`, and `template` — use that output as
+  the canonical spec location.
+
+**Forbidden during scaffolding:** creating `specs/`, `NNN-slug/`, `README.md`, or
+`tasks/` yourself; copying template markdown from `.flexspec/templates/` into a new
+path; picking sequence numbers manually.
+
+**Allowed after `flexspec new`:** edit the CLI-created `README.md`; for expanded specs,
+add task files under the CLI-created `tasks/` directory (see task guide — the CLI
+creates the directory only, not individual task files).
+
+Template resolution order in the CLI (for reference): `--template` flag →
+`spec_template` in config → default `simple`.
+
+## Where Specs Live
+
+Specs are created on disk, not just in chat.
+
+- **Location** — `specs_dir` in `.flexspec/config.yaml`. Resolve paths from config;
+  never hard-code. If config is missing, run `flexspec init` or **ask the user**.
+- **One directory per spec** — `flexspec new` creates `NNN-<spec_name>/` (e.g.
+  `001-user-auth`) with auto-incrementing sequence numbers.
+- **The spec is `README.md`** inside that folder, pre-seeded from the template by the CLI.
+
+Simple spec layout (after `flexspec new … --template simple`):
 
 ```
 <specs_dir>/001-feature-slug/
-  README.md        <- filled from flexspec-simple.md
+  README.md        <- CLI copies flexspec-simple.md; you edit in place
 ```
 
-Expanded spec layout:
+Expanded spec layout (after `flexspec new … --template expanded`):
 
 ```
 <specs_dir>/002-feature-slug/
-  README.md        <- filled from flexspec-expanded.md
-  tasks/
-    T-001-<slug>.md  <- filled from flexspec-expanded-task.md
+  README.md        <- CLI copies flexspec-expanded.md; you edit in place
+  tasks/           <- CLI creates empty directory
+    T-001-<slug>.md  <- you add, using flexspec-expanded-task.md as reference
     T-002-<slug>.md
     ...
 ```
@@ -189,16 +246,17 @@ they prefer before proceeding.
    constraints). Note what you know vs. what you don't.
 2. **Choose the template** (simple vs expanded) per the rules above; confirm with the
    user if borderline or if they have a preference.
-3. **Scaffold the spec directory with the CLI.** Run `flexspec new` to create the
-   spec folder under the specs directory from `.flexspec/config.yaml`. The CLI
-   auto-increments the sequence number from existing folders, creates the
-   `NNN-<spec_name>` directory with a `README.md` from the matching template, and (for
-   expanded specs) a `tasks/` directory. Always use the CLI so numbering stays
-   consistent — don't hand-create spec folders. If the project isn't initialized, run
-   `flexspec init` first.
-4. **Fill the spec files.** Populate `<folder>/README.md` from the chosen template and
-   fill the frontmatter (`name`, `priority`, `tags`, `status: initial`, `created`).
-   For expanded specs, author one task file per task in `tasks/`.
+3. **Initialize if needed, then scaffold with the CLI.**
+   - If `.flexspec/config.yaml` is missing → run `flexspec init` in the shell.
+   - Run `flexspec new <spec-name> --template <simple|expanded>` with the template
+     chosen in step 2. **Do not** create directories or `README.md` yourself.
+   - Confirm success from CLI output (`Created spec NNN-slug`, `path`, `template`).
+   - Optionally run `flexspec list` to verify the new spec appears.
+4. **Edit the CLI-created spec files (do not re-scaffold).** Open the `README.md` the
+   CLI wrote and fill frontmatter (`name`, `priority`, `tags`, `status: initial`,
+   `created`) plus every section. For expanded specs, add one task file per task under
+   the CLI-created `tasks/` directory (read `.flexspec/templates/expanded/flexspec-expanded-task.md`
+   for structure — do not recreate `README.md` or the spec folder).
 5. **Identify unknowns and ask.** List every open question, then ask the user. Wait
    for answers before finalizing dependent sections.
 6. **Fill every section** per the guidance below, replacing all `{placeholders}` and
@@ -283,6 +341,10 @@ items should be non-blocking notes only.
 
 ## Authoring Task Files (expanded specs)
 
+The CLI creates an empty `tasks/` directory; **you** add task files there. Do not
+recreate the spec directory or main `README.md`. Use
+`.flexspec/templates/expanded/flexspec-expanded-task.md` as the structure reference.
+
 Each task file (`tasks/T-XXX-<slug>.md`) must let an LLM execute that task standalone,
 without re-reading the whole codebase and without drifting into other tasks.
 
@@ -325,8 +387,11 @@ Fill:
 
 ## Definition of Ready (pre-implementation checklist)
 
+- [ ] Project initialized via `flexspec init` if `.flexspec/` was missing.
+- [ ] Spec scaffolded via `flexspec new <name> --template <simple|expanded>` — not
+      hand-created directories or template copies.
 - [ ] Correct template chosen (simple vs expanded) for the work's size.
-- [ ] Spec written to `<specs_dir>/NNN-feature-slug/README.md`.
+- [ ] Spec written to `<specs_dir>/NNN-feature-slug/README.md` (CLI-created, then edited).
 - [ ] All `{placeholders}` and guidance comments removed.
 - [ ] Spec `README.md` within budget (simple <~2000 tokens, expanded <~3500).
 - [ ] Summary states scope and out-of-scope.
