@@ -53,7 +53,7 @@ func runUI(cmd *cobra.Command, _ []string) error {
 	host := uiHost
 	port := uiPort
 	var srv *ui.Server
-	for i := 0; i < 21; i++ {
+	for i := range 21 {
 		tryPort := port + i
 		srv, err = ui.NewServer(root, host, tryPort, static)
 		if err != nil {
