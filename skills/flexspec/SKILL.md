@@ -136,7 +136,7 @@ Section 1 Summary:
 Section 2 Design:
 - architecture plan with concrete files/components
 - markdown file table (`File / Type / Role`) covering all touched/referenced files
-- valid `mermaid` code map
+- valid `mermaid` **code execution** map (§2.2) + execution trace table — see Code Map Quality Bar
 - requirements:
   - functional: `FR-XXX`
   - non-functional: `NF-XXX`
@@ -147,10 +147,60 @@ Expanded-only Section 2:
 - External Interfaces (APIs/routes/events/CLI/integrations)
 
 Section 3 Implementation Plan:
-- implementation dependency/order `mermaid` map
+- implementation map (§3.1): build order + which §2.2 steps each task enables, with task execution table
 - tasks:
   - simple: in-file `T-XXX` list with satisfies mapping
   - expanded: index table + separate task files in `tasks/`
+
+## Code Map Quality Bar (Phase 1)
+
+Code maps document **code execution** for human and LLM reviewers — step through the plan like a debugger, without opening the repo. Before `planned`, §2.2 and §3.1 must each include a **mermaid diagram + markdown table** that match.
+
+### §2.2 Design Code Map (runtime execution)
+
+**Diagram (required)**
+- Prefer `sequenceDiagram` with `autonumber` for call order; use `flowchart` when loops/async are clearer.
+- Every step: `path/to/file :: symbol` (or route/CLI/event if symbol TBD).
+- Label interactions with verb + payload (`calls create(dto)`, `returns 201`, `throws ErrX`, `reads []byte`).
+- Model branches with `alt`/`opt`/`else` (sequence) or labeled branch edges (flowchart) for errors and key conditionals.
+- Tie `FR-XXX` / `NF-XXX` to steps where behavior is satisfied or constrained.
+- **Expanded**: multiple diagram+table pairs when multiple execution paths exist (CLI vs worker, etc.).
+
+**Execution trace table (required)** — same step numbers as diagram:
+
+| Step | Location | Executes | Input / condition | Output / side effect | FR/NF |
+
+Keep ≤12 rows per path in simple specs; split or add a second diagram/table if longer.
+
+**Reviewer test**: Can you answer "what runs at step N, with what input, producing what output?" from the table alone?
+
+### §3.1 Implementation Code Map (build order + execution enablement)
+
+**Diagram (required)**
+- Task nodes: `T-XXX :: file :: symbol` (primary symbols changed).
+- Solid edges: build / `depends_on` order from §3.2.
+- Dotted edges: `enables §2.2 step N` (or range) — what becomes runnable when the task lands.
+- Parallel branches OK; merge before integration tasks.
+
+**Task execution table (required)**:
+
+| Task | Build after | Implements §2.2 steps | Symbols added/changed | Execution unlocked |
+
+- Every §2.2 step owned by ≥1 task; every §2.1 file on a task row.
+- Symbols in tasks must match §2.2 trace `Location` column.
+
+**Reviewer test**: After T-00X, which execution steps from §2.2 can run in a dev environment?
+
+### Anti-patterns (reject and rewrite)
+
+- Architecture-only boxes; no numbered/call-ordered execution.
+- Mermaid without a matching trace table (or mismatched step numbers).
+- Generic nodes; edges with no verb/payload; task graph with only `T-001 → T-002`.
+- §2.2 steps with no owning task in §3.1; §2.1 files absent from §3.1 table.
+
+### When symbols are unknown
+
+Use nearest concrete anchor and record in §5 Other. Trace table still required with best-known `Location` and `Executes` columns.
 
 Section 4 Testing Criteria:
 - `TC-XXX` test criteria map to requirements (and task where relevant)
@@ -200,7 +250,7 @@ Task constraints:
 - [ ] Scaffold done via CLI (`flexspec init`/`flexspec new` as needed).
 - [ ] Correct template chosen.
 - [ ] All placeholders/comments removed.
-- [ ] Required sections complete, with valid mermaid blocks.
+- [ ] Required sections complete, with valid mermaid blocks passing Code Map Quality Bar.
 - [ ] FR/NF specific and testable.
 - [ ] Tasks mapped to requirements.
 - [ ] Every FR mapped to >=1 TC.

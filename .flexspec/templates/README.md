@@ -89,8 +89,8 @@ design depth and moves tasks into separate files.
 | # | Section | Simple | Expanded (adds) |
 | --- | --- | --- | --- |
 | 1 | Summary | Overview, scope, outcome. | Same, for a larger feature. |
-| 2 | Design | Architecture + file map, mermaid code map, FR/NF requirements. | Adds Data Model (`erDiagram`) and External Interfaces. |
-| 3 | Implementation Plan | Code map + ID'd task list in-file. | Task list is an index table; each task is its own file in `tasks/`. |
+| 2 | Design | Architecture + file map, **code execution** map (§2.2: diagram + trace table), FR/NF. | Adds Data Model (`erDiagram`) and External Interfaces. |
+| 3 | Implementation Plan | **Build + execution enablement** map (§3.1: diagram + task table) + tasks. | Task list is an index table; each task is its own file in `tasks/`. |
 | 4 | Testing Criteria | Tests proving each requirement; everything must be testable. | Also maps each test to the implementing task. |
 | 5 | Other | Open questions, assumptions, risks, observations. | Same, plus rollout/migration notes. |
 
@@ -100,6 +100,23 @@ Each `tasks/T-XXX-<slug>.md` is self-contained so an agent can execute it withou
 drifting: frontmatter (`id`, `parent_spec`, `status`, `satisfies`, `depends_on`,
 `verified_by`), Objective, Context, Files In Scope, Implementation Steps,
 Acceptance Criteria, Testing, Out of Scope, Open Questions, References.
+
+## Code Map Conventions
+
+FlexSpec code maps document **code execution** for humans and LLM reviewers. Each map section requires **mermaid + a markdown table** with matching step/task numbers.
+
+| Section | Purpose | Diagram | Table |
+| --- | --- | --- | --- |
+| **§2.2 Code Map** | Runtime execution (debugger-style) | `sequenceDiagram` + `autonumber` preferred; `alt`/`opt` for branches | Execution trace: Step, Location, Executes, Input, Output, FR/NF |
+| **§3.1 Implementation Code Map** | Build order + what runtime steps unlock | Tasks + symbols; solid = build order; dotted = enables §2.2 step(s) | Task execution: Task, Build after, Implements §2.2 steps, Symbols, Execution unlocked |
+
+**Location format:** `` `path/to/file :: symbol` `` (handler, `Class.method`, route, or CLI command).
+
+**Interaction labels:** verb + payload — `calls create(dto)`, `returns 201`, `throws ValidationError`, `reads row`.
+
+**Linkage:** every §2.2 step owned by ≥1 task; every §2.1 file on §3.1 table; FR/NF on trace rows where applicable.
+
+Authoring rules: `skills/flexspec/SKILL.md` → **Code Map Quality Bar**.
 
 ## ID Conventions
 
