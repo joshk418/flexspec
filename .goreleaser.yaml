@@ -5,6 +5,7 @@ project_name: flexspec
 before:
   hooks:
     - go mod tidy
+    - make build-ui
 
 builds:
   - id: flexspec

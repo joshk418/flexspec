@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/api/client.ts","./src/components/layout.tsx","./src/components/mermaid.tsx","./src/components/select.tsx","./src/components/specmarkdown.tsx","./src/hooks/usespecs.ts","./src/pages/boardpage.tsx","./src/pages/settingspage.tsx","./src/pages/specspage.tsx"],"version":"5.8.3"}

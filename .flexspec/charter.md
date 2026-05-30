@@ -50,14 +50,14 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
 - Charter management — product-wide context authored via `/flexspec-charter`.
-- CLI — `flexspec init` (scaffold `.flexspec/`), `flexspec new` (create a spec from a template), `flexspec list` (list specs and tasks), `flexspec validate` (check config, templates, and spec files for structural problems).
+- CLI — `flexspec init`, `flexspec new`, `flexspec list` (`--json` for machine output), `flexspec validate`, `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
+- Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status, spec browser with markdown rendering, settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 - Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter).
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
 **Planned:**
 
 - Adapters for external systems (Jira, Shortcut, GitHub Issues, and more).
-- A management UI to track and view specs.
 
 ## 5. Technical context
 
@@ -70,7 +70,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 **Constraints agents must respect:**
 
 - Go ≥ 1.26 floor (CI uses the `go.mod` version).
-- Minimal dependencies — only Cobra + `yaml.v3`; avoid heavy new deps.
+- Minimal dependencies — Cobra, `yaml.v3`, and `fsnotify` (UI file watch); avoid heavy new deps. React UI is embedded at build time; end users do not need Node at runtime.
 - Skills write only inside `.flexspec/` and the configured spec directory; agents may modify code files during implementation but must not touch `README`, `AGENTS.md`, or related docs unless explicitly instructed.
 - `init` never clobbers user edits unless `--force` is passed.
 - Cross-platform — build paths with `filepath`.
@@ -78,22 +78,26 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 ## 6. Architecture
 
-`main` embeds the template tree and wires the Cobra command set. Commands scaffold, list, and validate project state under `.flexspec/` and the configured specs directory. Agent skills then read the charter and templates to drive the spec lifecycle (author → implement → review). Future adapters sit behind a spec-source interface.
+`main` embeds templates and the built web UI (`ui/dist`). The Cobra CLI scaffolds, lists, validates, and optionally serves the management UI (`flexspec ui` → `internal/ui` HTTP server on localhost). Agent skills read the charter and drive the spec lifecycle. Future adapters sit behind a spec-source interface.
 
 ```mermaid
 flowchart TD
-    main[main + embed.FS templates] --> cli[Cobra CLI]
+    main[main + embed templates + ui/dist] --> cli[Cobra CLI]
     cli -->|init| fs[.flexspec/: config, charter, templates]
     cli -->|new| specs[specs_dir/NNN-slug/]
     cli -->|list| specs
     cli -->|validate| fs
     cli -->|validate| specs
+    cli -->|ui| uiSrv[internal/ui HTTP + SSE]
+    uiSrv --> specs
+    uiSrv --> fs
+    browser[Browser] --> uiSrv
     skills[Agent skills: /flexspec, /flexspec-charter] -->|read| fs
     skills -->|author / implement / review| specs
-    adapters[(Adapters: Jira / Shortcut / GitHub Issues — planned)] -.-> skills
+    adapters[(Adapters — planned)] -.-> skills
 ```
 
-**Boundaries:** the CLI scaffolds, lists, and validates; skills handle authoring, implementation, and review. Adapters (future) sit behind a spec-source interface.
+**Boundaries:** the CLI scaffolds, lists, validates, and serves a **local** UI; skills handle authoring, implementation, and review. The UI is visibility and convenience, not a hosted PM product.
 
 ## 7. Standards and conventions
 
@@ -123,6 +127,8 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Phase | A stage in the `/flexspec` lifecycle: author, implement, or review. |
 | One-shot | Running all `/flexspec` phases back-to-back without stopping (`always_one_shot` / `--one-shot`). |
 | Validate | `flexspec validate` — read-only structural checks on `.flexspec/`, templates, and specs (exit 1 on errors). |
+| Management UI | `flexspec ui` — local dashboard (board, spec browser, settings) with live filesystem sync. |
+| SSE | Server-sent events from `flexspec ui` when spec files change on disk. |
 
 ## 10. Assumptions and open questions
 
@@ -139,7 +145,6 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 **Open questions (non-blocking):**
 
 - Which issue-tracker adapter ships first.
-- Design and scope of the planned management UI for tracking and viewing specs.
 
 ## 11. Revision history
 
@@ -147,3 +152,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | --- | --- | --- |
 | 2026-05-30 | Initial charter authored — product overview, vision, users, capabilities, technical context, architecture, standards, boundaries, glossary. | /flexspec-charter |
 | 2026-05-30 | §4/§6/§9 — document full CLI (`init`, `new`, `list`, `validate`); architecture diagram updated. | 001-cli-validate |
+| 2026-05-30 | §4/§5/§6/§9 — management UI (`flexspec ui`), `list --json`, `status set`; architecture + glossary. | 002-management-ui |

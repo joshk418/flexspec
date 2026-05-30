@@ -32,6 +32,16 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Build web UI
+        run: make build-ui
+
       - name: Run tests
         run: go test -race -count=1 ./...
 

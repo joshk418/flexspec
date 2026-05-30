@@ -10,8 +10,8 @@ description: >
   hand-create spec directories or copy templates. Covers choosing between the simple
   and expanded templates, where specs are written on disk, each section's meaning
   and required format (mermaid, FR/NF/T/TC IDs), the per-task file format for
-  expanded specs, the mandatory rule of resolving every unknown with the user before
-  implementation, and a slop-detection review checklist.
+  expanded specs, a mandatory discovery interview that resolves every unknown in the
+  user's request before drafting design, and a slop-detection review checklist.
 ---
 
 # FlexSpec Lifecycle (`/flexspec`)
@@ -36,7 +36,7 @@ and reviewing.
 
 | Phase | Invoke when status is | Does | Ends at status |
 | --- | --- | --- | --- |
-| **1 · Author** | none yet / `initial` / `refined` | Run `flexspec new` to scaffold, then author + refine the spec and resolve all unknowns. | `planned` |
+| **1 · Author** | none yet / `initial` / `refined` | Discovery interview → `flexspec new` → author spec; resolve all unknowns before `planned`. | `planned` |
 | **2 · Implement** | `planned` / `in_progress` | Write the code/tasks defined in the spec. | `in_review` |
 | **3 · Review** | `in_review` | Diff-review against the spec + scan for AI slop. | `complete` |
 
@@ -104,18 +104,105 @@ Goal: produce a complete, unambiguous, testable spec on disk and advance status 
 Writing the spec is secondary. **Eliminating ambiguity is the primary job.** A spec
 built on guesses produces wrong implementations.
 
+- **Interview before you invent.** Run the Discovery Interview (below) on the user's
+  current request *before* filling Design, Implementation Plan, or task files.
 - As you draft, surface every unknown, assumption, ambiguity, and decision point.
 - **Ask the user direct questions** for anything you cannot determine with certainty
   from the repo or their request. Batch related questions; do not drip one at a time.
 - Do **not** invent requirements, file paths, behaviors, or constraints to fill gaps.
   If you are unsure, ask.
 - A spec **cannot** be marked `refined` (or advance further) and **implementation
-  must not start** while any open question remains (Section 5 of the spec, or a
-  task's Open Questions).
-- Only once the user has answered everything and no blocking questions remain is the
-  spec ready.
+  must not start** while any **blocking** open question remains (Section 5 of the spec,
+  or a task's Open Questions).
+- Only once the user has answered every blocking question is the spec ready.
 
 When in doubt: ask, don't assume.
+
+## Discovery Interview (required before drafting design)
+
+Before writing Design, Implementation Plan, task files, or concrete FR/NF requirements,
+**interview the user** to resolve unknowns in their current request. Same spirit as
+`/flexspec-charter`: ask, don't assume.
+
+### When to run
+
+| Timing | Required? |
+| --- | --- |
+| After reading charter + request + repo context, **before** `flexspec new` | **Yes** — for intent, scope, and template-blocking unknowns |
+| After scaffold, **before** filling §2 Design / §3 Implementation / tasks | **Yes** — for technical and behavioral unknowns |
+| After first draft, **before** `refined` / `planned` | **Yes** — second pass for draft-induced gaps |
+
+**Do not** run `flexspec new` or write substantive spec sections while **blocking**
+questions about what to build remain unanswered.
+
+### Step 1 · Audit the request
+
+Parse the user's message (and any linked issues, screenshots, or prior chat) and
+build an explicit **Known vs Unknown** ledger:
+
+- **Known** — stated goals, constraints, examples, explicit out-of-scope, named files/APIs.
+- **Unknown** — anything needed to write testable FR/NF or a task list but not stated
+  or derivable with certainty from repo + charter.
+- **Assumed** — inferences you would make if the user did not answer; **never** promote
+  an assumption to a requirement without confirmation.
+
+Flag every gap: vague verbs ("improve", "better UX"), missing boundaries, unstated
+users/personas, unspecified error/edge behavior, integration points, migration/rollout,
+performance/security expectations, and conflicts with charter §7/§8.
+
+### Step 2 · Classify each unknown
+
+| Class | Meaning | Gate |
+| --- | --- | --- |
+| **Blocking** | Spec cannot be unambiguous without an answer | Must ask; cannot set `refined` or `planned` |
+| **Non-blocking** | Reasonable default exists; user may defer | Record in §5 Other as assumption; proceed only if user confirms or defers explicitly |
+
+When unsure whether something is blocking, treat it as **blocking** and ask.
+
+### Step 3 · Interview the user
+
+- Batch **2–4 related questions** per round (not one-at-a-time drips, not 15-question walls).
+- Use **numbered questions** so the user can reply inline (`1. …`, `2. …`).
+- For each question, say **why it matters** (which section or requirement it unblocks) when non-obvious.
+- **Stop and wait** for answers after each round before drafting sections that depend on them.
+- If the user defers a blocking item, record it in §5 Other and **do not** advance past `initial`.
+- If the user defers a non-blocking item, record the assumed default in §5 and confirm they accept it.
+
+**Forbidden during interview:** scaffolding a spec whose Summary/Design encodes unconfirmed
+guesses; filling `{placeholders}` with invented product behavior; choosing expanded vs simple
+based on assumed scope the user never confirmed.
+
+### Step 4 · Question bank (feature spec)
+
+Use the categories below. Skip categories already answered in the request or charter;
+**do not skip** a category just because the repo "usually" does X — confirm when the
+request is silent.
+
+| Category | Sample questions |
+| --- | --- |
+| **Problem and outcome** | What problem does this solve? What does done look like for the user or system? |
+| **Scope** | What is explicitly **in** scope for this spec? What must **not** be included (this iteration)? |
+| **Users and context** | Who triggers this? Any roles, permissions, or environments (dev/staging/prod)? |
+| **Behavior and UX** | Happy path step-by-step? Error/empty/loading states? Copy or interaction details that matter? |
+| **Data and persistence** | New/changed entities or fields? Migration or backfill? Source of truth? |
+| **Interfaces** | API shapes, CLI flags, UI routes, events, webhooks — contract expectations? |
+| **Integration** | External services, feature flags, auth, existing modules to reuse vs avoid? |
+| **Non-functionals** | Performance, security, accessibility, observability, compatibility targets? |
+| **Rollout and ops** | Feature flag, migration path, rollback, config changes, docs? |
+| **Template and shape** | Simple vs expanded — confirm if borderline or if task count is unclear. |
+| **Acceptance** | How will we verify success — manual checks, automated tests, metrics? |
+| **Charter alignment** | Anything that might conflict with charter §7 standards or §8 boundaries? |
+
+Add **request-specific** questions for anything ambiguous in the user's exact wording
+(e.g. "support dark mode" → all surfaces or one page? system preference only or toggle?).
+
+### Step 5 · Record and iterate
+
+- During drafting, put unresolved items in §5 Other (spec) or task **Open Questions** — then **stop** and run another interview round.
+- Before `refined`: §5 and every task **Open Questions** must have no blocking items;
+  decisions belong in Summary, Design, or Acceptance Criteria — not left as questions.
+- **Second pass:** after the first full draft, re-read the spec as an implementer cold;
+  any hesitation ("maybe we should…") becomes a new unknown → interview again.
 
 ## Application charter
 
@@ -149,7 +236,10 @@ numbering and template selection.
 | `flexspec init` | `.flexspec/` missing | Bootstrap `.flexspec/`, `config.yaml`, `charter.md`, and embedded templates |
 | `flexspec new <name> --template <simple\|expanded>` | Starting a new spec | Create `NNN-<slug>/`, seed `README.md` from the chosen template, and (expanded) `tasks/` |
 | `flexspec list` | Discovering existing specs | List specs, statuses, and tasks from frontmatter |
+| `flexspec list --json` | Scripts / tooling | Same data as the UI API list endpoint |
 | `flexspec validate` | Before `list`/`new`, after editing specs, or in CI | Structural checks on config, charter, templates, and specs; exit 1 on errors |
+| `flexspec ui` | Optional visibility during implementation | Local dashboard; `--no-open` to skip browser |
+| `flexspec status set <spec> --status <s>` | Terminal status updates | Optional `--task T-001-slug.md` for expanded task files |
 
 ### `flexspec init`
 
@@ -261,28 +351,37 @@ they prefer before proceeding.
 
 1. **Gather context.** Read `.flexspec/charter.md` first (see Application charter).
    Then read the user's request and explore the repo (relevant files, existing patterns,
-   constraints). Note what you know vs. what you don't.
-2. **Choose the template** (simple vs expanded) per the rules above; confirm with the
+   constraints). Build the Known vs Unknown ledger (Discovery Interview § Step 1).
+2. **Discovery interview — round 1 (intent and scope).** Ask blocking questions about
+   problem, outcome, scope, template choice (if borderline), and charter conflicts.
+   **Wait for answers.** Do not scaffold or draft Design until blocking intent/scope
+   questions are resolved (or explicitly deferred with recorded assumptions in §5).
+3. **Choose the template** (simple vs expanded) per the rules above; confirm with the
    user if borderline or if they have a preference.
-3. **Initialize if needed, then scaffold with the CLI.**
+4. **Initialize if needed, then scaffold with the CLI.**
    - If `.flexspec/config.yaml` is missing → run `flexspec init` in the shell.
    - Run `flexspec new <spec-name> --template <simple|expanded>` with the template
-     chosen in step 2. **Do not** create directories or `README.md` yourself.
+     chosen in step 3. **Do not** create directories or `README.md` yourself.
    - Confirm success from CLI output (`Created spec NNN-slug`, `path`, `template`).
    - Optionally run `flexspec list` to verify the new spec appears.
    - Optionally run `flexspec validate` to confirm the project and new spec parse cleanly.
-4. **Edit the CLI-created spec files (do not re-scaffold).** Open the `README.md` the
+5. **Discovery interview — round 2 (design and behavior).** Before filling §2 Design,
+   §3 Implementation Plan, or task files, ask blocking questions from the question bank
+   for anything still unknown (data model, interfaces, edge cases, NFRs, rollout). **Wait
+   for answers** before writing sections that depend on them.
+6. **Edit the CLI-created spec files (do not re-scaffold).** Open the `README.md` the
    CLI wrote and fill frontmatter (`name`, `priority`, `tags`, `status: initial`,
-   `created`) plus every section. For expanded specs, add one task file per task under
-   the CLI-created `tasks/` directory (read `.flexspec/templates/expanded/flexspec-expanded-task.md`
-   for structure — do not recreate `README.md` or the spec folder).
-5. **Identify unknowns and ask.** List every open question, then ask the user. Wait
-   for answers before finalizing dependent sections.
-6. **Fill every section** per the guidance below, replacing all `{placeholders}` and
-   removing the `<!-- -->` guidance comments.
-7. **Self-check** against the Definition of Ready. If anything is only testable with
-   rework, rework the implementation plan.
-8. **Charter freshness check** (before `planned`):
+   `created`) plus every section using **confirmed** decisions only. For expanded specs,
+   add one task file per task under the CLI-created `tasks/` directory (read
+   `.flexspec/templates/expanded/flexspec-expanded-task.md` for structure — do not recreate
+   `README.md` or the spec folder). Unresolved items go in §5 / task Open Questions —
+   then stop and interview again; do not guess.
+7. **Discovery interview — round 3 (draft review).** Re-read the draft as a cold
+   implementer; surface any new unknowns or assumptions. Ask the user; wait for answers.
+   Move resolved decisions out of §5 into the proper sections.
+8. **Self-check** against the Definition of Ready. If anything is only testable with
+   rework, rework the implementation plan (and re-interview if that surfaces new unknowns).
+9. **Charter freshness check** (before `planned`):
    1. Detect concrete charter deltas implied by this spec (by section: §2, §3, §4, §5–§6, §7, §8, §9).
    2. **Deltas-only prompt:**
       - **No deltas** → state "No charter changes detected" and continue. **Do not ask.**
@@ -297,9 +396,10 @@ they prefer before proceeding.
       - Deltas that **conflict** with charter §8 or §7 are **blocking** → stop and ask even in one-shot.
       - Other deltas → record a "charter follow-up" note in spec §5 Other and continue; do not edit
         the charter unattended.
-9. **Finalize the spec.** When no open questions remain, the design is agreed, the task list
-   is complete, and the charter freshness check is resolved, move `status` through `refined` to `planned`.
-10. **End the phase.** Summarize the spec and **ask the user to continue**: "Spec
+10. **Finalize the spec.** When no **blocking** open questions remain, the design is
+    agreed, the task list is complete, and the charter freshness check is resolved, move
+    `status` through `refined` to `planned`.
+11. **End the phase.** Summarize the spec and **ask the user to continue**: "Spec
     `NNN-slug` is planned and ready. Run `/flexspec` again to begin implementation."
     Stop here unless running `--one-shot`.
 
@@ -354,9 +454,10 @@ at least one TC.
 
 ### 5. Other
 Open questions, assumptions, risks, rollout/migration notes, observations. This is
-where unresolved items live *during* drafting. Before finalizing, every **open
-question must be answered** (move the decision into the relevant section). Remaining
-items should be non-blocking notes only.
+where unresolved items live *during* drafting and between discovery interview rounds.
+Before finalizing, every **blocking** open question must be answered (move the decision
+into the relevant section). Remaining items should be non-blocking assumptions the user
+explicitly accepted or deferred.
 
 ## Authoring Task Files (expanded specs)
 
@@ -422,7 +523,10 @@ Fill:
 - [ ] Expanded: each task has its own file in `tasks/`, under ~1000 tokens, with no
       open questions.
 - [ ] Every functional requirement is covered by at least one `TC-` test.
-- [ ] No open/blocking questions remain anywhere.
+- [ ] Discovery interview completed: intent/scope resolved before scaffold; design/behavior
+      resolved before §2/§3/tasks; draft review pass done.
+- [ ] No blocking open questions remain in §5 or task Open Questions; deferred items
+      recorded as explicit assumptions.
 - [ ] Charter read; spec does not contradict charter §7 (standards) or §8 (boundaries).
 - [ ] Charter freshness checked — if deltas exist, update question asked and resolved (or deferred in §5 Other).
 - [ ] Optional: `flexspec validate` reports no errors after spec files are finalized.
@@ -450,6 +554,10 @@ write the code that fulfills the spec, and advance status to `in_review`.
    codebase patterns and conventions.
 5. **Verify locally.** Run the tests/build and `flexspec validate` when the project is
    initialized. Everything in scope must pass before the phase ends.
+5b. **Optional: local dashboard.** Humans may run `flexspec ui --no-open` in a separate
+   terminal for a live board and spec browser; the UI reads the same files on disk and
+   refreshes when frontmatter changes. Agents still update status by editing markdown
+   or via `flexspec status set`; the UI does not replace `/flexspec` lifecycle rules.
 6. **End the phase.** Set spec `status` to `in_review`, summarize what was built and
    which tasks/requirements are done, and **ask the user to continue**: "Implementation
    complete. Run `/flexspec` again to review the diffs." Stop unless `--one-shot`.

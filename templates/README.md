@@ -26,7 +26,10 @@ AI coding agents share the same definition of done.
 | `flexspec init` | Scaffold `.flexspec/`, config, charter, and templates |
 | `flexspec new <name> --template <simple\|expanded>` | Create `NNN-slug/README.md` (and `tasks/` for expanded) |
 | `flexspec list` | List specs and task frontmatter in the specs directory |
+| `flexspec list --json` | Machine-readable spec list |
 | `flexspec validate` | Structural validation of config, charter, templates, and specs |
+| `flexspec ui` | Local management UI (board, spec browser, settings) |
+| `flexspec status set <spec> --status <s>` | Update spec or task status in frontmatter |
 
 ## Where Specs Live
 

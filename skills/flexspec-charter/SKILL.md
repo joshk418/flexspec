@@ -96,8 +96,9 @@ Before handoff, confirm:
 ### 7. Handoff
 
 Tell the user to run `/flexspec` for feature specs and `flexspec validate` to confirm
-the project structure is sound. The charter is now the application context source
-for Phase 1 authoring.
+the project structure is sound. Optionally mention `flexspec ui` to browse the charter
+and specs in a local browser (read-only for charter in v1). The charter is now the
+application context source for Phase 1 authoring.
 
 ---
 

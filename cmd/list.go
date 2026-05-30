@@ -4,6 +4,7 @@ Copyright © 2026 Josh Kyte
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -13,7 +14,10 @@ import (
 
 	"github.com/joshk418/flexspec/internal/config"
 	"github.com/joshk418/flexspec/internal/spec"
+	"github.com/joshk418/flexspec/internal/ui"
 )
+
+var listJSON bool
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
@@ -42,6 +46,12 @@ id, name, and status.`,
 		}
 
 		out := cmd.OutOrStdout()
+		if listJSON {
+			enc := json.NewEncoder(out)
+			enc.SetIndent("", "  ")
+			return enc.Encode(ui.EncodeSpecsForCLI(entries))
+		}
+
 		if len(entries) == 0 {
 			if _, err := fmt.Fprintf(out, "No specs in %s\n", cfg.SpecsDir); err != nil {
 				return err
@@ -95,4 +105,5 @@ func displayOrDash(s string) string {
 
 func init() {
 	rootCmd.AddCommand(listCmd)
+	listCmd.Flags().BoolVar(&listJSON, "json", false, "Output specs as JSON")
 }

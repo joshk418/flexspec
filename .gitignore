@@ -2,3 +2,4 @@
 /dist/
 flexspec.exe
 .vscode
+ui/node_modules

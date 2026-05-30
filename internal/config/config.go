@@ -38,8 +38,43 @@ func Load(root string) (Config, error) {
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return Config{}, fmt.Errorf("parse %s: %w", path, err)
 	}
-	if cfg.SpecsDir == "" {
-		return Config{}, fmt.Errorf("%s: specs_dir must be set", path)
+	if err := validate(&cfg, path); err != nil {
+		return Config{}, err
 	}
 	return cfg, nil
+}
+
+// Save writes config to .flexspec/config.yaml under root.
+func Save(root string, cfg Config) error {
+	if err := validate(&cfg, filepath.Join(root, flexspecDir, configFile)); err != nil {
+		return err
+	}
+	data, err := yaml.Marshal(&cfg)
+	if err != nil {
+		return fmt.Errorf("marshal config: %w", err)
+	}
+	path := filepath.Join(root, flexspecDir, configFile)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return fmt.Errorf("create %s: %w", filepath.Dir(path), err)
+	}
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		return fmt.Errorf("write %s: %w", path, err)
+	}
+	return nil
+}
+
+// ConfigPath returns the absolute path to config.yaml.
+func ConfigPath(root string) string {
+	return filepath.Join(root, flexspecDir, configFile)
+}
+
+func validate(cfg *Config, path string) error {
+	if cfg.SpecsDir == "" {
+		return fmt.Errorf("%s: specs_dir must be set", path)
+	}
+	if cfg.SpecTemplate != "" &&
+		cfg.SpecTemplate != "simple" && cfg.SpecTemplate != "expanded" {
+		return fmt.Errorf("%s: spec_template must be simple, expanded, or empty", path)
+	}
+	return nil
 }
