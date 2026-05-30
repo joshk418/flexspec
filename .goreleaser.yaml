@@ -1,0 +1,43 @@
+version: 2
+
+project_name: flexspec
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: flexspec
+    main: ./main.go
+    binary: flexspec
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - id: flexspec
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  disable: true
+
+release:
+  # The GitHub release is already created by release-please; GoReleaser just
+  # attaches the built archives and checksums to that existing tag/release.
+  mode: append
