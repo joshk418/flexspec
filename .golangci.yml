@@ -10,8 +10,7 @@ formatters:
   enable:
     - gofmt
     - goimports
-
-formatters-settings:
-  goimports:
-    local-prefixes:
-      - github.com/joshk418/flexspec
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/joshk418/flexspec
