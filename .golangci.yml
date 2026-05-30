@@ -5,6 +5,11 @@ run:
 
 linters:
   default: standard
+  exclusions:
+    rules:
+      - linters:
+          - errcheck
+        source: "^\t*defer "
 
 formatters:
   enable:
