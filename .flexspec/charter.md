@@ -1,13 +1,13 @@
 ---
 product_name: "FlexSpec"
 version: "0.1"
-last_updated: "2026-05-30"
+last_updated: "2026-05-31"
 status: active
 ---
 
 # FlexSpec
 
-> **Charter status**: active · **Version**: 0.1 · **Last updated**: 2026-05-30
+> **Charter status**: active · **Version**: 0.1 · **Last updated**: 2026-05-31
 
 ## 1. Product overview
 
@@ -52,7 +52,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 - Charter management — product-wide context authored via `/flexspec-charter`.
 - CLI — `flexspec init`, `flexspec new`, `flexspec list` (`--json` for machine output), `flexspec validate`, `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
 - Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status, spec browser with markdown rendering, settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
-- Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter).
+- Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter), including structured multiple-choice interviews for UI-heavy specs and UI standards.
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
 **Planned:**
@@ -154,3 +154,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-05-30 | §4/§6/§9 — document full CLI (`init`, `new`, `list`, `validate`); architecture diagram updated. | 001-cli-validate |
 | 2026-05-30 | §4/§5/§6/§9 — management UI (`flexspec ui`), `list --json`, `status set`; architecture + glossary. | 002-management-ui |
 | 2026-05-30 | §4 — compact list output by default; `--json` still has full detail. | 003-simplify-list-command |
+| 2026-05-31 | §4 — agent skills use structured multiple-choice interviews for UI-heavy specs and UI standards. | 004-enhance-ui-interviews |
