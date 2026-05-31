@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/joshk418/flexspec/compare/v0.2.0...v0.2.1) (2026-05-31)
+
+
+### Features
+
+* Added to the flexspec skill to ensure UI work involves agent interviews ([#11](https://github.com/joshk418/flexspec/issues/11)) ([05478b9](https://github.com/joshk418/flexspec/commit/05478b9f6f41ab18d7bcb4c5a2c8291fbf461e5e))
+
 ## [0.2.0](https://github.com/joshk418/flexspec/compare/v0.1.2...v0.2.0) (2026-05-30)
 
 
