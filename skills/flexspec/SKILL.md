@@ -66,6 +66,8 @@ Run from project root.
 | `flexspec init` | `.flexspec/` or config missing |
 | `flexspec new <name> --template <simple\|expanded>` | create new spec |
 | `flexspec list` | discover specs/status |
+| `flexspec status set <spec> --status <status>` | update spec frontmatter status |
+| `flexspec status set <spec> --task <task-file> --status <status>` | update expanded task frontmatter status |
 | `flexspec validate` | structural checks after edits / before handoff |
 
 Forbidden scaffolding actions:
@@ -73,6 +75,7 @@ Forbidden scaffolding actions:
 - no manual seed `README.md`
 - no template copy-paste from `.flexspec/templates`
 - no manual sequence numbering
+- no manual frontmatter status edits; use `flexspec status set` for spec/task `status`
 
 Allowed after `flexspec new`:
 - edit CLI-created `README.md`
@@ -120,12 +123,53 @@ Goal: complete, unambiguous, testable spec on disk; move status to `planned`.
 2. Choose template using resolution/heuristic rules.
 3. Initialize if needed (`flexspec init`).
 4. Scaffold with CLI (`flexspec new <name> --template <simple|expanded>`).
-5. Fill CLI-created spec files (do not re-scaffold).
-6. Surface unknowns; ask user in grouped questions; resolve all blocking items.
-7. Run readiness checks (sections, IDs, tests, mappings, token budgets).
-8. Run charter freshness check and resolve/defer per mode rules.
-9. Set `status` through `refined` to `planned`.
-10. End phase; summarize and ask user to run `/flexspec` again (unless one-shot).
+5. If the request includes UI work, run the UI Interview Gate before filling design details.
+6. Fill CLI-created spec files (do not re-scaffold).
+7. Surface unknowns; ask user in grouped questions; resolve all blocking items.
+8. For UI specs, map UI interview answers into requirements, tasks, testing criteria, and §5 assumptions/risks.
+9. Run readiness checks (sections, IDs, tests, mappings, token budgets).
+10. Run charter freshness check and resolve/defer per mode rules.
+11. Set `status` through `refined` to `planned` with `flexspec status set <spec> --status planned`.
+12. End phase; summarize and ask user to run `/flexspec` again (unless one-shot).
+
+## UI Interview Gate (Phase 1)
+
+Run this gate when the request creates or changes user-facing UI: pages, screens,
+visual components, forms, auth, onboarding, settings, dashboards, navigation,
+marketing surfaces, or complete UI builds. For tiny copy/style fixes, ask only if
+style intent is unclear.
+
+Use the integrated structured question system available in the current agent
+runtime when it exists (for example Cursor `AskQuestion`, or equivalent Claude,
+Codex, or other agent multiple-choice tools). Prefer grouped multiple-choice
+questions, with multi-select when several choices can apply. If no structured
+question tool exists, ask the same options in concise text and record the fallback
+in §5 Other.
+
+Ask only the groups needed for the feature, but cover all high-risk unknowns before
+`planned`:
+
+| Area | Example options to offer |
+| --- | --- |
+| Visual direction | reuse existing app style, polished SaaS, playful/illustrated, minimal utility, dense admin |
+| Layout density | spacious marketing, balanced app, compact dashboard, mobile-first |
+| Component details | icons on primary/secondary buttons, avatars/illustrations, cards vs flat sections, dividers/borders |
+| Interaction affordances | password show/hide, loading states, disabled states, inline validation, keyboard shortcuts |
+| State coverage | empty, loading, error, success, permission/unauthenticated, skeletons |
+| Accessibility | labels, focus states, contrast needs, reduced motion, screen-reader text |
+| App fit | existing components to reuse, routes/screens to match, design system constraints |
+
+For auth and form-heavy UI, explicitly decide password visibility toggles, icon
+usage, field validation timing, submit/loading behavior, forgot/reset links, and
+social/provider button treatment when relevant.
+
+Before setting `status: planned`, translate answers into:
+
+- FR/NF requirements for visible behavior and accessibility constraints.
+- §2.1 file/component plan naming existing UI patterns to reuse.
+- §3 tasks that implement the chosen states and interactions.
+- §4 tests or manual checks for states, accessibility, and responsive behavior.
+- §5 assumptions/risks for any deferred style or product choices.
 
 ## Authoring Requirements (both templates)
 
@@ -267,13 +311,13 @@ Task constraints:
 Run when status is `planned` or `in_progress`.
 
 1. Read spec `README.md` and expanded `tasks/` files if present.
-2. Set spec status to `in_progress`.
+2. Set spec status to `in_progress` with `flexspec status set <spec> --status in_progress`.
 3. Implement in dependency order (`depends_on` + plan map).
-4. For expanded specs, update task status `todo -> in_progress -> done`.
+4. For expanded specs, update task status `todo -> in_progress -> done` with `flexspec status set <spec> --task <task-file> --status <status>`.
 5. Stay within spec scope/files and each task's "Out of Scope".
 6. Satisfy all `FR`/`NF`; implement tests required by `TC` mappings.
 7. Run project verification (tests/build) and `flexspec validate` when project uses it.
-8. Set spec status `in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
+8. Set spec status `in_review` with `flexspec status set <spec> --status in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
 
 If unresolved spec gap appears: ask user; do not guess.
 
@@ -311,5 +355,5 @@ Reference: [Slop Code Taxonomy](https://zbmowrey.com/blog/slop-code-taxonomy/)
 
 ## Phase 3 Exit
 
-- Pass: set `status: complete`, record `implementation_finished`, summarize.
+- Pass: set `status: complete` with `flexspec status set <spec> --status complete`, record `implementation_finished`, summarize.
 - Fail: keep `status: in_review`, list required fixes, ask how to proceed (or auto-fix in one-shot).

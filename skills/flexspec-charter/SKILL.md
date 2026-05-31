@@ -26,6 +26,13 @@ Do not invent product facts, stack choices, or boundaries. Batch 2–4 related q
 per round. If the user defers an answer, record it in §10 as blocking or non-blocking
 and do not mark the charter `active` while blocking items remain.
 
+Use the integrated structured question system available in the current agent runtime
+when it exists (for example Cursor `AskQuestion`, or equivalent Claude, Codex, or
+other agent multiple-choice tools). Prefer grouped multiple-choice prompts; use
+multi-select when several answers can apply. If no structured question tool exists,
+ask the same choices in concise text and record any deferred or ambiguous answers
+in §10.
+
 ---
 
 ## Workflow
@@ -69,6 +76,23 @@ Map answers into the template sections. Sample questions:
 | §8 Product boundaries | What will this product **not** do (global non-goals)? |
 | §9 Glossary | Domain terms agents must use consistently? |
 | §10 Assumptions / questions | What are we assuming? What is still unknown (blocking vs not)? |
+
+For charter creation, charter refresh, or `/flexspec`-triggered deltas involving
+UI, ask a short structured UI standards round before writing §4, §7, §8, and §10.
+Keep it product-wide; do not embed individual feature specs.
+
+| UI area | Multiple-choice prompt examples |
+| --- | --- |
+| Product style | existing app style, polished SaaS, playful/illustrated, minimal utility, dense admin, custom |
+| Design-system source | established component library, local components, bespoke per feature, undecided |
+| Interaction defaults | icons on buttons, password show/hide toggles, inline validation, skeleton loading, toast/banner feedback |
+| State requirements | empty, loading, error, success, permission/unauthenticated, responsive/mobile |
+| Accessibility baseline | WCAG AA contrast, visible focus, labels/help text, reduced motion, screen-reader text |
+| Boundaries | avoid new visual language, avoid animation, avoid new dependencies, require user approval for major redesigns |
+
+When `/flexspec` proposes a UI delta, treat the delta list as the agenda and ask
+only the missing product-level UI choices. Preserve existing charter sections that
+were not part of the requested update.
 
 ### 5. Write the charter
 
