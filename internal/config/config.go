@@ -17,12 +17,12 @@ const (
 
 // Config holds project settings from .flexspec/config.yaml.
 type Config struct {
-	SpecsDir      string `yaml:"specs_dir"`
-	AlwaysOneShot bool   `yaml:"always_one_shot"`
+	SpecsDir      string `yaml:"specs_dir" json:"specs_dir"`
+	AlwaysOneShot bool   `yaml:"always_one_shot" json:"always_one_shot"`
 	// SpecTemplate optionally forces the template /flexspec uses ("simple" or
 	// "expanded"). It has no default: an empty value means /flexspec infers the
 	// template from the work's size.
-	SpecTemplate string `yaml:"spec_template"`
+	SpecTemplate string `yaml:"spec_template" json:"spec_template"`
 }
 
 // Entry is one row for human-readable config output (flexspec config).
@@ -57,6 +57,31 @@ func displayOrDash(s string) string {
 		return "-"
 	}
 	return s
+}
+
+// ApplyUpdate returns cfg with one known key updated. Value is parsed by key type.
+func ApplyUpdate(cfg Config, key, value string) (Config, error) {
+	switch key {
+	case "specs_dir":
+		if strings.TrimSpace(value) == "" {
+			return Config{}, fmt.Errorf("specs_dir must be set")
+		}
+		cfg.SpecsDir = value
+	case "always_one_shot":
+		b, err := strconv.ParseBool(value)
+		if err != nil {
+			return Config{}, fmt.Errorf("always_one_shot: invalid bool %q", value)
+		}
+		cfg.AlwaysOneShot = b
+	case "spec_template":
+		if value != "" && value != "simple" && value != "expanded" {
+			return Config{}, fmt.Errorf("spec_template must be simple, expanded, or empty")
+		}
+		cfg.SpecTemplate = value
+	default:
+		return Config{}, fmt.Errorf("unknown config key %q", key)
+	}
+	return cfg, nil
 }
 
 // Load reads .flexspec/config.yaml under root.

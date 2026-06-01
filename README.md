@@ -23,7 +23,7 @@ That range lets you start lightweight and scale up when a feature needs more det
 - Adapter support for external systems (Jira, Shortcut, GitHub Issues, and more)
 - Single-file specs for quick features
 - Multi-file, linked specifications for complex features
-- Local management UI (`flexspec ui`) — kanban/table board, spec browser, settings
+- Local management UI (`flexspec ui`) — kanban/table board, spec browser, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 
 ## Installation
 
@@ -90,6 +90,7 @@ From your project root (after `flexspec init`):
 | `flexspec new <name> --template <simple\|expanded>` | Scaffold a new spec under the configured specs directory            |
 | `flexspec config`                                   | Show `.flexspec/config.yaml` settings (KEY / VALUE table)           |
 | `flexspec config --json`                            | Same config as JSON (scripts, agents)                               |
+| `flexspec config set <key> <value>`                 | Update one config key and print the updated table                   |
 | `flexspec list`                                     | Compact table of spec directory identifiers, statuses, and task counts |
 | `flexspec list --json`                              | Same data as JSON (scripts, CI)                                     |
 | `flexspec validate`                                 | Check config, charter, templates, and specs for structural problems |
@@ -100,6 +101,7 @@ From your project root (after `flexspec init`):
 flexspec --help
 flexspec init
 flexspec config
+flexspec config set spec_template expanded
 flexspec new my-feature --template simple
 flexspec list
 flexspec validate
