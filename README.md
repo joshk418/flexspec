@@ -88,6 +88,8 @@ From your project root (after `flexspec init`):
 | --------------------------------------------------- | ------------------------------------------------------------------- |
 | `flexspec init`                                     | Create `.flexspec/`, config, charter, and templates                 |
 | `flexspec new <name> --template <simple\|expanded>` | Scaffold a new spec under the configured specs directory            |
+| `flexspec config`                                   | Show `.flexspec/config.yaml` settings (KEY / VALUE table)           |
+| `flexspec config --json`                            | Same config as JSON (scripts, agents)                               |
 | `flexspec list`                                     | Compact table of spec directory identifiers, statuses, and task counts |
 | `flexspec list --json`                              | Same data as JSON (scripts, CI)                                     |
 | `flexspec validate`                                 | Check config, charter, templates, and specs for structural problems |
@@ -97,6 +99,7 @@ From your project root (after `flexspec init`):
 ```bash
 flexspec --help
 flexspec init
+flexspec config
 flexspec new my-feature --template simple
 flexspec list
 flexspec validate

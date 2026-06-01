@@ -37,8 +37,10 @@ Default: one phase per `/flexspec` invocation, then stop and ask to continue.
 
 Resolve mode before execution:
 1. If user passed `--one-shot`: run Author -> Implement -> Review continuously.
-2. Else if `.flexspec/config.yaml` has `always_one_shot: true`: same one-shot behavior.
+2. Else run `flexspec config --json` (or `flexspec config`) and check `always_one_shot`; if `true`, same one-shot behavior.
 3. Else: one phase per prompt.
+
+Do not open `.flexspec/config.yaml` manually for `always_one_shot`, `spec_template`, or `specs_dir` — use `flexspec config` / `flexspec config --json`.
 
 One-shot still must ask for blocking unknowns.
 
@@ -46,7 +48,7 @@ One-shot still must ask for blocking unknowns.
 
 Resolve template in this order:
 1. `/flexspec --template <simple|expanded>`
-2. `.flexspec/config.yaml` -> `spec_template: simple|expanded`
+2. `flexspec config --json` -> `spec_template` (`simple` or `expanded`)
 3. Infer from scope (simple vs expanded)
 
 Only `simple` and `expanded` valid. Anything else = unset; infer or ask user if borderline.
@@ -64,6 +66,7 @@ Run from project root.
 | Command | Use |
 | --- | --- |
 | `flexspec init` | `.flexspec/` or config missing |
+| `flexspec config` | read project config (table); prefer `--json` for agents |
 | `flexspec new <name> --template <simple\|expanded>` | create new spec |
 | `flexspec list` | discover specs/status |
 | `flexspec status set <spec> --status <status>` | update spec frontmatter status |

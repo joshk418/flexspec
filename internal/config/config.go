@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -21,6 +23,44 @@ type Config struct {
 	// "expanded"). It has no default: an empty value means /flexspec infers the
 	// template from the work's size.
 	SpecTemplate string `yaml:"spec_template"`
+}
+
+// Entry is one row for human-readable config output (flexspec config).
+type Entry struct {
+	Key   string
+	Value string
+}
+
+// JSONDocument is the machine-readable shape for flexspec config --json.
+type JSONDocument struct {
+	SpecsDir      string `json:"specs_dir"`
+	AlwaysOneShot bool   `json:"always_one_shot"`
+	SpecTemplate  string `json:"spec_template"`
+}
+
+// DisplayEntries returns known config keys in fixed order for table output.
+func DisplayEntries(cfg Config) []Entry {
+	return []Entry{
+		{Key: "specs_dir", Value: cfg.SpecsDir},
+		{Key: "always_one_shot", Value: strconv.FormatBool(cfg.AlwaysOneShot)},
+		{Key: "spec_template", Value: displayOrDash(cfg.SpecTemplate)},
+	}
+}
+
+// JSONDocumentFromConfig builds the --json payload for cfg.
+func JSONDocumentFromConfig(cfg Config) JSONDocument {
+	return JSONDocument{
+		SpecsDir:      cfg.SpecsDir,
+		AlwaysOneShot: cfg.AlwaysOneShot,
+		SpecTemplate:  cfg.SpecTemplate,
+	}
+}
+
+func displayOrDash(s string) string {
+	if strings.TrimSpace(s) == "" {
+		return "-"
+	}
+	return s
 }
 
 // Load reads .flexspec/config.yaml under root.
