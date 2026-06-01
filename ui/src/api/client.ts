@@ -1,5 +1,3 @@
-import YAML from "js-yaml";
-
 export type Spec = {
   id: string;
   dir: string;
@@ -46,25 +44,20 @@ export async function fetchSpecDetail(dir: string): Promise<SpecDetail> {
   return res.json();
 }
 
-export async function fetchConfigRaw(): Promise<string> {
-  const res = await fetch(`${base}/api/config/raw`);
+export async function fetchConfig(): Promise<ProjectConfig> {
+  const res = await fetch(`${base}/api/config`);
   if (!res.ok) throw new Error(await errorMessage(res));
-  return res.text();
+  return res.json();
 }
 
-export async function saveConfigYAML(yamlText: string): Promise<void> {
-  const parsed = YAML.load(yamlText) as Record<string, unknown>;
-  const cfg: ProjectConfig = {
-    specs_dir: String(parsed.specs_dir ?? "specs"),
-    always_one_shot: Boolean(parsed.always_one_shot),
-    spec_template: parsed.spec_template ? String(parsed.spec_template) : "",
-  };
+export async function saveConfig(config: ProjectConfig): Promise<ProjectConfig> {
   const res = await fetch(`${base}/api/config`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(cfg),
+    body: JSON.stringify(config),
   });
   if (!res.ok) throw new Error(await errorMessage(res));
+  return res.json();
 }
 
 async function errorMessage(res: Response): Promise<string> {

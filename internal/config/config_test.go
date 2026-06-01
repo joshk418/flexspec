@@ -70,6 +70,45 @@ func TestJSONDocumentFromConfig(t *testing.T) {
 	}
 }
 
+func TestApplyUpdate(t *testing.T) {
+	base := Config{SpecsDir: "specs", AlwaysOneShot: false, SpecTemplate: ""}
+
+	tests := []struct {
+		name    string
+		key     string
+		value   string
+		want    Config
+		wantErr bool
+	}{
+		{"specs_dir", "specs_dir", "my-specs", Config{SpecsDir: "my-specs", AlwaysOneShot: false, SpecTemplate: ""}, false},
+		{"always_one_shot", "always_one_shot", "true", Config{SpecsDir: "specs", AlwaysOneShot: true, SpecTemplate: ""}, false},
+		{"spec_template simple", "spec_template", "simple", Config{SpecsDir: "specs", AlwaysOneShot: false, SpecTemplate: "simple"}, false},
+		{"spec_template empty", "spec_template", "", Config{SpecsDir: "specs", AlwaysOneShot: false, SpecTemplate: ""}, false},
+		{"unknown key", "nope", "x", Config{}, true},
+		{"invalid bool", "always_one_shot", "nope", Config{}, true},
+		{"invalid template", "spec_template", "bad", Config{}, true},
+		{"empty specs_dir", "specs_dir", "", Config{}, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ApplyUpdate(base, tt.key, tt.value)
+			if tt.wantErr {
+				if err == nil {
+					t.Fatal("expected error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != tt.want {
+				t.Errorf("got %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestLoad_emptySpecsDir(t *testing.T) {
 	root := t.TempDir()
 	base := filepath.Join(root, flexspecDir)

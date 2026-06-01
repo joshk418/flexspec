@@ -50,8 +50,8 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
 - Charter management — product-wide context authored via `/flexspec-charter`.
-- CLI — `flexspec init`, `flexspec new`, `flexspec config` (`--json` for machine output), `flexspec list` (`--json`), `flexspec validate`, `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
-- Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status, spec browser with markdown rendering, settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
+- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`), `flexspec validate`, `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
+- Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status, spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 - Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter), including structured multiple-choice interviews for UI-heavy specs and UI standards.
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
@@ -126,7 +126,7 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Adapter | Pluggable connector to an external issue tracker (planned). |
 | Phase | A stage in the `/flexspec` lifecycle: author, implement, or review. |
 | One-shot | Running all `/flexspec` phases back-to-back without stopping (`always_one_shot` / `--one-shot`). |
-| Config | `flexspec config` — print `.flexspec/config.yaml` as a table or JSON (`--json`). |
+| Config | `flexspec config` — read `.flexspec/config.yaml` as a table or JSON (`--json`); `flexspec config set <key> <value>` updates a known key. The UI settings page edits the same fields through structured controls. |
 | Validate | `flexspec validate` — read-only structural checks on `.flexspec/`, templates, and specs (exit 1 on errors). |
 | Management UI | `flexspec ui` — local dashboard (board, spec browser, settings) with live filesystem sync. |
 | SSE | Server-sent events from `flexspec ui` when spec files change on disk. |
@@ -157,3 +157,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-05-30 | §4 — compact list output by default; `--json` still has full detail. | 003-simplify-list-command |
 | 2026-05-31 | §4 — agent skills use structured multiple-choice interviews for UI-heavy specs and UI standards. | 004-enhance-ui-interviews |
 | 2026-06-01 | §4/§9 — `flexspec config` (`--json`) to read project settings without opening YAML. | 005-config-command |
+| 2026-06-01 | §4/§9 — `flexspec config set` and structured UI settings for updating `.flexspec/config.yaml`. | 006-config-update-command-and-ui |

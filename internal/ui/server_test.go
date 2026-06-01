@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -69,5 +70,73 @@ func TestNewServer_missingConfig(t *testing.T) {
 	_, err := NewServer(root, "127.0.0.1", 3000, StubStaticFS())
 	if err == nil {
 		t.Fatal("expected error for missing config")
+	}
+}
+
+func TestServer_configGetPut(t *testing.T) {
+	root := t.TempDir()
+	writeUIProject(t, root)
+
+	srv, err := NewServer(root, "127.0.0.1", 0, StubStaticFS())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ts := httptest.NewServer(srv.http.Handler)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/api/config")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("GET config status = %d", resp.StatusCode)
+	}
+
+	var got map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&got); err != nil {
+		t.Fatal(err)
+	}
+	if got["specs_dir"] != "specs" || got["always_one_shot"] != false {
+		t.Fatalf("config = %+v", got)
+	}
+
+	body := []byte(`{"specs_dir":"docs-specs","always_one_shot":true,"spec_template":"simple"}`)
+	putResp, err := http.NewRequest(http.MethodPut, ts.URL+"/api/config", bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	putResp.Header.Set("Content-Type", "application/json")
+	putResult, err := http.DefaultClient.Do(putResp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer putResult.Body.Close()
+	if putResult.StatusCode != http.StatusOK {
+		t.Fatalf("PUT config status = %d", putResult.StatusCode)
+	}
+
+	var saved map[string]any
+	if err := json.NewDecoder(putResult.Body).Decode(&saved); err != nil {
+		t.Fatal(err)
+	}
+	if saved["specs_dir"] != "docs-specs" || saved["always_one_shot"] != true || saved["spec_template"] != "simple" {
+		t.Fatalf("saved = %+v", saved)
+	}
+
+	badBody := []byte(`{"specs_dir":"","always_one_shot":false,"spec_template":""}`)
+	badReq, err := http.NewRequest(http.MethodPut, ts.URL+"/api/config", bytes.NewReader(badBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+	badReq.Header.Set("Content-Type", "application/json")
+	badResp, err := http.DefaultClient.Do(badReq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer badResp.Body.Close()
+	if badResp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("invalid PUT status = %d, want 400", badResp.StatusCode)
 	}
 }
