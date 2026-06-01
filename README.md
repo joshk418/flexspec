@@ -110,4 +110,4 @@ flexspec status set 001-my-feature --status in_progress
 
 ## License
 
-Copyright © 2026 Josh Kyte
+MIT. See [LICENSE](LICENSE).
