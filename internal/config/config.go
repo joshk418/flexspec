@@ -49,11 +49,7 @@ func DisplayEntries(cfg Config) []Entry {
 
 // JSONDocumentFromConfig builds the --json payload for cfg.
 func JSONDocumentFromConfig(cfg Config) JSONDocument {
-	return JSONDocument{
-		SpecsDir:      cfg.SpecsDir,
-		AlwaysOneShot: cfg.AlwaysOneShot,
-		SpecTemplate:  cfg.SpecTemplate,
-	}
+	return JSONDocument(cfg)
 }
 
 func displayOrDash(s string) string {
