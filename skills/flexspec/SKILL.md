@@ -316,10 +316,17 @@ Run when status is `planned` or `in_progress`.
 4. For expanded specs, update task status `todo -> in_progress -> done` with `flexspec status set <spec> --task <task-file> --status <status>`.
 5. Stay within spec scope/files and each task's "Out of Scope".
 6. Satisfy all `FR`/`NF`; implement tests required by `TC` mappings.
-7. Run project verification (tests/build) and `flexspec validate` when project uses it.
-8. Set spec status `in_review` with `flexspec status set <spec> --status in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
+7. Follow the **Code Comment Policy** below during all implementation.
+8. Run project verification (tests/build) and `flexspec validate` when project uses it.
+9. Set spec status `in_review` with `flexspec status set <spec> --status in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
 
 If unresolved spec gap appears: ask user; do not guess.
+
+## Code Comment Policy
+
+- **Minimize comments.** Avoid writing code comments unless required by linter, project config, or user convention. Follow existing repo comment style — if sparse, stay sparse; if doc-comments on public APIs, match that.
+- **Keep comments short.** One sentence or a few words max. Long explanatory blocks reduce readability. If code needs a paragraph to explain, refactor the code for clarity instead.
+- **Never reference FlexSpec artifacts in code.** No spec names, directories, task IDs (`T-001`), requirement IDs (`FR-001`), or any FlexSpec artifact in source code. Specs live outside the codebase and may be archived or absent — embedding references creates confusion and stale pointers.
 
 ---
 
@@ -350,6 +357,7 @@ If gaps exist:
 - [ ] No dead code, needless abstraction, or unexplained bloat.
 - [ ] Concurrency/shared state is safe.
 - [ ] Diff is explainable by human reviewer end-to-end.
+- [ ] No excessive/narrating code comments; no FlexSpec spec/task references in source code.
 
 Reference: [Slop Code Taxonomy](https://zbmowrey.com/blog/slop-code-taxonomy/)
 
