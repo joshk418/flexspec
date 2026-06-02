@@ -1,7 +1,7 @@
 ---
 name: ""
 description: ""
-status: [initial, refined, planned, in_progress, in_review, complete]
+status: [draft, planned, in_progress, in_review, complete]
 created: "{datetime}"
 implementation_start: "datetime"
 implementation_finished: "datetime"
@@ -215,7 +215,7 @@ plan (Section 3) until it can. Map tests back to requirement/task IDs.
 
 <!--
 Open questions, assumptions, risks, thoughts, and observations. Open questions
-MUST be resolved before status moves past `refined` and implementation begins.
+MUST be resolved before status moves to `planned` and implementation begins.
 -->
 
 - {open question / note / assumption}

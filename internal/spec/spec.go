@@ -183,11 +183,11 @@ func splitFrontmatter(content string) (string, error) {
 	} else if strings.HasPrefix(rest, "\r\n") {
 		rest = rest[2:]
 	}
-	end := strings.Index(rest, "\n---")
-	if end < 0 {
+	before, _, ok := strings.Cut(rest, "\n---")
+	if !ok {
 		return "", fmt.Errorf("missing closing ---")
 	}
-	return rest[:end], nil
+	return before, nil
 }
 
 func specID(dirName string) string {

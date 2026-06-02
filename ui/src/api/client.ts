@@ -76,17 +76,10 @@ export function subscribeEvents(onChange: () => void): () => void {
   return () => es.close();
 }
 
-export const SPEC_COLUMNS = [
-  "initial",
-  "refined",
-  "planned",
-  "in_progress",
-  "in_review",
-  "complete",
-] as const;
-
-export function columnForStatus(status: string): string {
-  const s = status.trim().toLowerCase();
-  if ((SPEC_COLUMNS as readonly string[]).includes(s)) return s;
-  return "unassigned";
-}
+export {
+  SPEC_COLUMNS,
+  UNASSIGNED_COLUMN,
+  columnForStatus,
+  normalizeSpecStatus,
+  type SpecColumn,
+} from "./status";
