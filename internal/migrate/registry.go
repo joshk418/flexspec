@@ -2,8 +2,6 @@ package migrate
 
 import "io/fs"
 
-const embedTemplatesRoot = "templates"
-
 // Registry returns ordered migrations. templatesFS is the embedded templates
 // subtree (rooted at "templates"). force allows overwriting differing template files.
 func Registry(templatesFS fs.FS, force bool) []Migration {
