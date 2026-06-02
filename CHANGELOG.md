@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0](https://github.com/joshk418/flexspec/compare/v0.2.1...v0.3.0) (2026-06-02)
+
+
+### Features
+
+* Added `config` command ([#16](https://github.com/joshk418/flexspec/issues/16)) ([cd399bd](https://github.com/joshk418/flexspec/commit/cd399bd7776ae1c05176fd5802f42f9e5341a284))
+* Added `set` to `config` command to update values ([#17](https://github.com/joshk418/flexspec/issues/17)) ([41036d1](https://github.com/joshk418/flexspec/commit/41036d1e3125be9bbf3c172faba6f2ab856130c4))
+* Reworked UI and added command to update CLI tool ([#18](https://github.com/joshk418/flexspec/issues/18)) ([244c5bb](https://github.com/joshk418/flexspec/commit/244c5bb8c2fceb9d2d53138e1bf2ee74055702a3))
+
+
+### Bug Fixes
+
+* Added language to ensure excessive comments are not added during implementation ([#14](https://github.com/joshk418/flexspec/issues/14)) ([eeeab7d](https://github.com/joshk418/flexspec/commit/eeeab7d7512a6ec16dbdd69e322d9ce4fcec8579))
+
+
+### Miscellaneous Chores
+
+* release 0.3.0 ([#19](https://github.com/joshk418/flexspec/issues/19)) ([aa16640](https://github.com/joshk418/flexspec/commit/aa166407656249d4a875293804dea2159fd811eb))
+
 ## [0.2.1](https://github.com/joshk418/flexspec/compare/v0.2.0...v0.2.1) (2026-05-31)
 
 
