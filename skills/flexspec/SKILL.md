@@ -27,7 +27,7 @@ Templates:
 
 | Phase | Run when status is | End status |
 | --- | --- | --- |
-| 1 Author | none / `initial` / `refined` | `planned` |
+| 1 Author | none / `draft` | `planned` |
 | 2 Implement | `planned` / `in_progress` | `in_review` |
 | 3 Review | `in_review` | `complete` |
 
@@ -72,6 +72,7 @@ Run from project root.
 | `flexspec status set <spec> --status <status>` | update spec frontmatter status |
 | `flexspec status set <spec> --task <task-file> --status <status>` | update expanded task frontmatter status |
 | `flexspec validate` | structural checks after edits / before handoff |
+| `flexspec update` | upgrade CLI, reinstall skills, run migrations (`--dry-run`, `--check`, step flags) |
 
 Forbidden scaffolding actions:
 - no manual `specs/NNN-slug` directory creation
@@ -132,7 +133,7 @@ Goal: complete, unambiguous, testable spec on disk; move status to `planned`.
 8. For UI specs, map UI interview answers into requirements, tasks, testing criteria, and §5 assumptions/risks.
 9. Run readiness checks (sections, IDs, tests, mappings, token budgets).
 10. Run charter freshness check and resolve/defer per mode rules.
-11. Set `status` through `refined` to `planned` with `flexspec status set <spec> --status planned`.
+11. Set `status` to `planned` with `flexspec status set <spec> --status planned` (specs are authored in `draft`).
 12. End phase; summarize and ask user to run `/flexspec` again (unless one-shot).
 
 ## UI Interview Gate (Phase 1)

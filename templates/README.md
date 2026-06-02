@@ -63,7 +63,7 @@ Every spec starts with YAML frontmatter:
 | --- | --- | --- |
 | `name` | string | Human-readable spec title. |
 | `description` | string | Short summary shown in listings (e.g. management UI, `flexspec list --json`). |
-| `status` | `initial` · `refined` · `planned` · `in_progress` · `in_review` · `complete` | Current lifecycle stage. |
+| `status` | `draft` · `planned` · `in_progress` · `in_review` · `complete` | Current lifecycle stage. |
 | `created` | datetime | When the spec was created. |
 | `implementation_start` | datetime | When implementation began. |
 | `implementation_finished` | datetime | When implementation completed. |
@@ -74,14 +74,13 @@ Every spec starts with YAML frontmatter:
 
 | Status | Meaning |
 | --- | --- |
-| `initial` | Draft created; summary/design still forming, open questions remain. |
-| `refined` | All open questions resolved; design agreed. |
-| `planned` | Implementation plan + task list finalized. |
+| `draft` | Authoring: summary/design forming; open questions may remain (interview happens here). |
+| `planned` | Open questions resolved; implementation plan + task list finalized. |
 | `in_progress` | Implementation underway. |
 | `in_review` | Implementation complete, under review. |
 | `complete` | Merged and verified against testing criteria. |
 
-A spec must not advance past `refined` while open questions remain in Section 5.
+A spec must not advance to `planned` while open questions remain in Section 5.
 
 ## Spec Sections
 

@@ -50,8 +50,9 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
 - Charter management — product-wide context authored via `/flexspec-charter`.
-- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`), `flexspec validate`, `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
-- Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status, spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
+- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`), `flexspec validate`, `flexspec update` (upgrade CLI, reinstall skills, run migrations; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
+- Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status (all lifecycle columns fit the viewport with a per-user column-visibility picker), spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
+- Spec lifecycle statuses — `draft`, `planned`, `in_progress`, `in_review`, `complete` (the board normalizes legacy `refined`/`initial` for display).
 - Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter), including structured multiple-choice interviews for UI-heavy specs and UI standards.
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
@@ -70,7 +71,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 **Constraints agents must respect:**
 
 - Go ≥ 1.26 floor (CI uses the `go.mod` version).
-- Minimal dependencies — Cobra, `yaml.v3`, and `fsnotify` (UI file watch); avoid heavy new deps. React UI is embedded at build time; end users do not need Node at runtime.
+- Minimal dependencies — Cobra, `yaml.v3`, and `fsnotify` (UI file watch); avoid heavy new deps. React UI is embedded at build time; end users do not need Node at runtime. The `flexspec update --skills` step invokes `npx` and requires Node on PATH for that command only.
 - Skills write only inside `.flexspec/` and the configured spec directory; agents may modify code files during implementation but must not touch `README`, `AGENTS.md`, or related docs unless explicitly instructed.
 - `init` never clobbers user edits unless `--force` is passed.
 - Cross-platform — build paths with `filepath`.
@@ -114,6 +115,8 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 - Modify `README`, `AGENTS.md`, or related documentation files unless explicitly instructed (it does modify code files during implementation).
 - Run as a hosted service.
 
+**Exception:** `flexspec update` may upgrade its own installed binary and reinstall agent skills (global skill directories) when the user runs that command explicitly.
+
 ## 9. Domain glossary
 
 | Term | Definition |
@@ -125,6 +128,10 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Task file | A per-task file within an expanded spec. |
 | Adapter | Pluggable connector to an external issue tracker (planned). |
 | Phase | A stage in the `/flexspec` lifecycle: author, implement, or review. |
+| Spec status | Lifecycle stage in spec frontmatter: `draft` (authoring), `planned`, `in_progress`, `in_review`, `complete`. Legacy `refined`/`initial` map to `planned`/`draft`. |
+| Update | `flexspec update` — upgrades the CLI, reinstalls skills, and runs in-project migrations. |
+| Migration | A detect/apply upgrade registered in `flexspec update` (e.g. status rename, template re-sync). |
+| Self-update | The CLI or skills install steps within `flexspec update` (outside `.flexspec/`). |
 | One-shot | Running all `/flexspec` phases back-to-back without stopping (`always_one_shot` / `--one-shot`). |
 | Config | `flexspec config` — read `.flexspec/config.yaml` as a table or JSON (`--json`); `flexspec config set <key> <value>` updates a known key. The UI settings page edits the same fields through structured controls. |
 | Validate | `flexspec validate` — read-only structural checks on `.flexspec/`, templates, and specs (exit 1 on errors). |
@@ -158,3 +165,5 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-05-31 | §4 — agent skills use structured multiple-choice interviews for UI-heavy specs and UI standards. | 004-enhance-ui-interviews |
 | 2026-06-01 | §4/§9 — `flexspec config` (`--json`) to read project settings without opening YAML. | 005-config-command |
 | 2026-06-01 | §4/§9 — `flexspec config set` and structured UI settings for updating `.flexspec/config.yaml`. | 006-config-update-command-and-ui |
+| 2026-06-01 | §4/§9 — board fit-viewport kanban + column-visibility picker; simplified spec statuses (`draft`…`complete`, dropped `refined`/`initial`). | 007-board-page-ui-overhaul |
+| 2026-06-01 | §4/§5/§8/§9 — `flexspec update` (CLI + skills + migrations); §8 carve-out for self-update. | 008-update-command |

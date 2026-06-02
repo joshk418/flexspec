@@ -1,7 +1,7 @@
 ---
 name: ''
 description: ''
-status: [initial,refined,planned,in_progress,in_review,complete]
+status: [draft,planned,in_progress,in_review,complete]
 created: '{datetime}'
 implementation_start: 'datetime' 
 implementation_finished: 'datetime'
@@ -251,7 +251,7 @@ the task(s) that implement it.
 
 <!--
 Open questions, assumptions, risks, rollout/migration notes, thoughts, and
-observations. Open questions MUST be resolved before status moves past `refined`
+observations. Open questions MUST be resolved before status moves to `planned`
 and implementation begins.
 -->
 

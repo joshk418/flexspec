@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   SPEC_COLUMNS,
+  UNASSIGNED_COLUMN,
   columnForStatus,
   type Spec,
 } from "../api/client";
@@ -11,6 +12,9 @@ type ViewMode = "kanban" | "table";
 
 const VIEW_KEY = "flexspec.boardView";
 const BOARD_DEFAULT_KEY = "flexspec.boardDefault";
+const COLUMNS_KEY = "flexspec.boardColumns";
+
+const ALL_COLUMNS = [...SPEC_COLUMNS, UNASSIGNED_COLUMN] as const;
 
 function loadView(): ViewMode {
   const v = localStorage.getItem(VIEW_KEY);
@@ -19,32 +23,61 @@ function loadView(): ViewMode {
   return fallback === "table" ? "table" : "kanban";
 }
 
+function loadVisibleColumns(): string[] {
+  try {
+    const raw = localStorage.getItem(COLUMNS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const valid = parsed.filter((c) => (ALL_COLUMNS as readonly string[]).includes(c));
+        if (valid.length > 0) return valid;
+      }
+    }
+  } catch {
+    /* fall through to default */
+  }
+  return [...ALL_COLUMNS];
+}
+
 export function BoardPage() {
   const { specs, loading, error } = useSpecs();
   const [view, setView] = useState<ViewMode>(loadView);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(loadVisibleColumns);
 
   const setViewMode = (mode: ViewMode) => {
     setView(mode);
     localStorage.setItem(VIEW_KEY, mode);
   };
 
+  const toggleColumn = (col: string) => {
+    setVisibleColumns((prev) => {
+      const next = prev.includes(col) ? prev.filter((c) => c !== col) : [...prev, col];
+      localStorage.setItem(COLUMNS_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   const grouped = useMemo(() => {
     const map = new Map<string, Spec[]>();
-    map.set("unassigned", []);
-    for (const col of SPEC_COLUMNS) map.set(col, []);
+    for (const col of ALL_COLUMNS) map.set(col, []);
     for (const s of specs) {
-      const col = columnForStatus(s.status);
-      map.get(col)!.push(s);
+      map.get(columnForStatus(s.status))!.push(s);
     }
     return map;
   }, [specs]);
+
+  // Preserve canonical column order; render only columns the user chose to show.
+  const renderedColumns = useMemo(
+    () => ALL_COLUMNS.filter((col) => visibleColumns.includes(col)),
+    [visibleColumns],
+  );
 
   if (loading) return <p>Loading specs…</p>;
   if (error) return <p style={{ color: "#f87171" }}>{error}</p>;
 
   return (
     <div>
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", alignItems: "center" }}>
+      <div className="board-toolbar">
         <strong>Board</strong>
         <button
           type="button"
@@ -60,21 +93,42 @@ export function BoardPage() {
         >
           Table
         </button>
+
+        {view === "kanban" && (
+          <details className="board-columns-menu">
+            <summary className="btn secondary">Columns</summary>
+            <div className="board-columns-panel">
+              {ALL_COLUMNS.map((col) => (
+                <label key={col} className="board-columns-option">
+                  <input
+                    type="checkbox"
+                    checked={visibleColumns.includes(col)}
+                    onChange={() => toggleColumn(col)}
+                  />
+                  <span>{col.replace(/_/g, " ")}</span>
+                </label>
+              ))}
+            </div>
+          </details>
+        )}
       </div>
 
       {view === "kanban" ? (
-        <div style={{ display: "flex", gap: "0.75rem", overflowX: "auto", alignItems: "flex-start" }}>
-          {[...SPEC_COLUMNS, "unassigned" as const].map((col) => (
-            <div key={col} style={{ minWidth: 220, flex: "0 0 auto" }}>
-              <h3 style={{ textTransform: "capitalize", fontSize: "0.85rem", color: "var(--muted)" }}>
+        <div
+          className="board-kanban"
+          style={{ gridTemplateColumns: `repeat(${Math.max(renderedColumns.length, 1)}, minmax(0, 1fr))` }}
+        >
+          {renderedColumns.map((col) => (
+            <section key={col} className="board-column">
+              <h3 className="board-column-title">
                 {col.replace(/_/g, " ")} ({grouped.get(col)?.length ?? 0})
               </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div className="board-column-cards">
                 {(grouped.get(col) ?? []).map((s) => (
                   <SpecCard key={s.dir} spec={s} />
                 ))}
               </div>
-            </div>
+            </section>
           ))}
         </div>
       ) : (
@@ -109,17 +163,13 @@ export function BoardPage() {
 
 function SpecCard({ spec }: { spec: Spec }) {
   return (
-    <div className="card">
-      <div style={{ fontSize: "0.75rem", color: "var(--muted)" }}>{spec.id}</div>
-      <Link to={`/specs/${spec.dir}`} style={{ fontWeight: 600 }}>
+    <div className="card board-card">
+      <div className="board-card-id">{spec.id}</div>
+      <Link to={`/specs/${spec.dir}`} className="board-card-title">
         {spec.name || spec.dir}
       </Link>
-      <p style={{ margin: "0.35rem 0 0", fontSize: "0.85rem", color: "var(--muted)" }}>
-        {truncate(spec.description, 100)}
-      </p>
-      {spec.spec_type && (
-        <span style={{ fontSize: "0.7rem", opacity: 0.8 }}>{spec.spec_type}</span>
-      )}
+      <p className="board-card-desc">{truncate(spec.description, 100)}</p>
+      {spec.spec_type && <span className="board-card-type">{spec.spec_type}</span>}
     </div>
   );
 }

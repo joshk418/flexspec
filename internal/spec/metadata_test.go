@@ -118,7 +118,7 @@ func TestList_sortOrder(t *testing.T) {
 		fm := `---
 name: ` + name + `
 description: desc
-status: initial
+status: draft
 spec_type: simple
 ---
 `

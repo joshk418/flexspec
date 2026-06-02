@@ -94,6 +94,9 @@ From your project root (after `flexspec init`):
 | `flexspec list`                                     | Compact table of spec directory identifiers, statuses, and task counts |
 | `flexspec list --json`                              | Same data as JSON (scripts, CI)                                     |
 | `flexspec validate`                                 | Check config, charter, templates, and specs for structural problems |
+| `flexspec update`                                   | Upgrade CLI, reinstall skills, and run project migrations (default: all three) |
+| `flexspec update --dry-run`                         | Preview update steps without writing or executing external commands |
+| `flexspec update --check`                           | CI gate: exit 1 when migrations are pending (detect only)           |
 | `flexspec ui`                                       | Start local management UI (default http://127.0.0.1:3000)           |
 | `flexspec status set <spec> --status <s>`           | Update spec or task frontmatter status (`--task` for task files)      |
 
@@ -105,6 +108,9 @@ flexspec config set spec_template expanded
 flexspec new my-feature --template simple
 flexspec list
 flexspec validate
+flexspec update
+flexspec update --dry-run
+flexspec update --migrate --only status-rename
 flexspec ui --no-open
 flexspec status set 001-my-feature --status in_progress
 ```
@@ -112,6 +118,8 @@ flexspec status set 001-my-feature --status in_progress
 `flexspec ui` flags: `--port`, `--host` (default `127.0.0.1`), `--open` / `--no-open`.
 
 `flexspec validate` prints findings as `severity`, `path`, `rule`, `message` (tab-separated), then a summary. It exits **0** when there are no errors and **1** when any error-severity finding exists (warnings alone do not fail). If config is missing, it reports that and skips deeper checks.
+
+`flexspec update` runs migrations first (legacy spec statuses, template re-sync, config keys, charter checks), then reinstalls skills via `npx`, then upgrades the CLI via `go install`. Use `--cli`, `--skills`, or `--migrate` to run individual steps. The skills step requires Node/`npx` on PATH; the CLI step requires Go. Re-run `flexspec update` after upgrading the CLI to apply migrations shipped in the newer version.
 
 ## License
 
