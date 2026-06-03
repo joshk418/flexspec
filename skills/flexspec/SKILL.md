@@ -195,14 +195,15 @@ Expanded-only Section 2:
 - External Interfaces (APIs/routes/events/CLI/integrations)
 
 Section 3 Implementation Plan:
-- implementation map (§3.1): build order + which §2.2 steps each task enables, with task execution table
+- **§3.2 Task List (required):** build order, files touched, requirement mapping; when §3.1 is omitted, each task cites `depends_on`, §2.1 files, and §2.2 step range(s)
+- **§3.1 Implementation Code Map (optional):** visual build-order map — include only when the **§3.1 complexity heuristic** applies; when included, mermaid diagram + task execution table per quality bar below
 - tasks:
   - simple: in-file `T-XXX` list with satisfies mapping
   - expanded: index table + separate task files in `tasks/`
 
 ## Code Map Quality Bar (Phase 1)
 
-Code maps document **code execution** for human and LLM reviewers — step through the plan like a debugger, without opening the repo. Before `planned`, §2.2 and §3.1 must each include a **mermaid diagram + markdown table** that match.
+Code maps document **code execution** for human and LLM reviewers — step through the plan like a debugger, without opening the repo. Before `planned`, **§2.2** must include a **mermaid diagram + execution trace table** that match. **§3.1** is optional by default; when the complexity heuristic requires it (or the author includes it), §3.1 must include a **mermaid diagram + task execution table** that match.
 
 ### §2.2 Design Code Map (runtime execution)
 
@@ -222,19 +223,39 @@ Keep ≤12 rows per path in simple specs; split or add a second diagram/table if
 
 **Reviewer test**: Can you answer "what runs at step N, with what input, producing what output?" from the table alone?
 
-### §3.1 Implementation Code Map (build order + execution enablement)
+### §3.1 complexity heuristic
 
-**Diagram (required)**
+**Include §3.1** when any of the following apply:
+
+- Auth, security, or permission-critical flows with multi-step enforcement
+- Large refactor or migration spanning many files with strict build ordering
+- Cross-cutting work across multiple subsystems (e.g. ≥3 top-level packages or bounded contexts)
+- Parallel implementation tracks (branching `depends_on`, or tasks that unblock different §2.2 paths)
+- Multiple §2.2 execution paths (CLI vs worker, API vs batch, etc.) where task→step mapping is non-obvious
+- Expanded spec with many interdependent tasks (typically ≥5 tasks with non-linear dependencies)
+- User explicitly requests a visual implementation map
+
+**Omit §3.1 (default)** when the §3.2 task list alone conveys build order — e.g. simple template, ≤4 tasks in a single linear chain, short §2.2 trace (≤6 steps) with obvious layer-by-layer mapping. Record in §5 Other: `§3.1 omitted: <reason>`.
+
+**When §3.1 is omitted**, §3.2 must still satisfy linkage:
+
+- Every §2.2 step owned by ≥1 task (cite step numbers in task text)
+- Every §2.1 file listed on a task row or bullet
+- Each task states files touched, `depends_on` (if any), and §2.2 steps implemented
+
+### §3.1 Implementation Code Map (when required or included)
+
+**Diagram (required when §3.1 present)**
 - Task nodes: `T-XXX :: file :: symbol` (primary symbols changed).
 - Solid edges: build / `depends_on` order from §3.2.
 - Dotted edges: `enables §2.2 step N` (or range) — what becomes runnable when the task lands.
 - Parallel branches OK; merge before integration tasks.
 
-**Task execution table (required)**:
+**Task execution table (required when §3.1 present)**:
 
 | Task | Build after | Implements §2.2 steps | Symbols added/changed | Execution unlocked |
 
-- Every §2.2 step owned by ≥1 task; every §2.1 file on a task row.
+- Every §2.2 step owned by ≥1 task (via §3.1 table and/or §3.2); every §2.1 file on a task row.
 - Symbols in tasks must match §2.2 trace `Location` column.
 
 **Reviewer test**: After T-00X, which execution steps from §2.2 can run in a dev environment?
@@ -244,7 +265,9 @@ Keep ≤12 rows per path in simple specs; split or add a second diagram/table if
 - Architecture-only boxes; no numbered/call-ordered execution.
 - Mermaid without a matching trace table (or mismatched step numbers).
 - Generic nodes; edges with no verb/payload; task graph with only `T-001 → T-002`.
-- §2.2 steps with no owning task in §3.1; §2.1 files absent from §3.1 table.
+- §2.2 steps with no owning task in §3.2 or §3.1; §2.1 files absent from task entries.
+- §3.1 included without meeting the complexity heuristic (token waste); or omitted on complex work when the task list cannot show build order and §2.2 linkage.
+- Scaffold-style §3.1 example diagrams left in a finished spec.
 
 ### When symbols are unknown
 
@@ -298,7 +321,7 @@ Task constraints:
 - [ ] Scaffold done via CLI (`flexspec init`/`flexspec new` as needed).
 - [ ] Correct template chosen.
 - [ ] All placeholders/comments removed.
-- [ ] Required sections complete, with valid mermaid blocks passing Code Map Quality Bar.
+- [ ] Required sections complete; §2.2 passes Code Map Quality Bar; §3.1 only when heuristic requires or author includes it (full bar when present); §3.1 omission noted in §5 when skipped.
 - [ ] FR/NF specific and testable.
 - [ ] Tasks mapped to requirements.
 - [ ] Every FR mapped to >=1 TC.

@@ -137,62 +137,28 @@ Use stable IDs so other sections and tasks can reference them.
 ## 3. Implementation Plan
 
 <!--
-Built off the technical plan. Enumerate everything that will be created or
-modified to complete the spec. Each task gets a stable internal ID (T-001...)
-so the FlexSpec system can reference, track, and order it.
+Built off the technical plan. Each task gets a stable internal ID (T-001...).
+
+§3.2 Task List is required. §3.1 Implementation Code Map is optional — add only
+for highly complex work (auth, large refactors, cross-cutting changes, parallel
+task tracks). See skills/flexspec/SKILL.md → §3.1 complexity heuristic.
+
+When §3.1 is omitted: each task must list files touched, depends_on (if any), and
+which §2.2 steps it implements; record omission in §5 Other (e.g. §3.1 omitted:
+linear 3-task change).
+
+When §3.1 is included: add ### 3.1 before or after this list with mermaid +
+task execution table per the skill Code Map Quality Bar.
 -->
-
-### 3.1 Implementation Code Map
-
-<!--
-IMPLEMENTATION + EXECUTION ENABLEMENT MAP.
-
-Show (1) task build order, (2) which §2.2 execution steps each task implements or
-unblocks, and (3) symbols/files touched. Reviewers should see how the runtime
-path from §2.2 becomes executable as tasks land.
-
-Required:
-- Mermaid: task nodes with `T-XXX :: file :: symbol`; solid edges = build order;
-  dotted edges = "enables §2.2 step N" (or step range).
-- Task execution table below diagram (required).
-
-Task execution table columns: Task | Build after | Implements §2.2 steps |
-Symbols added/changed | Execution unlocked |
-
-Every §2.2 step must be owned by ≥1 task. Every §2.1 file on a task row.
-
-Replace examples below.
--->
-
-```mermaid
-flowchart TB
-    subgraph exec [§2.2 runtime steps enabled]
-        e4["steps 4-5: Repo.insert → DB"]
-        e6["step 6: handler response"]
-    end
-    subgraph build [Task build order]
-        T001["T-001 :: migrations/001_orders.sql"]
-        T002["T-002 :: repos/order.ts :: OrderRepository.insert"]
-        T003["T-003 :: services/order.ts :: OrderService.create"]
-        T004["T-004 :: handlers/order.ts :: orderHandler"]
-        T005["T-005 :: tests/order.test.ts"]
-    end
-
-    T001 --> T002 --> T003 --> T004 --> T005
-    T002 -.->|enables| e4
-    T003 -.->|enables| e4
-    T004 -.->|enables| e6
-```
-
-| Task | Build after | Implements §2.2 steps | Symbols added/changed | Execution unlocked |
-| --- | --- | --- | --- | --- |
-| T-001 | — | — | schema `orders` | persistence possible |
-| T-002 | T-001 | 4–5 | `OrderRepository.insert` | DB write path runs |
-| T-003 | T-002 | 3, 4–5 | `OrderService.create`, `validate` | FR-001 logic + repo calls |
-| T-004 | T-003 | 1–2, 6 | `orderHandler` | full HTTP path end-to-end |
-| T-005 | T-004 | 1–6 (assert) | `tests/order.test.ts` | TC coverage of trace |
 
 ### 3.2 Task List
+
+<!--
+Each task: description, satisfies FR/NF, files touched, depends_on, §2.2 steps.
+Example:
+- **T-001** — Add config loader _(satisfies: FR-001; files: `internal/config.go`;
+  §2.2 steps: 2–3)_
+-->
 
 - **T-001** — {task description} _(satisfies: FR-001)_
 - **T-002** — {task description} _(satisfies: FR-002, NF-001)_

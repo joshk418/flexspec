@@ -91,7 +91,7 @@ design depth and moves tasks into separate files.
 | --- | --- | --- | --- |
 | 1 | Summary | Overview, scope, outcome. | Same, for a larger feature. |
 | 2 | Design | Architecture + file map, **code execution** map (§2.2: diagram + trace table), FR/NF. | Adds Data Model (`erDiagram`) and External Interfaces. |
-| 3 | Implementation Plan | **Build + execution enablement** map (§3.1: diagram + task table) + tasks. | Task list is an index table; each task is its own file in `tasks/`. |
+| 3 | Implementation Plan | **§3.2 tasks (required)**; optional **§3.1** map for complex work (diagram + task table). | Task index + per-task files in `tasks/`. |
 | 4 | Testing Criteria | Tests proving each requirement; everything must be testable. | Also maps each test to the implementing task. |
 | 5 | Other | Open questions, assumptions, risks, observations. | Same, plus rollout/migration notes. |
 
@@ -104,18 +104,18 @@ Acceptance Criteria, Testing, Out of Scope, Open Questions, References.
 
 ## Code Map Conventions
 
-FlexSpec code maps document **code execution** for humans and LLM reviewers. Each map section requires **mermaid + a markdown table** with matching step/task numbers.
+FlexSpec code maps document **code execution** for humans and LLM reviewers. **§2.2** always requires **mermaid + a markdown table** with matching step numbers. **§3.1** is optional for low-complexity specs; when included, it also requires mermaid + a task execution table. See `skills/flexspec/SKILL.md` → **§3.1 complexity heuristic**.
 
-| Section | Purpose | Diagram | Table |
-| --- | --- | --- | --- |
-| **§2.2 Code Map** | Runtime execution (debugger-style) | `sequenceDiagram` + `autonumber` preferred; `alt`/`opt` for branches | Execution trace: Step, Location, Executes, Input, Output, FR/NF |
-| **§3.1 Implementation Code Map** | Build order + what runtime steps unlock | Tasks + symbols; solid = build order; dotted = enables §2.2 step(s) | Task execution: Task, Build after, Implements §2.2 steps, Symbols, Execution unlocked |
+| Section | Required? | Purpose | Diagram | Table |
+| --- | --- | --- | --- | --- |
+| **§2.2 Code Map** | Yes | Runtime execution (debugger-style) | `sequenceDiagram` + `autonumber` preferred; `alt`/`opt` for branches | Execution trace: Step, Location, Executes, Input, Output, FR/NF |
+| **§3.1 Implementation Code Map** | When complex | Build order + what runtime steps unlock | Tasks + symbols; solid = build order; dotted = enables §2.2 step(s) | Task execution: Task, Build after, Implements §2.2 steps, Symbols, Execution unlocked |
 
 **Location format:** `` `path/to/file :: symbol` `` (handler, `Class.method`, route, or CLI command).
 
 **Interaction labels:** verb + payload — `calls create(dto)`, `returns 201`, `throws ValidationError`, `reads row`.
 
-**Linkage:** every §2.2 step owned by ≥1 task; every §2.1 file on §3.1 table; FR/NF on trace rows where applicable.
+**Linkage:** every §2.2 step owned by ≥1 task (§3.2 and/or §3.1); every §2.1 file on a task row; FR/NF on trace rows where applicable. When §3.1 is omitted, §3.2 must carry files, `depends_on`, and §2.2 step references.
 
 Authoring rules: `skills/flexspec/SKILL.md` → **Code Map Quality Bar**.
 
