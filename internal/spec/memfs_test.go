@@ -162,8 +162,8 @@ func (i memFileInfo) Sys() any           { return nil }
 
 func setupProjectMem(fsys *memFS, root string) {
 	templates := filepath.Join(root, ".flexspec", "templates")
-	simple := []byte("---\nspec_type: simple\n---\n# simple\n")
-	expanded := []byte("---\nspec_type: expanded\n---\n# expanded\n")
+	simple := []byte("---\nspec_type: simple\ntask_count: 0\n---\n# simple\n\n> **Status**: draft · **Priority**: low · **Created**: 2026-01-01 · **Tasks**: 0\n")
+	expanded := []byte("---\nspec_type: expanded\ntask_count: 0\n---\n# expanded\n\n> **Status**: draft · **Priority**: low · **Created**: 2026-01-01 · **Tasks**: 0\n")
 	_ = fsys.MkdirAll(filepath.Join(templates, "expanded"), dirPerm)
 	_ = fsys.WriteFile(filepath.Join(templates, "flexspec-simple.md"), simple, filePerm)
 	_ = fsys.WriteFile(filepath.Join(templates, "expanded", "flexspec-expanded.md"), expanded, filePerm)

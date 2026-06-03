@@ -8,6 +8,7 @@ type SpecJSON struct {
 	Description string     `json:"description"`
 	Status      string     `json:"status"`
 	SpecType    string     `json:"spec_type"`
+	TaskCount   int        `json:"task_count"`
 	Tasks       []TaskJSON `json:"tasks,omitempty"`
 }
 

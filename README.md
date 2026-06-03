@@ -91,8 +91,8 @@ From your project root (after `flexspec init`):
 | `flexspec config`                                   | Show `.flexspec/config.yaml` settings (KEY / VALUE table)           |
 | `flexspec config --json`                            | Same config as JSON (scripts, agents)                               |
 | `flexspec config set <key> <value>`                 | Update one config key and print the updated table                   |
-| `flexspec list`                                     | Compact table of spec directory identifiers, statuses, and task counts |
-| `flexspec list --json`                              | Same data as JSON (scripts, CI)                                     |
+| `flexspec list`                                     | Compact table of spec directory identifiers, statuses, and task counts (`task_count` frontmatter, or computed) |
+| `flexspec list --json`                              | Same data as JSON, including `task_count` (scripts, CI)             |
 | `flexspec validate`                                 | Check config, charter, templates, and specs for structural problems |
 | `flexspec update`                                   | Upgrade CLI, reinstall skills, and run project migrations (default: all three) |
 | `flexspec update --dry-run`                         | Preview update steps without writing or executing external commands |
@@ -117,9 +117,9 @@ flexspec status set 001-my-feature --status in_progress
 
 `flexspec ui` flags: `--port`, `--host` (default `127.0.0.1`), `--open` / `--no-open`.
 
-`flexspec validate` prints findings as `severity`, `path`, `rule`, `message` (tab-separated), then a summary. It exits **0** when there are no errors and **1** when any error-severity finding exists (warnings alone do not fail). If config is missing, it reports that and skips deeper checks.
+`flexspec validate` prints findings in a `SEVERITY / PATH / RULE / MESSAGE` table, then a summary. It exits **0** when there are no errors and **1** when any error-severity finding exists (warnings alone do not fail). If config is missing, it reports that and skips deeper checks.
 
-`flexspec update` runs migrations first (legacy spec statuses, template re-sync, config keys, charter checks), then reinstalls skills via `npx`, then upgrades the CLI via `go install`. Use `--cli`, `--skills`, or `--migrate` to run individual steps. The skills step requires Node/`npx` on PATH; the CLI step requires Go. Re-run `flexspec update` after upgrading the CLI to apply migrations shipped in the newer version.
+`flexspec update` runs migrations first (legacy spec statuses, `task_count` backfill, template re-sync, config keys, charter checks), then reinstalls skills via `npx`, then upgrades the CLI via `go install`. Human output uses aligned tables for migration changes (`MIGRATION / PATH / KIND / DETAIL`) and self-update steps (`TARGET / COMMAND / ACTION / DETAIL`). Use `--cli`, `--skills`, or `--migrate` to run individual steps. The skills step requires Node/`npx` on PATH; the CLI step requires Go. Re-run `flexspec update` after upgrading the CLI to apply migrations shipped in the newer version.
 
 ## License
 

@@ -92,6 +92,25 @@ func CheckSpecs(root string, cfg config.Config, _ Options) []Finding {
 			continue
 		}
 
+		computed, err := spec.CountTasks(readmePath, meta)
+		if err != nil {
+			findings = append(findings, Finding{
+				Severity: SeverityError,
+				Path:     readmeRel,
+				Rule:     "specs.task_count",
+				Message:  err.Error(),
+			})
+			continue
+		}
+		if meta.TaskCount != nil && *meta.TaskCount != computed {
+			findings = append(findings, Finding{
+				Severity: SeverityWarning,
+				Path:     readmeRel,
+				Rule:     "specs.task_count_mismatch",
+				Message:  "frontmatter task_count " + strconv.Itoa(*meta.TaskCount) + " does not match computed " + strconv.Itoa(computed),
+			})
+		}
+
 		if !strings.EqualFold(meta.SpecType, "expanded") {
 			continue
 		}

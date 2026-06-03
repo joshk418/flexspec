@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/joshk418/flexspec/internal/clioutput"
 	"github.com/joshk418/flexspec/internal/config"
 	"github.com/joshk418/flexspec/internal/migrate"
 	"github.com/joshk418/flexspec/internal/selfupdate"
@@ -99,6 +100,8 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		runner = selfupdate.DefaultRunner
 	}
 
+	var selfUpdateActions []selfupdate.Action
+
 	if doSkills {
 		action := selfupdate.PlanSkills()
 		if apply && runner != nil {
@@ -107,9 +110,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 				return err
 			}
 		}
-		if err := writeSelfUpdateAction(cmd.OutOrStdout(), action); err != nil {
-			return err
-		}
+		selfUpdateActions = append(selfUpdateActions, action)
 	}
 
 	if doCLI {
@@ -120,13 +121,18 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 				return err
 			}
 		}
-		if err := writeSelfUpdateAction(cmd.OutOrStdout(), action); err != nil {
+		selfUpdateActions = append(selfUpdateActions, action)
+	}
+
+	if len(selfUpdateActions) > 0 {
+		if err := writeSelfUpdateActions(cmd.OutOrStdout(), selfUpdateActions, apply); err != nil {
 			return err
 		}
-		if apply {
-			if _, err := fmt.Fprintln(cmd.OutOrStdout(), "note\t\t\tre-run flexspec update after upgrading CLI to apply migrations from the new version"); err != nil {
-				return err
-			}
+	}
+
+	if doCLI && apply {
+		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "note\t\t\tre-run flexspec update after upgrading CLI to apply migrations from the new version"); err != nil {
+			return err
 		}
 	}
 
@@ -140,9 +146,19 @@ func resolveUpdateSteps() (cli, skills, migrateStep bool) {
 	return updateCLI, updateSkills, updateMigrate
 }
 
-func writeSelfUpdateAction(w io.Writer, a selfupdate.Action) error {
-	_, err := fmt.Fprintf(w, "%s\t%s\texec\t%s\n", a.Target, a.Command, a.Detail)
-	return err
+func writeSelfUpdateActions(w io.Writer, actions []selfupdate.Action, applying bool) error {
+	actionLabel := "plan"
+	if applying {
+		actionLabel = "exec"
+	}
+	rows := make([][]string, len(actions))
+	for i, a := range actions {
+		rows[i] = []string{a.Target, a.Command, actionLabel, a.Detail}
+	}
+	return clioutput.WriteTable(w,
+		[]string{"TARGET", "COMMAND", "ACTION", "DETAIL"},
+		rows,
+	)
 }
 
 func embeddedTemplatesFS() (fs.FS, error) {

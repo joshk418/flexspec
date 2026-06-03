@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -53,6 +54,45 @@ func TestUpdateCmd_dryRunNoRunner(t *testing.T) {
 	}
 	if out.Len() == 0 {
 		t.Fatal("expected output")
+	}
+	for _, want := range []string{"MIGRATION", "PATH", "KIND", "DETAIL"} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("output missing %q\n%s", want, out.String())
+		}
+	}
+}
+
+func TestUpdateCmd_dryRunSelfUpdateHeaders(t *testing.T) {
+	root := t.TempDir()
+	writeValidateFixture(t, root)
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(root); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(cwd) })
+
+	updateCLI, updateSkills, updateMigrate = true, true, false
+	updateDryRun, updateCheck, updateForce = true, false, false
+	updateOnly = nil
+	updateRunner = func(name string, args ...string) error {
+		t.Fatal("runner should not be invoked in dry-run")
+		return nil
+	}
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err != nil {
+		t.Fatalf("update: %v\n%s", err, out.String())
+	}
+	for _, want := range []string{"TARGET", "COMMAND", "ACTION", "DETAIL", "plan"} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("output missing %q\n%s", want, out.String())
+		}
 	}
 }
 

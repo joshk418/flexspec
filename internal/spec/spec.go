@@ -19,6 +19,7 @@ type SpecMeta struct {
 	Description string `yaml:"description"`
 	Status      string `yaml:"status"`
 	SpecType    string `yaml:"spec_type"`
+	TaskCount   *int   `yaml:"task_count,omitempty"`
 }
 
 // TaskMeta is YAML frontmatter from a task file under tasks/.
@@ -30,10 +31,11 @@ type TaskMeta struct {
 
 // SpecEntry is one spec directory with optional tasks.
 type SpecEntry struct {
-	ID    string
-	Dir   string
-	Meta  SpecMeta
-	Tasks []TaskEntry
+	ID        string
+	Dir       string
+	Meta      SpecMeta
+	TaskCount int
+	Tasks     []TaskEntry
 }
 
 // TaskEntry is one task file under an expanded spec.
@@ -72,10 +74,16 @@ func List(root string, cfg config.Config) ([]SpecEntry, error) {
 			return nil, err
 		}
 
+		taskCount, err := EffectiveTaskCount(readme, meta)
+		if err != nil {
+			return nil, err
+		}
+
 		entry := SpecEntry{
-			ID:   specID(e.Name()),
-			Dir:  e.Name(),
-			Meta: meta,
+			ID:        specID(e.Name()),
+			Dir:       e.Name(),
+			Meta:      meta,
+			TaskCount: taskCount,
 		}
 
 		if strings.EqualFold(meta.SpecType, "expanded") {

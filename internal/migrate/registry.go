@@ -7,6 +7,7 @@ import "io/fs"
 func Registry(templatesFS fs.FS, force bool) []Migration {
 	return []Migration{
 		&statusRenameMigration{},
+		&taskCountMigration{},
 		&templatesResyncMigration{templates: templatesFS, force: force},
 		&configKeysMigration{},
 		&charterCheckMigration{templates: templatesFS},

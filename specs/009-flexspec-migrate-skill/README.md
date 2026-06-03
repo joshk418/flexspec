@@ -6,16 +6,17 @@ implementation_start: ""
 name: flexspec-migrate skill
 priority: medium
 spec_type: simple
-status: in_review
+status: complete
 tags:
     - skills
     - migration
     - adapters
+task_count: 4
 ---
 
 # flexspec-migrate skill
 
-> **Status**: draft · **Priority**: medium · **Created**: 2026-06-03
+> **Status**: draft · **Priority**: medium · **Created**: 2026-06-03 · **Tasks**: 4
 
 ## 1. Summary
 

@@ -6,10 +6,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 
+	"github.com/joshk418/flexspec/internal/clioutput"
 	"github.com/joshk418/flexspec/internal/config"
 	"github.com/joshk418/flexspec/internal/spec"
 	"github.com/joshk418/flexspec/internal/ui"
@@ -25,7 +25,8 @@ var listCmd = &cobra.Command{
 
 Reads specs_dir from .flexspec/config.yaml, then for each spec folder
 (NNN-slug/README.md) prints the directory name, status, and task count
-from YAML frontmatter. Use --json for full spec and task details.`,
+from YAML frontmatter (task_count, or computed from §3.2 bullets / tasks/ files).
+Use --json for full spec and task details.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		root, err := os.Getwd()
 		if err != nil {
@@ -57,22 +58,19 @@ from YAML frontmatter. Use --json for full spec and task details.`,
 			return nil
 		}
 
-		w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-		if _, err := fmt.Fprintln(w, "IDENTIFIER\tSTATUS\tTASKS"); err != nil {
-			return err
-		}
-
+		rows := make([][]string, 0, len(entries))
 		for _, e := range entries {
-			_, err := fmt.Fprintf(w, "%s\t%s\t%s\n",
+			rows = append(rows, []string{
 				e.Dir,
 				displayOrDash(e.Meta.Status),
-				strconv.Itoa(len(e.Tasks)),
-			)
-			if err != nil {
-				return err
-			}
+				strconv.Itoa(e.TaskCount),
+				e.Meta.SpecType,
+			})
 		}
-		return w.Flush()
+		return clioutput.WriteTable(out,
+			[]string{"IDENTIFIER", "STATUS", "TASKS", "TEMPLATE"},
+			rows,
+		)
 	},
 }
 

@@ -12,11 +12,12 @@ tags:
     - ui
     - ux
     - interviews
+task_count: 5
 ---
 
 # Enhance UI interviews
 
-> **Status**: complete · **Priority**: high · **Created**: 2026-05-31
+> **Status**: complete · **Priority**: high · **Created**: 2026-05-31 · **Tasks**: 5
 
 ## 1. Summary
 

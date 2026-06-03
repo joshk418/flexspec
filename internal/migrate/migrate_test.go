@@ -1,6 +1,8 @@
 package migrate
 
 import (
+	"bytes"
+	"strings"
 	"testing"
 
 	"github.com/joshk418/flexspec/internal/config"
@@ -54,5 +56,51 @@ func TestSelect_unknownID(t *testing.T) {
 	_, err := Select(migs, []string{"missing"})
 	if err == nil {
 		t.Fatal("expected error for unknown migration id")
+	}
+}
+
+func TestWriteChanges(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  []Change
+		want   []string
+		absent []string
+	}{
+		{
+			name:   "empty",
+			input:  nil,
+			want:   []string{"0 pending change(s)"},
+			absent: []string{"MIGRATION"},
+		},
+		{
+			name: "with changes",
+			input: []Change{{
+				Migration: "status-rename",
+				Path:      "specs/001/README.md",
+				Kind:      KindRewrite,
+				Detail:    "planned",
+			}},
+			want: []string{"MIGRATION", "PATH", "KIND", "DETAIL", "1 change(s), 1 pending"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			if err := WriteChanges(&buf, tt.input); err != nil {
+				t.Fatal(err)
+			}
+			out := buf.String()
+			for _, want := range tt.want {
+				if !strings.Contains(out, want) {
+					t.Errorf("output missing %q\n%s", want, out)
+				}
+			}
+			for _, absent := range tt.absent {
+				if strings.Contains(out, absent) {
+					t.Errorf("output should not contain %q\n%s", absent, out)
+				}
+			}
+		})
 	}
 }

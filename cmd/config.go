@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 
+	"github.com/joshk418/flexspec/internal/clioutput"
 	"github.com/joshk418/flexspec/internal/config"
 )
 
@@ -71,16 +71,12 @@ var configSetCmd = &cobra.Command{
 }
 
 func printConfigTable(out io.Writer, root string, cfg config.Config) error {
-	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-	if _, err := fmt.Fprintln(w, "KEY\tVALUE"); err != nil {
-		return err
+	entries := config.DisplayEntries(cfg)
+	rows := make([][]string, 0, len(entries))
+	for _, e := range entries {
+		rows = append(rows, []string{e.Key, e.Value})
 	}
-	for _, e := range config.DisplayEntries(cfg) {
-		if _, err := fmt.Fprintf(w, "%s\t%s\n", e.Key, e.Value); err != nil {
-			return err
-		}
-	}
-	if err := w.Flush(); err != nil {
+	if err := clioutput.WriteTable(out, []string{"KEY", "VALUE"}, rows); err != nil {
 		return err
 	}
 

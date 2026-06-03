@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -24,11 +25,11 @@ func TestListHuman(t *testing.T) {
 			wantSubstr: []string{"No specs in specs\n"},
 		},
 		{
-			name: "simple spec",
+			name: "simple spec task_count frontmatter",
 			setup: func(t *testing.T, root string) {
 				t.Helper()
 				writeListConfig(t, root)
-				writeSimpleSpec(t, root, "001-test", "planned")
+				writeSimpleSpecWithTaskCount(t, root, "001-test", "planned", 3)
 			},
 			wantSubstr: []string{
 				"IDENTIFIER",
@@ -36,7 +37,19 @@ func TestListHuman(t *testing.T) {
 				"TASKS",
 				"001-test",
 				"planned",
-				"0",
+				"3",
+			},
+		},
+		{
+			name: "simple spec computed fallback",
+			setup: func(t *testing.T, root string) {
+				t.Helper()
+				writeListConfig(t, root)
+				writeSimpleSpecWithBullets(t, root, "001-test", "planned", 2)
+			},
+			wantSubstr: []string{
+				"001-test",
+				"2",
 			},
 		},
 		{
@@ -102,14 +115,34 @@ func writeListConfig(t *testing.T, root string) {
 	}
 }
 
-func writeSimpleSpec(t *testing.T, root, dirName, status string) {
+func writeSimpleSpecWithTaskCount(t *testing.T, root, dirName, status string, taskCount int) {
 	t.Helper()
 	specDir := filepath.Join(root, "specs", dirName)
 	if err := os.MkdirAll(specDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	readme := "---\nname: Test\ndescription: d\nstatus: " + status + "\nspec_type: simple\n---\n"
+	readme := "---\nname: Test\ndescription: d\nstatus: " + status + "\nspec_type: simple\ntask_count: " + strconv.Itoa(taskCount) + "\n---\n"
 	if err := os.WriteFile(filepath.Join(specDir, "README.md"), []byte(readme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func writeSimpleSpecWithBullets(t *testing.T, root, dirName, status string, bullets int) {
+	t.Helper()
+	specDir := filepath.Join(root, "specs", dirName)
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var b strings.Builder
+	b.WriteString("---\nname: Test\ndescription: d\nstatus: ")
+	b.WriteString(status)
+	b.WriteString("\nspec_type: simple\n---\n\n")
+	for i := 1; i <= bullets; i++ {
+		b.WriteString("- **T-00")
+		b.WriteString(strconv.Itoa(i))
+		b.WriteString("** — task\n")
+	}
+	if err := os.WriteFile(filepath.Join(specDir, "README.md"), []byte(b.String()), 0o644); err != nil {
 		t.Fatal(err)
 	}
 }
