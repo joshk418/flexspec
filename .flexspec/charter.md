@@ -53,7 +53,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 - CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`), `flexspec validate`, `flexspec update` (upgrade CLI, reinstall skills, run migrations; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
 - Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status (all lifecycle columns fit the viewport with a per-user column-visibility picker), spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 - Spec lifecycle statuses — `draft`, `planned`, `in_progress`, `in_review`, `complete` (the board normalizes legacy `refined`/`initial` for display).
-- Agent skills — `/flexspec` (spec lifecycle) and `/flexspec-charter` (application charter), including structured multiple-choice interviews for UI-heavy specs and UI standards.
+- Agent skills — `/flexspec` (spec lifecycle), `/flexspec-charter` (application charter), and `/flexspec-migrate` (convert specs from other SDD tools into FlexSpec format), including structured multiple-choice interviews for UI-heavy specs and UI standards.
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
 **Planned:**
@@ -93,7 +93,7 @@ flowchart TD
     uiSrv --> specs
     uiSrv --> fs
     browser[Browser] --> uiSrv
-    skills[Agent skills: /flexspec, /flexspec-charter] -->|read| fs
+    skills[Agent skills: /flexspec, /flexspec-charter, /flexspec-migrate] -->|read| fs
     skills -->|author / implement / review| specs
     adapters[(Adapters — planned)] -.-> skills
 ```
@@ -137,6 +137,7 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Validate | `flexspec validate` — read-only structural checks on `.flexspec/`, templates, and specs (exit 1 on errors). |
 | Management UI | `flexspec ui` — local dashboard (board, spec browser, settings) with live filesystem sync. |
 | SSE | Server-sent events from `flexspec ui` when spec files change on disk. |
+| Migrate skill | `/flexspec-migrate` — agent skill that detects specs from other SDD tools (Spec Kit, OpenSpec, LeanSpec, etc.), maps content into FlexSpec templates via the CLI, and leaves specs at `draft` for `/flexspec` to finish. |
 
 ## 10. Assumptions and open questions
 
@@ -167,3 +168,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-06-01 | §4/§9 — `flexspec config set` and structured UI settings for updating `.flexspec/config.yaml`. | 006-config-update-command-and-ui |
 | 2026-06-01 | §4/§9 — board fit-viewport kanban + column-visibility picker; simplified spec statuses (`draft`…`complete`, dropped `refined`/`initial`). | 007-board-page-ui-overhaul |
 | 2026-06-01 | §4/§5/§8/§9 — `flexspec update` (CLI + skills + migrations); §8 carve-out for self-update. | 008-update-command |
+| 2026-06-03 | §4/§6/§9 — `/flexspec-migrate` skill to convert specs from other SDD tools into FlexSpec format. | 009-flexspec-migrate-skill |
