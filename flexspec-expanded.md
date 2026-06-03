@@ -170,25 +170,61 @@ Use stable IDs so other sections, tasks, and tests can reference them.
 ## 3. Implementation Plan
 
 <!--
-Built off the technical plan. Every task is authored under `tasks/` (T-001...).
-Keep tasks small enough that an LLM can complete one without losing context.
-
-§3.2 Task List is required. §3.1 Implementation Code Map is optional — add only
-for highly complex work. See skills/flexspec/SKILL.md → §3.1 complexity heuristic.
-
-When §3.1 is omitted: the task index must still show depends_on, files, and §2.2
-step ownership; record omission in §5 Other.
-
-When §3.1 is included: add ### 3.1 with mermaid + task execution table per the
-skill Code Map Quality Bar (place before §3.2 if map-first reads better).
+Built off the technical plan. Enumerate everything created or modified to
+complete the spec. Every task is authored as its own file under `tasks/` using
+the task template, with a stable internal ID (T-001...). Keep tasks small enough
+that an LLM can complete one without losing context.
 -->
+
+### 3.1 Implementation Code Map
+
+<!--
+IMPLEMENTATION + EXECUTION ENABLEMENT MAP.
+
+Link task build order to §2.2 execution steps. Parallel task branches OK; show
+which runtime steps each task implements and what becomes runnable when it merges.
+
+Required:
+- Mermaid: `T-XXX :: file :: symbol`; solid = depends_on; dotted = enables §2.2 step(s).
+- Task execution table (required) — mirrors §3.2 dependencies.
+
+Replace examples below.
+-->
+
+```mermaid
+flowchart TD
+    subgraph exec [§2.2 steps enabled]
+        e3["steps 3-5: CheckSpecs → FS → findings"]
+        e6["step 6: validateCmd exit"]
+    end
+    subgraph build [Task build order]
+        T001["T-001 :: specs.go :: CheckSpecs"]
+        T002["T-002 :: validate.go :: validateCmd"]
+        T003["T-003 :: specs_test.go"]
+        T004["T-004 :: SKILL.md docs"]
+    end
+
+    T001 --> T002
+    T001 --> T003
+    T002 --> T004
+    T003 --> T004
+    T001 -.->|enables| e3
+    T002 -.->|enables| e6
+```
+
+| Task | Build after | Implements §2.2 steps | Symbols added/changed | Execution unlocked |
+| --- | --- | --- | --- | --- |
+| T-001 | — | 3–5 | `CheckSpecs`, finding types | spec scan path runs |
+| T-002 | T-001 | 1–2, 6 | `validateCmd.RunE` wiring | CLI invokes full pipeline |
+| T-003 | T-001 | 3–5 (assert) | `specs_test.go` | TC proves trace steps |
+| T-004 | T-002, T-003 | — (docs) | `skills/flexspec/SKILL.md` | authoring rules updated |
 
 ### 3.2 Task List
 
 <!--
 One entry per task. Each links to its task file under `tasks/` and cites the
-requirement(s) it satisfies, depends_on, and §2.2 steps when §3.1 is omitted.
-The task file holds full working detail; this list is the index.
+requirement(s) it satisfies and any task dependencies. The task file holds the
+full working detail; this list is the index and dependency overview.
 -->
 
 | Task | File | Satisfies | Depends on | Summary |
