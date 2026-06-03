@@ -13,11 +13,12 @@ tags:
     - board
     - status
     - skills
+task_count: 4
 ---
 
 # Board page UI overhaul
 
-> **Status**: planned · **Priority**: high · **Created**: 2026-06-01
+> **Status**: planned · **Priority**: high · **Created**: 2026-06-01 · **Tasks**: 4
 
 ## 1. Summary
 

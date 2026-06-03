@@ -1,18 +1,23 @@
 ---
-name: Management UI
+created: "2026-05-30T00:00:00Z"
 description: Local React dashboard started by flexspec ui — board, spec browser, and settings with live filesystem sync.
-status: complete
-implementation_start: '2026-05-30T12:00:00Z'
-implementation_finished: '2026-05-30T20:00:00Z'
-created: '2026-05-30T00:00:00Z'
+implementation_finished: "2026-05-30T20:00:00Z"
+implementation_start: "2026-05-30T12:00:00Z"
+name: Management UI
 priority: high
-tags: [ui, cli, dx, react]
 spec_type: expanded
+status: complete
+tags:
+    - ui
+    - cli
+    - dx
+    - react
+task_count: 12
 ---
 
 # Management UI
 
-> **Status**: planned · **Priority**: high · **Created**: 2026-05-30
+> **Status**: planned · **Priority**: high · **Created**: 2026-05-30 · **Tasks**: 12
 
 ## 1. Summary
 

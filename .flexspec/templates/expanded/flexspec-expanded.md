@@ -8,11 +8,12 @@ implementation_finished: 'datetime'
 priority: [low,medium,high,critical]
 tags: []
 spec_type: expanded
+task_count: 0
 ---
 
 # {name}
 
-> **Status**: {status} · **Priority**: {priority} · **Created**: {date}
+> **Status**: {status} · **Priority**: {priority} · **Created**: {date} · **Tasks**: 0
 
 <!--
 EXPANDED SPEC — root document.

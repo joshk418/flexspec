@@ -2,6 +2,7 @@ package spec
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/joshk418/flexspec/internal/config"
@@ -105,8 +106,11 @@ func TestCreate_simple(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(data) != "---\nspec_type: simple\n---\n# simple\n" {
-		t.Errorf("README content = %q", string(data))
+	if !strings.Contains(string(data), "task_count: 0") {
+		t.Errorf("README should contain task_count: 0, got %q", string(data))
+	}
+	if !strings.Contains(string(data), "**Tasks**: 0") {
+		t.Errorf("README should contain **Tasks**: 0, got %q", string(data))
 	}
 }
 

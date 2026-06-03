@@ -5,6 +5,7 @@ import (
 	"io"
 	"sort"
 
+	"github.com/joshk418/flexspec/internal/clioutput"
 	"github.com/joshk418/flexspec/internal/config"
 )
 
@@ -97,21 +98,25 @@ func HasApplicableChanges(changes []Change) bool {
 	return false
 }
 
-// WriteChanges prints changes tab-separated (migration, path, kind, detail) plus summary.
+// WriteChanges prints migration changes as an aligned table plus summary.
 func WriteChanges(w io.Writer, changes []Change) error {
+	if len(changes) == 0 {
+		_, err := fmt.Fprintln(w, "0 pending change(s)")
+		return err
+	}
+
 	pending := 0
-	for _, c := range changes {
+	rows := make([][]string, len(changes))
+	for i, c := range changes {
 		if c.Kind != KindReport {
 			pending++
 		}
-		if _, err := fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
-			c.Migration, c.Path, c.Kind, c.Detail,
-		); err != nil {
-			return err
-		}
+		rows[i] = []string{c.Migration, c.Path, string(c.Kind), c.Detail}
 	}
-	if len(changes) == 0 {
-		_, err := fmt.Fprintln(w, "0 pending change(s)")
+	if err := clioutput.WriteTable(w,
+		[]string{"MIGRATION", "PATH", "KIND", "DETAIL"},
+		rows,
+	); err != nil {
 		return err
 	}
 	_, err := fmt.Fprintf(w, "%d change(s), %d pending\n", len(changes), pending)

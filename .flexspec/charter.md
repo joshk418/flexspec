@@ -50,7 +50,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
 - Charter management — product-wide context authored via `/flexspec-charter`.
-- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`), `flexspec validate`, `flexspec update` (upgrade CLI, reinstall skills, run migrations; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter).
+- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`; task counts from spec `task_count` frontmatter, with computed fallback from §3.2 bullets or `tasks/` files), `flexspec validate` (warns on `task_count` drift), `flexspec update` (upgrade CLI, reinstall skills, run migrations including `task-count` backfill; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter). Human-readable output for `list`, `config`, `validate`, and `update` uses aligned column tables with headers; `--json` on list/config for scripts and agents.
 - Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status (all lifecycle columns fit the viewport with a per-user column-visibility picker), spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 - Spec lifecycle statuses — `draft`, `planned`, `in_progress`, `in_review`, `complete` (the board normalizes legacy `refined`/`initial` for display).
 - Agent skills — `/flexspec` (spec lifecycle), `/flexspec-charter` (application charter), and `/flexspec-migrate` (convert specs from other SDD tools into FlexSpec format), including structured multiple-choice interviews for UI-heavy specs and UI standards.
@@ -169,3 +169,5 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-06-01 | §4/§9 — board fit-viewport kanban + column-visibility picker; simplified spec statuses (`draft`…`complete`, dropped `refined`/`initial`). | 007-board-page-ui-overhaul |
 | 2026-06-01 | §4/§5/§8/§9 — `flexspec update` (CLI + skills + migrations); §8 carve-out for self-update. | 008-update-command |
 | 2026-06-03 | §4/§6/§9 — `/flexspec-migrate` skill to convert specs from other SDD tools into FlexSpec format. | 009-flexspec-migrate-skill |
+| 2026-06-03 | §4 — consistent aligned table output with column headers for `list`, `config`, `validate`, and `update`. | 011-cli-table-output |
+| 2026-06-03 | §4 — spec `task_count` frontmatter and metadata header; accurate `list` counts for simple specs; validate drift warning; `task-count` migration. | 012-task-count-metadata |

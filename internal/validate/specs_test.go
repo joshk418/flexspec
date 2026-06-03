@@ -101,6 +101,42 @@ func TestRunAll_missingConfig(t *testing.T) {
 	}
 }
 
+func TestCheckSpecs_taskCountMismatch(t *testing.T) {
+	root := t.TempDir()
+	writeMinimalProject(t, root)
+	specDir := filepath.Join(root, "specs", "001-mismatch")
+	if err := os.MkdirAll(specDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	readme := `---
+name: Test
+description: test
+status: planned
+spec_type: simple
+task_count: 1
+---
+
+# Test
+
+- **T-001** — one
+- **T-002** — two
+`
+	if err := os.WriteFile(filepath.Join(specDir, "README.md"), []byte(readme), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	findings := CheckSpecs(root, testConfig(t, root), Options{})
+	var got *Finding
+	for i := range findings {
+		if findings[i].Rule == "specs.task_count_mismatch" {
+			got = &findings[i]
+			break
+		}
+	}
+	if got == nil {
+		t.Fatalf("findings = %+v", findings)
+	}
+}
+
 func TestRunAll_ok(t *testing.T) {
 	root := t.TempDir()
 	writeMinimalProject(t, root)

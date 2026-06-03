@@ -13,11 +13,12 @@ tags:
     - self-update
     - dx
     - agents
+task_count: 7
 ---
 
 # Update command
 
-> **Status**: planned · **Priority**: high · **Created**: 2026-06-01
+> **Status**: planned · **Priority**: high · **Created**: 2026-06-01 · **Tasks**: 7
 
 ## 1. Summary
 

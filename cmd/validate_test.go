@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -29,6 +30,9 @@ func TestValidateCmd_cleanProject(t *testing.T) {
 	if !bytes.Contains(out.Bytes(), []byte("0 error(s)")) {
 		t.Fatalf("output = %q", out.String())
 	}
+	if strings.Contains(out.String(), "SEVERITY") {
+		t.Fatalf("clean project should not print table header: %q", out.String())
+	}
 }
 
 func TestValidateCmd_missingConfig(t *testing.T) {
@@ -50,6 +54,9 @@ func TestValidateCmd_missingConfig(t *testing.T) {
 	}
 	if !bytes.Contains(out.Bytes(), []byte("config.missing")) {
 		t.Fatalf("output = %q", out.String())
+	}
+	if !strings.Contains(out.String(), "SEVERITY") {
+		t.Fatalf("output missing SEVERITY header: %q", out.String())
 	}
 }
 

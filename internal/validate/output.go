@@ -4,22 +4,26 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/joshk418/flexspec/internal/clioutput"
 )
 
 // WriteFindings prints findings and a summary to w.
 func WriteFindings(w io.Writer, findings []Finding) error {
 	errCount, warnCount := 0, 0
-	for _, f := range findings {
-		if f.Severity == SeverityError {
-			errCount++
-		} else {
-			warnCount++
+	if len(findings) > 0 {
+		rows := make([][]string, len(findings))
+		for i, f := range findings {
+			if f.Severity == SeverityError {
+				errCount++
+			} else {
+				warnCount++
+			}
+			rows[i] = []string{string(f.Severity), f.Path, f.Rule, f.Message}
 		}
-		if _, err := fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
-			f.Severity,
-			f.Path,
-			f.Rule,
-			f.Message,
+		if err := clioutput.WriteTable(w,
+			[]string{"SEVERITY", "PATH", "RULE", "MESSAGE"},
+			rows,
 		); err != nil {
 			return err
 		}

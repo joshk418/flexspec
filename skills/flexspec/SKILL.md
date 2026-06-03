@@ -84,6 +84,7 @@ Forbidden scaffolding actions:
 Allowed after `flexspec new`:
 - edit CLI-created `README.md`
 - add expanded task files under CLI-created `tasks/`
+- keep `task_count` in spec YAML frontmatter and `· **Tasks**: N` in the README metadata line in sync when adding/removing §3.2 bullets or task files (`flexspec validate` warns on drift; `flexspec update --migrate` backfills)
 
 ## Charter Gate (Phase 1)
 
@@ -341,11 +342,12 @@ Run when status is `planned` or `in_progress`.
 2. Set spec status to `in_progress` with `flexspec status set <spec> --status in_progress`.
 3. Implement in dependency order (`depends_on` + plan map).
 4. For expanded specs, update task status `todo -> in_progress -> done` with `flexspec status set <spec> --task <task-file> --status <status>`.
-5. Stay within spec scope/files and each task's "Out of Scope".
-6. Satisfy all `FR`/`NF`; implement tests required by `TC` mappings.
-7. Follow the **Code Comment Policy** below during all implementation.
-8. Run project verification (tests/build) and `flexspec validate` when project uses it.
-9. Set spec status `in_review` with `flexspec status set <spec> --status in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
+5. When adding or removing implementation tasks, update spec `task_count` frontmatter and the README metadata `**Tasks**` segment to match.
+6. Stay within spec scope/files and each task's "Out of Scope".
+7. Satisfy all `FR`/`NF`; implement tests required by `TC` mappings.
+8. Follow the **Code Comment Policy** below during all implementation.
+9. Run project verification (tests/build) and `flexspec validate` when project uses it.
+10. Set spec status `in_review` with `flexspec status set <spec> --status in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
 
 If unresolved spec gap appears: ask user; do not guess.
 

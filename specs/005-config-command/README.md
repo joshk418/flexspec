@@ -1,18 +1,22 @@
 ---
-name: "Config command"
-description: "Add flexspec config to print .flexspec/config.yaml values in a compact table or JSON for agents and humans."
-status: complete
-implementation_start: "2026-06-01"
-implementation_finished: "2026-06-01"
 created: "2026-06-01"
+description: Add flexspec config to print .flexspec/config.yaml values in a compact table or JSON for agents and humans.
+implementation_finished: "2026-06-01"
+implementation_start: "2026-06-01"
+name: Config command
 priority: high
-tags: [cli, dx, agents]
 spec_type: expanded
+status: complete
+tags:
+    - cli
+    - dx
+    - agents
+task_count: 3
 ---
 
 # Config command
 
-> **Status**: planned · **Priority**: high · **Created**: 2026-06-01
+> **Status**: planned · **Priority**: high · **Created**: 2026-06-01 · **Tasks**: 3
 
 ## 1. Summary
 

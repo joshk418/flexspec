@@ -1,18 +1,23 @@
 ---
-name: "Config update command and UI"
-description: "Let users update .flexspec/config.yaml through `flexspec config set` and structured UI controls instead of editing YAML text."
-status: complete
 created: "2026-06-01"
-implementation_start: "2026-06-01"
+description: Let users update .flexspec/config.yaml through `flexspec config set` and structured UI controls instead of editing YAML text.
 implementation_finished: "2026-06-01"
+implementation_start: "2026-06-01"
+name: Config update command and UI
 priority: high
-tags: [cli, ui, config, dx]
 spec_type: expanded
+status: complete
+tags:
+    - cli
+    - ui
+    - config
+    - dx
+task_count: 3
 ---
 
 # Config update command and UI
 
-> **Status**: complete · **Priority**: high · **Created**: 2026-06-01
+> **Status**: complete · **Priority**: high · **Created**: 2026-06-01 · **Tasks**: 3
 
 ## 1. Summary
 

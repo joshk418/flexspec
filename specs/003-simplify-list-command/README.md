@@ -1,18 +1,21 @@
 ---
-name: "Simplify list command"
-description: "Replace verbose human `flexspec list` output with a compact table of spec directory identifier, status, and task count."
-status: complete
 created: "2026-05-30"
-implementation_start: "2026-05-30"
+description: Replace verbose human `flexspec list` output with a compact table of spec directory identifier, status, and task count.
 implementation_finished: "2026-05-30"
+implementation_start: "2026-05-30"
+name: Simplify list command
 priority: medium
-tags: [cli, ux]
 spec_type: simple
+status: complete
+tags:
+    - cli
+    - ux
+task_count: 2
 ---
 
 # Simplify list command
 
-> **Status**: complete · **Priority**: medium · **Created**: 2026-05-30
+> **Status**: complete · **Priority**: medium · **Created**: 2026-05-30 · **Tasks**: 2
 
 ## 1. Summary
 

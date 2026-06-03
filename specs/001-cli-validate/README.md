@@ -1,18 +1,22 @@
 ---
-name: CLI validate command
+created: "2026-05-30T00:00:00Z"
 description: Add flexspec validate to check project, config, templates, and specs for structural problems before other commands fail opaquely.
-status: complete
-created: '2026-05-30T00:00:00Z'
-implementation_start: '2026-05-30T12:00:00Z'
-implementation_finished: '2026-05-30T18:00:00Z'
+implementation_finished: "2026-05-30T18:00:00Z"
+implementation_start: "2026-05-30T12:00:00Z"
+name: CLI validate command
 priority: high
-tags: [cli, validation, dx]
 spec_type: expanded
+status: complete
+tags:
+    - cli
+    - validation
+    - dx
+task_count: 5
 ---
 
 # CLI validate command
 
-> **Status**: complete · **Priority**: high · **Created**: 2026-05-30
+> **Status**: complete · **Priority**: high · **Created**: 2026-05-30 · **Tasks**: 5
 
 ## 1. Summary
 
