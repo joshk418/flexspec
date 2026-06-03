@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.1](https://github.com/joshk418/flexspec/compare/v0.3.0...v0.3.1) (2026-06-03)
+
+
+### Features
+
+* Created flexspec-migrate to move to flexspec from other tools ([#20](https://github.com/joshk418/flexspec/issues/20)) ([d3692f7](https://github.com/joshk418/flexspec/commit/d3692f784561a972260d366355e0c38d0c1c981f))
+* Made sure implementation code maps are optional to prevent noise in specs ([#22](https://github.com/joshk418/flexspec/issues/22)) ([47b8844](https://github.com/joshk418/flexspec/commit/47b88448972bb9f9a481c7e3e215b7ca4969e6c6))
+* Updated CLI output to be table format and added task count to spec metadata ([#23](https://github.com/joshk418/flexspec/issues/23)) ([23c4659](https://github.com/joshk418/flexspec/commit/23c4659ecd2953d3d6c0006c138a3b2e85ac5650))
+
 ## [0.3.0](https://github.com/joshk418/flexspec/compare/v0.2.1...v0.3.0) (2026-06-02)
 
 
