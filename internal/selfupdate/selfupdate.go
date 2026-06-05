@@ -2,7 +2,9 @@ package selfupdate
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"strings"
 )
 
 const (
@@ -26,7 +28,10 @@ func DefaultRunner(name string, args ...string) error {
 	if err != nil {
 		return fmt.Errorf("%s not found on PATH: install %s to run this step", name, name)
 	}
-	return exec.Command(path, args...).Run()
+	cmd := exec.Command(path, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 // PlanCLI returns the action that would upgrade the flexspec binary.
@@ -48,6 +53,18 @@ func ApplyCLI(installedVersion string, run Runner) (Action, error) {
 		return action, fmt.Errorf("go install %s: %w", cliModule, err)
 	}
 	return action, nil
+}
+
+// ApplyLatestUpdate runs the latest flexspec update command for selected steps.
+func ApplyLatestUpdate(run Runner, args ...string) error {
+	if run == nil {
+		run = DefaultRunner
+	}
+	runArgs := append([]string{"run", cliModule, "update"}, args...)
+	if err := run("go", runArgs...); err != nil {
+		return fmt.Errorf("go %s: %w", strings.Join(runArgs, " "), err)
+	}
+	return nil
 }
 
 // PlanSkills returns the action that would reinstall flexspec skills.
