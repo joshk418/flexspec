@@ -33,9 +33,9 @@ var updateCmd = &cobra.Command{
 	Long: `Update brings your environment and project up to date.
 
 By default (no step flags), flexspec update:
-  1. Runs in-project migrations (spec statuses, templates, config, charter checks)
+  1. Upgrades the flexspec CLI via go install
   2. Reinstalls flexspec skills via npx
-  3. Upgrades the flexspec CLI via go install
+  3. Runs in-project migrations (spec statuses, templates, config, charter checks)
 
 Use --dry-run to preview without writing or executing external commands.
 Use --check for a CI gate: detect-only, exit 1 when migrations are pending.
@@ -71,22 +71,17 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	var migrationChanges []migrate.Change
-	if doMigrate {
-		if apply {
-			migrationChanges, err = migrate.Apply(root, cfg, migs)
-		} else {
-			migrationChanges, err = migrate.Plan(root, cfg, migs)
-		}
-		if err != nil {
-			return err
-		}
-		if err := migrate.WriteChanges(cmd.OutOrStdout(), migrationChanges); err != nil {
-			return err
-		}
-	}
-
 	if updateCheck {
+		var migrationChanges []migrate.Change
+		if doMigrate {
+			migrationChanges, err = migrate.Plan(root, cfg, migs)
+			if err != nil {
+				return err
+			}
+			if err := migrate.WriteChanges(cmd.OutOrStdout(), migrationChanges); err != nil {
+				return err
+			}
+		}
 		if migrate.HasApplicableChanges(migrationChanges) {
 			return fmt.Errorf("migrations pending")
 		}
@@ -102,10 +97,10 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 
 	var selfUpdateActions []selfupdate.Action
 
-	if doSkills {
-		action := selfupdate.PlanSkills()
+	if doCLI {
+		action := selfupdate.PlanCLI(version)
 		if apply && runner != nil {
-			action, err = selfupdate.ApplySkills(runner)
+			action, err = selfupdate.ApplyCLI(version, runner)
 			if err != nil {
 				return err
 			}
@@ -113,10 +108,10 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		selfUpdateActions = append(selfUpdateActions, action)
 	}
 
-	if doCLI {
-		action := selfupdate.PlanCLI(version)
+	if doSkills {
+		action := selfupdate.PlanSkills()
 		if apply && runner != nil {
-			action, err = selfupdate.ApplyCLI(version, runner)
+			action, err = selfupdate.ApplySkills(runner)
 			if err != nil {
 				return err
 			}
@@ -130,8 +125,17 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if doCLI && apply {
-		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "note\t\t\tre-run flexspec update after upgrading CLI to apply migrations from the new version"); err != nil {
+	if doMigrate {
+		var migrationChanges []migrate.Change
+		if apply {
+			migrationChanges, err = migrate.Apply(root, cfg, migs)
+		} else {
+			migrationChanges, err = migrate.Plan(root, cfg, migs)
+		}
+		if err != nil {
+			return err
+		}
+		if err := migrate.WriteChanges(cmd.OutOrStdout(), migrationChanges); err != nil {
 			return err
 		}
 	}
