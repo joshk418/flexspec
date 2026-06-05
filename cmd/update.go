@@ -54,26 +54,13 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	apply := !updateDryRun && !updateCheck
 	dryPlan := updateDryRun || updateCheck
 
-	cfg, err := config.Load(root)
-	if err != nil {
-		return err
-	}
-
-	templatesFS, err := embeddedTemplatesFS()
-	if err != nil {
-		return fmt.Errorf("mount embedded templates: %w", err)
-	}
-	migs := migrate.Registry(templatesFS, updateForce)
-	if len(updateOnly) > 0 {
-		migs, err = migrate.Select(migs, updateOnly)
-		if err != nil {
-			return err
-		}
-	}
-
 	if updateCheck {
 		var migrationChanges []migrate.Change
 		if doMigrate {
+			cfg, migs, err := loadUpdateMigrations(root)
+			if err != nil {
+				return err
+			}
 			migrationChanges, err = migrate.Plan(root, cfg, migs)
 			if err != nil {
 				return err
@@ -108,6 +95,16 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		selfUpdateActions = append(selfUpdateActions, action)
 	}
 
+	if doCLI && apply && (doSkills || doMigrate) {
+		if err := writeSelfUpdateActions(cmd.OutOrStdout(), selfUpdateActions, apply); err != nil {
+			return err
+		}
+		if err := selfupdate.ApplyLatestUpdate(runner, latestUpdateArgs(doSkills, doMigrate)...); err != nil {
+			return err
+		}
+		return nil
+	}
+
 	if doSkills {
 		action := selfupdate.PlanSkills()
 		if apply && runner != nil {
@@ -127,6 +124,10 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 
 	if doMigrate {
 		var migrationChanges []migrate.Change
+		cfg, migs, err := loadUpdateMigrations(root)
+		if err != nil {
+			return err
+		}
 		if apply {
 			migrationChanges, err = migrate.Apply(root, cfg, migs)
 		} else {
@@ -141,6 +142,43 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func loadUpdateMigrations(root string) (config.Config, []migrate.Migration, error) {
+	cfg, err := config.Load(root)
+	if err != nil {
+		return config.Config{}, nil, err
+	}
+
+	templatesFS, err := embeddedTemplatesFS()
+	if err != nil {
+		return config.Config{}, nil, fmt.Errorf("mount embedded templates: %w", err)
+	}
+	migs := migrate.Registry(templatesFS, updateForce)
+	if len(updateOnly) > 0 {
+		migs, err = migrate.Select(migs, updateOnly)
+		if err != nil {
+			return config.Config{}, nil, err
+		}
+	}
+	return cfg, migs, nil
+}
+
+func latestUpdateArgs(doSkills, doMigrate bool) []string {
+	var args []string
+	if doSkills {
+		args = append(args, "--skills")
+	}
+	if doMigrate {
+		args = append(args, "--migrate")
+		if updateForce {
+			args = append(args, "--force")
+		}
+		for _, id := range updateOnly {
+			args = append(args, "--only", id)
+		}
+	}
+	return args
 }
 
 func resolveUpdateSteps() (cli, skills, migrateStep bool) {

@@ -53,6 +53,26 @@ type execError struct{ msg string }
 
 func (e *execError) Error() string { return e.msg }
 
+func TestApplyLatestUpdate_invokesLatestModule(t *testing.T) {
+	var name string
+	var args []string
+	err := ApplyLatestUpdate(func(n string, a ...string) error {
+		name = n
+		args = a
+		return nil
+	}, "--skills", "--migrate")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if name != "go" {
+		t.Fatalf("name = %q", name)
+	}
+	want := []string{"run", cliModule, "update", "--skills", "--migrate"}
+	if strings.Join(args, " ") != strings.Join(want, " ") {
+		t.Fatalf("args = %v, want %v", args, want)
+	}
+}
+
 func TestApplySkills_invokesRunner(t *testing.T) {
 	var args []string
 	run := func(name string, a ...string) error {
