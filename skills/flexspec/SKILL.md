@@ -72,6 +72,9 @@ Run from project root.
 | `flexspec status set <spec> --status <status>` | update spec frontmatter status |
 | `flexspec status set <spec> --task <task-file> --status <status>` | update expanded task frontmatter status |
 | `flexspec validate` | structural checks after edits / before handoff |
+| `flexspec glossary list` | list all glossary terms from `.flexspec/glossary.yaml` |
+| `flexspec glossary query <text>` | search glossary terms (exact/alias/substring) |
+| `flexspec glossary add <term>` | add or update a glossary term definition |
 | `flexspec update` | upgrade CLI, reinstall skills, run migrations (`--dry-run`, `--check`, step flags) |
 
 Forbidden scaffolding actions:
@@ -102,13 +105,24 @@ If missing/empty/template-only:
 Charter freshness check before `planned`:
 - detect deltas implied by spec (§2, §3, §4, §5-§6, §7, §8, §9)
 - if no deltas: continue silently
-- if deltas: ask whether charter needs update (`yes/no/partial`)
+- if deltas: update `.flexspec/charter.md` directly and record the change in spec §5 Other
+- only charter conflicts with §7 or §8 are blocking (must ask user before proceeding)
 
-Delta gating:
-- non-one-shot: do not set `planned` until delta question answered; deferred answer must be recorded in spec §5 Other
-- one-shot: only charter conflicts with §7 or §8 are blocking (must ask). Other deltas become "charter follow-up" note in spec §5 Other.
+Automatic charter update rules:
+- `/flexspec` updates `.flexspec/charter.md` automatically when a spec changes product capabilities, standards, boundaries, or glossary terms.
+- Do not ask the user whether to update the charter for in-scope deltas.
+- Record the delta in spec §5 Other under "Charter updates applied automatically".
 
-Do not auto-edit charter unattended in one-shot.
+## Glossary Gate (Phase 1 and Phase 2)
+
+Always read `.flexspec/glossary.yaml` after the charter.
+
+- List known terms with `flexspec glossary list --json`.
+- During authoring and implementation, watch for project-specific terms that are not in the glossary.
+- If a term's meaning is clear from context or standard usage, record it silently with `flexspec glossary add <term> --definition <text> --source <source>`.
+- If a term is project-specific but unclear, ask the user for the exact meaning before persisting.
+- Never fabricate definitions for unclear terms.
+- Do not manually edit `.flexspec/glossary.yaml`; always use `flexspec glossary add`.
 
 ## Template Choice Heuristic
 
@@ -125,17 +139,19 @@ Goal: complete, unambiguous, testable spec on disk; move status to `planned`.
 ## Phase 1 Workflow
 
 1. Read charter, user request, and relevant repo context.
-2. Choose template using resolution/heuristic rules.
-3. Initialize if needed (`flexspec init`).
-4. Scaffold with CLI (`flexspec new <name> --template <simple|expanded>`).
-5. If the request includes UI work, run the UI Interview Gate before filling design details.
-6. Fill CLI-created spec files (do not re-scaffold).
-7. Surface unknowns; ask user in grouped questions; resolve all blocking items.
-8. For UI specs, map UI interview answers into requirements, tasks, testing criteria, and §5 assumptions/risks.
-9. Run readiness checks (sections, IDs, tests, mappings, token budgets).
-10. Run charter freshness check and resolve/defer per mode rules.
-11. Set `status` to `planned` with `flexspec status set <spec> --status planned` (specs are authored in `draft`).
-12. End phase; summarize and ask user to run `/flexspec` again (unless one-shot).
+2. Read `.flexspec/glossary.yaml` and note known terms.
+3. Choose template using resolution/heuristic rules.
+4. Initialize if needed (`flexspec init`).
+5. Scaffold with CLI (`flexspec new <name> --template <simple|expanded>`).
+6. If the request includes UI work, run the UI Interview Gate before filling design details.
+7. Fill CLI-created spec files (do not re-scaffold).
+8. Surface unknowns; ask user in grouped questions; resolve all blocking items.
+9. For UI specs, map UI interview answers into requirements, tasks, testing criteria, and §5 assumptions/risks.
+10. Run readiness checks (sections, IDs, tests, mappings, token budgets).
+11. Run charter freshness check: update charter automatically for in-scope deltas; only §7/§8 conflicts are blocking.
+12. Run glossary gate: record clear terms, ask for unclear ones.
+13. Set `status` to `planned` with `flexspec status set <spec> --status planned` (specs are authored in `draft`).
+14. End phase; summarize and ask user to run `/flexspec` again (unless one-shot).
 
 ## UI Interview Gate (Phase 1)
 
@@ -328,7 +344,7 @@ Task constraints:
 - [ ] Every FR mapped to >=1 TC.
 - [ ] No blocking open questions remain.
 - [ ] Charter read; no unresolved conflict with §7/§8.
-- [ ] Charter delta question resolved or deferred per mode rules.
+- [ ] Charter updated automatically for in-scope deltas; any §7/§8 conflicts resolved with user.
 - [ ] Optional/project habit: `flexspec validate` has no errors.
 - [ ] Spec `status: planned`.
 
@@ -339,15 +355,17 @@ Task constraints:
 Run when status is `planned` or `in_progress`.
 
 1. Read spec `README.md` and expanded `tasks/` files if present.
-2. Set spec status to `in_progress` with `flexspec status set <spec> --status in_progress`.
-3. Implement in dependency order (`depends_on` + plan map).
-4. For expanded specs, update task status `todo -> in_progress -> done` with `flexspec status set <spec> --task <task-file> --status <status>`.
-5. When adding or removing implementation tasks, update spec `task_count` frontmatter and the README metadata `**Tasks**` segment to match.
-6. Stay within spec scope/files and each task's "Out of Scope".
-7. Satisfy all `FR`/`NF`; implement tests required by `TC` mappings.
-8. Follow the **Code Comment Policy** below during all implementation.
-9. Run project verification (tests/build) and `flexspec validate` when project uses it.
-10. Set spec status `in_review` with `flexspec status set <spec> --status in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
+2. Read `.flexspec/glossary.yaml` and note known terms.
+3. Set spec status to `in_progress` with `flexspec status set <spec> --status in_progress`.
+4. Implement in dependency order (`depends_on` + plan map).
+5. For expanded specs, update task status `todo -> in_progress -> done` with `flexspec status set <spec> --task <task-file> --status <status>`.
+6. When adding or removing implementation tasks, update spec `task_count` frontmatter and the README metadata `**Tasks**` segment to match.
+7. Stay within spec scope/files and each task's "Out of Scope".
+8. Satisfy all `FR`/`NF`; implement tests required by `TC` mappings.
+9. Run glossary gate during implementation: record clear terms, ask for unclear ones.
+10. Follow the **Code Comment Policy** below during all implementation.
+11. Run project verification (tests/build) and `flexspec validate` when project uses it.
+12. Set spec status `in_review` with `flexspec status set <spec> --status in_review`; summarize completed requirements/tasks; stop and ask to continue (unless one-shot).
 
 If unresolved spec gap appears: ask user; do not guess.
 

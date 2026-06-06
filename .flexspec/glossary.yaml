@@ -1,0 +1,54 @@
+version: "1.0"
+updated: "2026-06-06T12:23:37-04:00"
+terms:
+    - term: Charter
+      definition: Project-wide FlexSpec context file describing product scope, conventions, stack, and terminology.
+      category: metadata
+      sources:
+        - discovery
+      created: "2026-06-06T12:23:36-04:00"
+      updated: "2026-06-06T12:23:36-04:00"
+    - term: FlexSpec
+      definition: Spec-driven development CLI and workflow for creating, validating, tracking, and managing feature specs.
+      category: project
+      sources:
+        - discovery
+      created: "2026-06-06T12:23:36-04:00"
+      updated: "2026-06-06T12:23:36-04:00"
+    - term: Frontmatter
+      definition: YAML metadata block at the top of specs and tasks used for status, ownership, and tracking fields.
+      category: metadata
+      sources:
+        - discovery
+      created: "2026-06-06T12:23:37-04:00"
+      updated: "2026-06-06T12:23:37-04:00"
+    - term: Glossary
+      definition: FlexSpec metadata file that records project-specific terms, definitions, aliases, categories, and sources.
+      category: metadata
+      sources:
+        - discovery
+      created: "2026-06-06T12:23:37-04:00"
+      updated: "2026-06-06T12:23:37-04:00"
+    - term: Migrator
+      definition: FlexSpec component or workflow that converts existing spec assets or project files into current FlexSpec formats.
+      category: workflow
+      sources:
+        - discovery
+      created: "2026-06-06T12:23:37-04:00"
+      updated: "2026-06-06T12:23:37-04:00"
+    - term: Review Packet
+      definition: Structured implementation review output covering findings, risks, tests, and verification evidence.
+      category: workflow
+      sources:
+        - discovery
+      created: "2026-06-06T12:23:37-04:00"
+      updated: "2026-06-06T12:23:37-04:00"
+    - term: Status Board
+      definition: Local UI view for inspecting FlexSpec project status, specs, and tasks.
+      category: ui
+      aliases:
+        - Spec Board
+      sources:
+        - discovery
+      created: "2026-06-06T12:23:37-04:00"
+      updated: "2026-06-06T12:23:37-04:00"

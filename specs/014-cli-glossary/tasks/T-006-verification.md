@@ -1,11 +1,36 @@
 ---
-id: "T-006"
-name: "Verification"
-parent_spec: "../README.md"
-status: todo
-satisfies: [FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, NF-001, NF-002, NF-003, NF-004, NF-005]
-depends_on: [T-005]
-verified_by: [TC-001, TC-002, TC-003, TC-004, TC-005, TC-006, TC-007]
+depends_on:
+    - T-005
+id: T-006
+name: Verification
+parent_spec: ../README.md
+satisfies:
+    - FR-001
+    - FR-002
+    - FR-003
+    - FR-004
+    - FR-005
+    - FR-006
+    - FR-007
+    - FR-008
+    - FR-009
+    - FR-010
+    - FR-011
+    - FR-012
+    - NF-001
+    - NF-002
+    - NF-003
+    - NF-004
+    - NF-005
+status: done
+verified_by:
+    - TC-001
+    - TC-002
+    - TC-003
+    - TC-004
+    - TC-005
+    - TC-006
+    - TC-007
 ---
 
 # T-006: Verification

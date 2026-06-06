@@ -1,11 +1,17 @@
 ---
-id: "T-003"
-name: "Metadata integration"
-parent_spec: "../README.md"
-status: todo
-satisfies: [FR-010, FR-011, NF-001, NF-003]
-depends_on: [T-002]
-verified_by: [TC-004]
+depends_on:
+    - T-002
+id: T-003
+name: Metadata integration
+parent_spec: ../README.md
+satisfies:
+    - FR-010
+    - FR-011
+    - NF-001
+    - NF-003
+status: done
+verified_by:
+    - TC-004
 ---
 
 # T-003: Metadata integration
@@ -27,6 +33,7 @@ Make `.flexspec/glossary.yaml` a normal FlexSpec metadata file created by init/u
 | --- | --- | --- |
 | `templates/glossary.yaml` | create | Empty seed document |
 | `cmd/init.go` | modify | Copy glossary seed without clobbering |
+| `cmd/update.go` | modify | Safely handle absent embedded template FS during update migration loading |
 | `internal/validate/flexspec.go` | modify | Check glossary shape |
 | `internal/validate/flexspec_test.go` | modify | Missing/malformed glossary cases |
 | `internal/update/migrations/*` | modify/create | Backfill glossary file for existing projects |

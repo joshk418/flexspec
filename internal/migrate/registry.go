@@ -11,5 +11,6 @@ func Registry(templatesFS fs.FS, force bool) []Migration {
 		&templatesResyncMigration{templates: templatesFS, force: force},
 		&configKeysMigration{},
 		&charterCheckMigration{templates: templatesFS},
+		&glossaryMigration{},
 	}
 }

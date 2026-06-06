@@ -1,12 +1,12 @@
 ---
 created: "2026-06-06"
 description: Add a project glossary metadata file, glossary CLI commands, and glossary-aware FlexSpec skills.
-implementation_finished: ""
-implementation_start: ""
+implementation_finished: "2026-06-06"
+implementation_start: "2026-06-06"
 name: CLI glossary
 priority: high
 spec_type: expanded
-status: planned
+status: complete
 tags:
     - cli
     - metadata
@@ -17,7 +17,7 @@ task_count: 6
 
 # CLI glossary
 
-> **Status**: draft · **Priority**: high · **Created**: 2026-06-06 · **Tasks**: 6
+> **Status**: complete · **Priority**: high · **Created**: 2026-06-06 · **Tasks**: 6
 
 ## 1. Summary
 
@@ -44,6 +44,7 @@ The `/flexspec` skill changes its charter freshness behavior: when a spec implie
 | `cmd/glossary.go` | new | Cobra command group: `flexspec glossary list`, `query`, `add` |
 | `cmd/glossary_test.go` | new | CLI behavior tests for table/JSON output, empty state, missing args, and add/query flow |
 | `cmd/init.go` | modified | Creates `.flexspec/glossary.yaml` on init without clobbering |
+| `cmd/update.go` | modified | Handles absent embedded template FS safely while loading glossary migration registry in tests/update paths |
 | `internal/validate/flexspec.go` | modified | Validates glossary file presence and schema |
 | `internal/update/migrations/*` | modified/new | Adds migration to create `.flexspec/glossary.yaml` when missing |
 | `templates/glossary.yaml` | new | Seed glossary document copied by init/update |
@@ -169,6 +170,7 @@ erDiagram
 | `.flexspec/glossary.yaml` | file | YAML document with version + terms array | Created by init/update and validated by `flexspec validate` |
 | `flexspec-glossary-discovery` | skill | scans project, interviews user, writes via CLI | No web lookup required |
 | `/flexspec` lifecycle | skill | watches glossary terms and updates charter automatically | Charter delta questions are removed |
+| `/flexspec-charter` | skill | invokes glossary discovery during charter creation/update | Glossary discovery remains standalone |
 
 ### 2.5 Requirements
 
@@ -186,6 +188,7 @@ erDiagram
 - **FR-010** — `flexspec init` and `flexspec update --migrate` create `.flexspec/glossary.yaml` for projects that do not have it, without overwriting existing glossary content.
 - **FR-011** — `flexspec validate` checks glossary YAML shape and reports errors for malformed entries.
 - **FR-012** — `/flexspec` automatically updates `.flexspec/charter.md` when specs imply charter changes; it must not ask a charter delta question before making in-scope charter updates.
+- **FR-013** — `/flexspec-charter` invokes the glossary discovery workflow during charter creation, full refresh, or terminology-heavy updates so the glossary is built alongside the charter, while the glossary discovery skill remains runnable standalone.
 
 **Non-Functional**
 
@@ -229,8 +232,8 @@ flowchart TB
 | T-001 | — | CLI 2-5 | `internal/glossary.Load`, `Save`, `Query`, `Upsert` | glossary file read/search/write behavior |
 | T-002 | T-001 | CLI 1,6; discovery 2,6 | `cmd/glossary.go` command group | user/skill CLI access to glossary |
 | T-003 | T-002 | metadata paths for FR-010/FR-011 | `init`, `validate`, `update` integration | glossary exists and validates in FlexSpec projects |
-| T-004 | T-003 | discovery 1,5-7; FR-012 | `skills/flexspec/SKILL.md` | lifecycle skill watches terms and updates charter automatically |
-| T-005 | T-004 | discovery 1-7 | `skills/flexspec-glossary-discovery/SKILL.md` | project vocabulary discovery workflow |
+| T-004 | T-003 | discovery 1,5-7; FR-012, FR-013 | `skills/flexspec/SKILL.md`, `skills/flexspec-charter/SKILL.md` | lifecycle and charter skills watch terms and update charter/glossary workflows |
+| T-005 | T-004 | discovery 1-7; FR-013 | `skills/flexspec-glossary-discovery/SKILL.md` | project vocabulary discovery workflow, including standalone/manual trigger aliases |
 | T-006 | T-005 | all paths asserted | tests and `flexspec validate` | review-ready implementation |
 
 ### 3.2 Task List
@@ -239,10 +242,10 @@ flowchart TB
 | --- | --- | --- | --- | --- |
 | **T-001** | `tasks/T-001-glossary-store.md` | FR-002, FR-003, NF-001, NF-003 | — | Add glossary YAML model and deterministic load/save/search/upsert helpers; owns CLI §2.2 steps 2-5. |
 | **T-002** | `tasks/T-002-glossary-cli.md` | FR-001, FR-002, FR-003, FR-004, NF-002 | T-001 | Add `flexspec glossary list/query/add` commands; owns CLI §2.2 steps 1 and 6. |
-| **T-003** | `tasks/T-003-metadata-integration.md` | FR-010, FR-011, NF-001, NF-003 | T-002 | Add template, init, update migration, and validate support for `.flexspec/glossary.yaml`. |
-| **T-004** | `tasks/T-004-flexspec-skill-glossary.md` | FR-005, FR-007, FR-008, FR-012, NF-004, NF-005 | T-003 | Update `/flexspec` skill for glossary awareness and automatic charter updates. |
-| **T-005** | `tasks/T-005-glossary-discovery-skill.md` | FR-006, FR-007, FR-008, FR-009, NF-004, NF-005 | T-004 | Add `flexspec-glossary-discovery` skill for project term scanning and user interviews. |
-| **T-006** | `tasks/T-006-verification.md` | FR-001-FR-012, NF-001-NF-005 | T-005 | Add/run focused tests and `flexspec validate`; update charter for delivered capability. |
+| **T-003** | `tasks/T-003-metadata-integration.md` | FR-010, FR-011, NF-001, NF-003 | T-002 | Add template, init, update migration, update command guard, and validate support for `.flexspec/glossary.yaml`. |
+| **T-004** | `tasks/T-004-flexspec-skill-glossary.md` | FR-005, FR-007, FR-008, FR-012, FR-013, NF-004, NF-005 | T-003 | Update `/flexspec` and `/flexspec-charter` skills for glossary awareness and automatic charter/glossary updates. |
+| **T-005** | `tasks/T-005-glossary-discovery-skill.md` | FR-006, FR-007, FR-008, FR-009, FR-013, NF-004, NF-005 | T-004 | Add `flexspec-glossary-discovery` skill for project term scanning, user interviews, and standalone/manual runs. |
+| **T-006** | `tasks/T-006-verification.md` | FR-001-FR-013, NF-001-NF-005 | T-005 | Add/run focused tests and `flexspec validate`; update charter for delivered capability. |
 
 ## 4. Testing Criteria
 
@@ -252,13 +255,14 @@ flowchart TB
 | TC-002 | FR-001, FR-002, FR-004, NF-002 | T-002 | `cmd/glossary_test.go` verifies table and JSON output for list/query, empty state, and missing query argument errors. | unit |
 | TC-003 | FR-003, FR-008 | T-002 | CLI add followed by query returns the inserted definition, aliases, category, and source. | integration |
 | TC-004 | FR-010, FR-011 | T-003 | Init creates glossary, existing file is not clobbered, update migration backfills missing glossary, and validate catches malformed entries. | unit/integration |
-| TC-005 | FR-005, FR-007, FR-008, FR-012, NF-005 | T-004 | Manual review confirms `/flexspec` skill reads glossary, asks only for unclear terms, persists confirmed terms, and updates charter without asking. | manual review |
-| TC-006 | FR-006, FR-007, FR-008, FR-009 | T-005 | Manual review confirms discovery skill scans likely sources, filters known terms, interviews for unclear terms, writes through CLI, and reports outcomes. | manual review |
-| TC-007 | FR-001-FR-012 | T-006 | `go test ./...`, `go vet ./...`, `gofmt`, and `flexspec validate` pass after implementation. | verification |
+| TC-005 | FR-005, FR-007, FR-008, FR-012, FR-013, NF-005 | T-004 | Manual review confirms `/flexspec` reads glossary, `/flexspec-charter` invokes discovery during charter work, unclear terms require user confirmation, confirmed terms persist through CLI, and charter updates happen without asking. | manual review |
+| TC-006 | FR-006, FR-007, FR-008, FR-009, FR-013 | T-005 | Manual review confirms discovery skill scans likely sources, filters known terms, interviews for unclear terms, writes through CLI, reports outcomes, and remains runnable standalone. | manual review |
+| TC-007 | FR-001-FR-013 | T-006 | `go test ./...`, `go vet ./...`, `gofmt`, and `flexspec validate` pass after implementation. | verification |
 
 ## 5. Other
 
 - **Charter delta resolved by user on 2026-06-06:** update `.flexspec/charter.md` for glossary capability and the new automatic charter update policy. Future `/flexspec` runs should update charter files without asking when a spec implies in-scope charter changes.
+- **Additional user request on 2026-06-06:** `/flexspec-charter` should invoke glossary discovery while creating/updating the charter, and the glossary discovery skill should remain available for standalone/manual runs.
 - **Assumption:** glossary entries are YAML, not markdown, because CLI list/query/add need structured fields and deterministic updates.
 - **Assumption:** `query` uses deterministic lexical/rule-based matching, not embeddings or network calls.
 - **Risk:** automated term detection can produce noisy candidates; mitigate by ranking repeated/domain-like terms and asking the user before saving unclear definitions.

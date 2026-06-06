@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"embed"
 	"fmt"
 	"io/fs"
 	"os"
@@ -12,18 +11,20 @@ import (
 
 // TemplatesFS holds the embedded template tree. It is populated by main before
 // Execute runs so the init command can scaffold templates into a project.
-var TemplatesFS embed.FS
+var TemplatesFS fs.FS
 
 const (
-	flexspecDir      = ".flexspec"
-	configFile       = "config.yaml"
-	charterFile      = "charter.md"
-	templatesDir     = "templates"
-	embedRootDir     = "templates"
-	embedCharterPath = "templates/charter.md"
-	defaultSpecs     = "specs"
-	dirPerm          = 0o755
-	filePerm         = 0o644
+	flexspecDir       = ".flexspec"
+	configFile        = "config.yaml"
+	charterFile       = "charter.md"
+	glossaryFile      = "glossary.yaml"
+	templatesDir      = "templates"
+	embedRootDir      = "templates"
+	embedCharterPath  = "templates/charter.md"
+	embedGlossaryPath = "templates/glossary.yaml"
+	defaultSpecs      = "specs"
+	dirPerm           = 0o755
+	filePerm          = 0o644
 )
 
 var (
@@ -41,6 +42,7 @@ This will create the following files and directories:
 - .flexspec/
 - .flexspec/config.yaml
 - .flexspec/charter.md
+- .flexspec/glossary.yaml
 
 - .flexspec/templates/
 - .flexspec/templates/README.md
@@ -70,6 +72,10 @@ This will create the following files and directories:
 
 		if err := writeCharter(filepath.Join(base, charterFile)); err != nil {
 			return fmt.Errorf("write %s: %w", charterFile, err)
+		}
+
+		if err := writeGlossary(filepath.Join(base, glossaryFile)); err != nil {
+			return fmt.Errorf("write %s: %w", glossaryFile, err)
 		}
 
 		if err := copyTemplates(filepath.Join(base, templatesDir)); err != nil {
@@ -108,9 +114,18 @@ spec_template:
 
 // writeCharter copies the embedded charter template into .flexspec/charter.md.
 func writeCharter(path string) error {
-	data, err := TemplatesFS.ReadFile(embedCharterPath)
+	data, err := fs.ReadFile(TemplatesFS, embedCharterPath)
 	if err != nil {
 		return fmt.Errorf("read embedded charter: %w", err)
+	}
+	return writeFileIfAbsent(path, data)
+}
+
+// writeGlossary copies the embedded glossary seed into .flexspec/glossary.yaml.
+func writeGlossary(path string) error {
+	data, err := fs.ReadFile(TemplatesFS, embedGlossaryPath)
+	if err != nil {
+		return fmt.Errorf("read embedded glossary: %w", err)
 	}
 	return writeFileIfAbsent(path, data)
 }
@@ -127,7 +142,7 @@ func copyTemplates(dest string) error {
 		if err != nil {
 			return err
 		}
-		if rel == charterFile {
+		if rel == charterFile || rel == glossaryFile {
 			return nil
 		}
 		target := filepath.Join(dest, rel)
@@ -136,7 +151,7 @@ func copyTemplates(dest string) error {
 			return os.MkdirAll(target, dirPerm)
 		}
 
-		data, err := TemplatesFS.ReadFile(p)
+		data, err := fs.ReadFile(TemplatesFS, p)
 		if err != nil {
 			return err
 		}

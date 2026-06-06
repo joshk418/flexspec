@@ -38,3 +38,16 @@ func TestCheckFlexspec_ok(t *testing.T) {
 		t.Fatalf("findings = %+v", findings)
 	}
 }
+
+func TestCheckFlexspec_malformedGlossary(t *testing.T) {
+	root := t.TempDir()
+	writeMinimalProject(t, root)
+	path := filepath.Join(root, ".flexspec", "glossary.yaml")
+	if err := os.WriteFile(path, []byte("not: yaml: [broken"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	findings := CheckFlexspec(root, testConfig(t, root), Options{})
+	if len(findings) != 1 || findings[0].Rule != "glossary.invalid" {
+		t.Fatalf("findings = %+v", findings)
+	}
+}

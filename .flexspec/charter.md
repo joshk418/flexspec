@@ -50,23 +50,21 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
 - Charter management — product-wide context authored via `/flexspec-charter`.
-- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`; task counts from spec `task_count` frontmatter, with computed fallback from §3.2 bullets or `tasks/` files), `flexspec validate` (warns on `task_count` drift), `flexspec update` (upgrade CLI, reinstall skills, run migrations including `task-count` backfill; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter). Human-readable output for `list`, `config`, `validate`, and `update` uses aligned column tables with headers; `--json` on list/config for scripts and agents.
+- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`; task counts from spec `task_count` frontmatter, with computed fallback from §3.2 bullets or `tasks/` files), `flexspec validate` (warns on `task_count` drift), `flexspec update` (upgrade CLI, reinstall skills, run migrations including `task-count` backfill; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter), `flexspec glossary list`/`query`/`add` (project glossary management). Human-readable output for `list`, `config`, `validate`, `update`, and `glossary` uses aligned column tables with headers; `--json` on list/config/glossary for scripts and agents.
 - Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status (all lifecycle columns fit the viewport with a per-user column-visibility picker), spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 - Spec lifecycle statuses — `draft`, `planned`, `in_progress`, `in_review`, `complete` (the board normalizes legacy `refined`/`initial` for display).
-- Agent skills — `/flexspec` (spec lifecycle), `/flexspec-charter` (application charter), and `/flexspec-migrate` (convert specs from other SDD tools into FlexSpec format), including structured multiple-choice interviews for UI-heavy specs and UI standards. `/flexspec` updates `.flexspec/charter.md` automatically for in-scope charter deltas instead of asking whether to update it.
+- Agent skills — `/flexspec` (spec lifecycle with automatic charter updates and glossary awareness), `/flexspec-charter` (application charter and glossary discovery handoff), `/flexspec-migrate` (convert specs from other SDD tools into FlexSpec format), and `/flexspec-glossary-discovery` (scan project language, ask for unclear term meanings, record confirmed definitions), including structured multiple-choice interviews for UI-heavy specs and UI standards. `/flexspec` updates `.flexspec/charter.md` automatically for in-scope charter deltas instead of asking whether to update it; `/flexspec-charter` invokes glossary discovery so charter terminology and `.flexspec/glossary.yaml` stay aligned.
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
 **Planned:**
 
-- Project glossary — `.flexspec/glossary.yaml` plus `flexspec glossary list`, `query`, and `add` commands so agents and humans can record, list, and search project-specific terminology.
-- Glossary discovery skill — `flexspec-glossary-discovery` scans project language, asks the user for exact meanings when terms are unclear, and records confirmed definitions through the CLI.
 - Adapters for external systems (Jira, Shortcut, GitHub Issues, and more).
 
 ## 5. Technical context
 
 - **Language/runtime:** Go 1.26.2.
 - **CLI framework:** `spf13/cobra`.
-- **Config/data:** YAML (`gopkg.in/yaml.v3`); markdown-first spec and charter files; planned structured glossary metadata in `.flexspec/glossary.yaml`.
+- **Config/data:** YAML (`gopkg.in/yaml.v3`); markdown-first spec and charter files; structured glossary metadata in `.flexspec/glossary.yaml`.
 - **Templates:** bundled via `embed.FS` and scaffolded on `init`.
 - **Distribution:** `go install github.com/joshk418/flexspec@latest`; skills installed via `npx skills`.
 
@@ -124,9 +122,9 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Term | Definition |
 | --- | --- |
 | Charter | Product-wide context (this file) used by every spec. |
-| Project glossary | Planned `.flexspec/glossary.yaml` metadata file containing project, company, and industry-specific term definitions. |
+| Project glossary | `.flexspec/glossary.yaml` metadata file containing project, company, and industry-specific term definitions. |
 | Glossary entry | One term definition in the project glossary, with optional aliases, category, sources, and timestamps. |
-| Glossary discovery | Planned skill workflow that scans project files for unknown project-specific terms and interviews the user for exact meanings when needed. |
+| Glossary discovery | `/flexspec-glossary-discovery` skill workflow, also invoked by `/flexspec-charter`, that scans project files for unknown project-specific terms and interviews the user for exact meanings when needed. |
 | Spec | A feature specification, simple or expanded, under the configured specs directory. |
 | Simple spec | A single-file markdown spec for small, focused features. |
 | Expanded spec | A multi-file specification for complex features, with linked task files. |
@@ -177,4 +175,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-06-03 | §4/§6/§9 — `/flexspec-migrate` skill to convert specs from other SDD tools into FlexSpec format. | 009-flexspec-migrate-skill |
 | 2026-06-03 | §4 — consistent aligned table output with column headers for `list`, `config`, `validate`, and `update`. | 011-cli-table-output |
 | 2026-06-03 | §4 — spec `task_count` frontmatter and metadata header; accurate `list` counts for simple specs; validate drift warning; `task-count` migration. | 012-task-count-metadata |
-| 2026-06-06 | §4/§5/§6/§9 — planned project glossary metadata, glossary CLI commands, glossary discovery skill, and automatic `/flexspec` charter updates. | 014-cli-glossary |
+| 2026-06-06 | §4/§5/§6/§9 — project glossary metadata, `flexspec glossary` CLI commands, `flexspec-glossary-discovery` skill, `/flexspec-charter` glossary handoff, and automatic `/flexspec` charter updates. | 014-cli-glossary |

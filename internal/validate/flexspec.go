@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/joshk418/flexspec/internal/config"
+	"github.com/joshk418/flexspec/internal/glossary"
 	"github.com/joshk418/flexspec/internal/spec"
 )
 
@@ -42,6 +43,16 @@ func CheckFlexspec(root string, _ config.Config, _ Options) []Finding {
 			Severity: SeverityError,
 			Path:     charterRel,
 			Rule:     "charter.frontmatter",
+			Message:  err.Error(),
+		})
+	}
+
+	glossaryRel := filepath.Join(flexspecDir, "glossary.yaml")
+	if _, err := glossary.Load(root); err != nil {
+		findings = append(findings, Finding{
+			Severity: SeverityError,
+			Path:     glossaryRel,
+			Rule:     "glossary.invalid",
 			Message:  err.Error(),
 		})
 	}

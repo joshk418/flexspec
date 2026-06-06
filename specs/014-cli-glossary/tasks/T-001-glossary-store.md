@@ -1,11 +1,16 @@
 ---
-id: "T-001"
-name: "Glossary store"
-parent_spec: "../README.md"
-status: todo
-satisfies: [FR-002, FR-003, NF-001, NF-003]
 depends_on: []
-verified_by: [TC-001]
+id: T-001
+name: Glossary store
+parent_spec: ../README.md
+satisfies:
+    - FR-002
+    - FR-003
+    - NF-001
+    - NF-003
+status: done
+verified_by:
+    - TC-001
 ---
 
 # T-001: Glossary store

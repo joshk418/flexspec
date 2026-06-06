@@ -204,6 +204,9 @@ func writeSelfUpdateActions(w io.Writer, actions []selfupdate.Action, applying b
 }
 
 func embeddedTemplatesFS() (fs.FS, error) {
+	if TemplatesFS == nil {
+		return nil, nil
+	}
 	if _, err := fs.ReadFile(TemplatesFS, filepath.Join(embedRootDir, "flexspec-simple.md")); err != nil {
 		return nil, nil
 	}

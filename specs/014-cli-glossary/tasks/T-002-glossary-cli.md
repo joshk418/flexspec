@@ -1,11 +1,19 @@
 ---
-id: "T-002"
-name: "Glossary CLI"
-parent_spec: "../README.md"
-status: todo
-satisfies: [FR-001, FR-002, FR-003, FR-004, NF-002]
-depends_on: [T-001]
-verified_by: [TC-002, TC-003]
+depends_on:
+    - T-001
+id: T-002
+name: Glossary CLI
+parent_spec: ../README.md
+satisfies:
+    - FR-001
+    - FR-002
+    - FR-003
+    - FR-004
+    - NF-002
+status: done
+verified_by:
+    - TC-002
+    - TC-003
 ---
 
 # T-002: Glossary CLI
