@@ -1,13 +1,13 @@
 ---
 product_name: "FlexSpec"
-version: "0.1"
-last_updated: "2026-05-31"
+version: "0.2"
+last_updated: "2026-06-06"
 status: active
 ---
 
 # FlexSpec
 
-> **Charter status**: active · **Version**: 0.1 · **Last updated**: 2026-05-31
+> **Charter status**: active · **Version**: 0.2 · **Last updated**: 2026-06-06
 
 ## 1. Product overview
 
@@ -53,18 +53,20 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 - CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`; task counts from spec `task_count` frontmatter, with computed fallback from §3.2 bullets or `tasks/` files), `flexspec validate` (warns on `task_count` drift), `flexspec update` (upgrade CLI, reinstall skills, run migrations including `task-count` backfill; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter). Human-readable output for `list`, `config`, `validate`, and `update` uses aligned column tables with headers; `--json` on list/config for scripts and agents.
 - Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status (all lifecycle columns fit the viewport with a per-user column-visibility picker), spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 - Spec lifecycle statuses — `draft`, `planned`, `in_progress`, `in_review`, `complete` (the board normalizes legacy `refined`/`initial` for display).
-- Agent skills — `/flexspec` (spec lifecycle), `/flexspec-charter` (application charter), and `/flexspec-migrate` (convert specs from other SDD tools into FlexSpec format), including structured multiple-choice interviews for UI-heavy specs and UI standards.
+- Agent skills — `/flexspec` (spec lifecycle), `/flexspec-charter` (application charter), and `/flexspec-migrate` (convert specs from other SDD tools into FlexSpec format), including structured multiple-choice interviews for UI-heavy specs and UI standards. `/flexspec` updates `.flexspec/charter.md` automatically for in-scope charter deltas instead of asking whether to update it.
 - Configuration and template overrides — users control spec structure via config (`spec_template`) and a per-spec skill flag (`--template`); templates are freely editable.
 
 **Planned:**
 
+- Project glossary — `.flexspec/glossary.yaml` plus `flexspec glossary list`, `query`, and `add` commands so agents and humans can record, list, and search project-specific terminology.
+- Glossary discovery skill — `flexspec-glossary-discovery` scans project language, asks the user for exact meanings when terms are unclear, and records confirmed definitions through the CLI.
 - Adapters for external systems (Jira, Shortcut, GitHub Issues, and more).
 
 ## 5. Technical context
 
 - **Language/runtime:** Go 1.26.2.
 - **CLI framework:** `spf13/cobra`.
-- **Config/data:** YAML (`gopkg.in/yaml.v3`); markdown-first spec and charter files.
+- **Config/data:** YAML (`gopkg.in/yaml.v3`); markdown-first spec and charter files; planned structured glossary metadata in `.flexspec/glossary.yaml`.
 - **Templates:** bundled via `embed.FS` and scaffolded on `init`.
 - **Distribution:** `go install github.com/joshk418/flexspec@latest`; skills installed via `npx skills`.
 
@@ -72,7 +74,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Go ≥ 1.26 floor (CI uses the `go.mod` version).
 - Minimal dependencies — Cobra, `yaml.v3`, and `fsnotify` (UI file watch); avoid heavy new deps. React UI is embedded at build time; end users do not need Node at runtime. The `flexspec update --skills` step invokes `npx` and requires Node on PATH for that command only.
-- Skills write only inside `.flexspec/` and the configured spec directory; agents may modify code files during implementation but must not touch `README`, `AGENTS.md`, or related docs unless explicitly instructed.
+- Skills write only inside `.flexspec/` and the configured spec directory; agents may modify code files during implementation but must not touch `README`, `AGENTS.md`, or related docs unless explicitly instructed. `/flexspec` should update `.flexspec/charter.md` automatically when a spec changes product capabilities, standards, boundaries, or glossary terms.
 - `init` never clobbers user edits unless `--force` is passed.
 - Cross-platform — build paths with `filepath`.
 - CI gate: `go test -race`, `gofmt`, `go vet`, `golangci-lint`.
@@ -84,7 +86,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 ```mermaid
 flowchart TD
     main[main + embed templates + ui/dist] --> cli[Cobra CLI]
-    cli -->|init| fs[.flexspec/: config, charter, templates]
+    cli -->|init| fs[.flexspec/: config, charter, glossary, templates]
     cli -->|new| specs[specs_dir/NNN-slug/]
     cli -->|list| specs
     cli -->|validate| fs
@@ -93,7 +95,7 @@ flowchart TD
     uiSrv --> specs
     uiSrv --> fs
     browser[Browser] --> uiSrv
-    skills[Agent skills: /flexspec, /flexspec-charter, /flexspec-migrate] -->|read| fs
+    skills[Agent skills: /flexspec, /flexspec-charter, /flexspec-migrate, glossary discovery] -->|read/write| fs
     skills -->|author / implement / review| specs
     adapters[(Adapters — planned)] -.-> skills
 ```
@@ -122,6 +124,9 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Term | Definition |
 | --- | --- |
 | Charter | Product-wide context (this file) used by every spec. |
+| Project glossary | Planned `.flexspec/glossary.yaml` metadata file containing project, company, and industry-specific term definitions. |
+| Glossary entry | One term definition in the project glossary, with optional aliases, category, sources, and timestamps. |
+| Glossary discovery | Planned skill workflow that scans project files for unknown project-specific terms and interviews the user for exact meanings when needed. |
 | Spec | A feature specification, simple or expanded, under the configured specs directory. |
 | Simple spec | A single-file markdown spec for small, focused features. |
 | Expanded spec | A multi-file specification for complex features, with linked task files. |
@@ -138,6 +143,7 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | Management UI | `flexspec ui` — local dashboard (board, spec browser, settings) with live filesystem sync. |
 | SSE | Server-sent events from `flexspec ui` when spec files change on disk. |
 | Migrate skill | `/flexspec-migrate` — agent skill that detects specs from other SDD tools (Spec Kit, OpenSpec, LeanSpec, etc.), maps content into FlexSpec templates via the CLI, and leaves specs at `draft` for `/flexspec` to finish. |
+| Automatic charter update | `/flexspec` behavior where in-scope charter deltas are written directly to `.flexspec/charter.md` instead of asking the user whether to update the charter. |
 
 ## 10. Assumptions and open questions
 
@@ -171,3 +177,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-06-03 | §4/§6/§9 — `/flexspec-migrate` skill to convert specs from other SDD tools into FlexSpec format. | 009-flexspec-migrate-skill |
 | 2026-06-03 | §4 — consistent aligned table output with column headers for `list`, `config`, `validate`, and `update`. | 011-cli-table-output |
 | 2026-06-03 | §4 — spec `task_count` frontmatter and metadata header; accurate `list` counts for simple specs; validate drift warning; `task-count` migration. | 012-task-count-metadata |
+| 2026-06-06 | §4/§5/§6/§9 — planned project glossary metadata, glossary CLI commands, glossary discovery skill, and automatic `/flexspec` charter updates. | 014-cli-glossary |
