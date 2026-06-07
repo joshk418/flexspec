@@ -77,6 +77,18 @@ Map answers into the template sections. Sample questions:
 | §9 Glossary | Domain terms agents must use consistently? |
 | §10 Assumptions / questions | What are we assuming? What is still unknown (blocking vs not)? |
 
+### 4.1 Glossary discovery handoff
+
+During charter creation, full refresh, or updates that touch §1, §3, §4, §5, §6,
+§7, §8, or §9, run the glossary discovery workflow before final handoff.
+
+- Invoke or follow `flexspec-glossary-discovery` after the main charter interview so the glossary is built from the same product language.
+- Use `flexspec glossary list --json` to load known terms before discovery.
+- Persist clear or user-confirmed terms only through `flexspec glossary add`.
+- If a term is project-specific but unclear, ask the user for the exact meaning before persisting.
+- Do not block charter activation on optional glossary additions unless an unclear term is needed to understand §1-§8.
+- Keep `flexspec-glossary-discovery` available as a standalone skill for later glossary refreshes or manual updates.
+
 For charter creation, charter refresh, or `/flexspec`-triggered deltas involving
 UI, ask a short structured UI standards round before writing §4, §7, §8, and §10.
 Keep it product-wide; do not embed individual feature specs.
@@ -114,6 +126,7 @@ Before handoff, confirm:
 - [ ] Capability map reflects current product scope (§4).
 - [ ] Technical context and constraints (§5).
 - [ ] Product boundaries / non-goals (§8).
+- [ ] Glossary discovery run or intentionally skipped with reason.
 - [ ] No blocking open questions in §10.
 - [ ] Frontmatter `status: active`, no `{` or `<!--` left in body.
 
@@ -132,6 +145,7 @@ application context source for Phase 1 authoring.
 - Prefer tables and bullets over long prose.
 - If `.flexspec/charter.md` is missing but templates exist, run `flexspec init` before interviewing.
 - When `/flexspec` proposes charter deltas, treat the delta list as the interview agenda — do not re-ask about unchanged sections unless the user wants a full refresh.
+- When charter work introduces domain terminology, build or refresh `.flexspec/glossary.yaml` through `flexspec-glossary-discovery`; keep the discovery skill runnable on its own for manual glossary maintenance.
 
 ---
 
