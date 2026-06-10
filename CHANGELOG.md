@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/joshk418/flexspec/compare/v0.3.2...v0.3.3) (2026-06-10)
+
+
+### Bug Fixes
+
+* Fixed skills installer not allowing interaction from user ([#27](https://github.com/joshk418/flexspec/issues/27)) ([17eb39f](https://github.com/joshk418/flexspec/commit/17eb39f855f3ed4b9f9b95c9746827e2fd2900f3))
+
 ## [0.3.2](https://github.com/joshk418/flexspec/compare/v0.3.1...v0.3.2) (2026-06-07)
 
 
