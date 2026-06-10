@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.2](https://github.com/joshk418/flexspec/compare/v0.3.1...v0.3.2) (2026-06-07)
+
+
+### Features
+
+* Glossary for project specific terms ([#26](https://github.com/joshk418/flexspec/issues/26)) ([1fbe954](https://github.com/joshk418/flexspec/commit/1fbe954e6a9ed57190b86fcc41542e466ef621cf))
+
+
+### Bug Fixes
+
+* Switched order of update operations to ensure tool updates happen first ([#24](https://github.com/joshk418/flexspec/issues/24)) ([20c1e1a](https://github.com/joshk418/flexspec/commit/20c1e1af2e7ddcaed9579fdb00fe4096f0d7d708))
+
 ## [0.3.1](https://github.com/joshk418/flexspec/compare/v0.3.0...v0.3.1) (2026-06-03)
 
 
