@@ -10,7 +10,7 @@ func TestPlanCLI(t *testing.T) {
 	if !strings.Contains(a.Command, "go install") {
 		t.Fatalf("command = %q", a.Command)
 	}
-	if !strings.Contains(a.Detail, "0.2.1") {
+	if got, want := a.Detail, "upgrade from 0.2.1 to latest"; got != want {
 		t.Fatalf("detail = %q", a.Detail)
 	}
 }

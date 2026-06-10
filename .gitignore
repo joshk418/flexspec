@@ -6,3 +6,4 @@ ui/node_modules
 # Built UI assets — CI/release run `make build-ui` before compile
 ui/dist/*
 !ui/dist/.gitkeep
+.DS_Store

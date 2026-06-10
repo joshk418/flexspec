@@ -29,6 +29,7 @@ func DefaultRunner(name string, args ...string) error {
 		return fmt.Errorf("%s not found on PATH: install %s to run this step", name, name)
 	}
 	cmd := exec.Command(path, args...)
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
@@ -39,7 +40,7 @@ func PlanCLI(installedVersion string) Action {
 	return Action{
 		Target:  "cli",
 		Command: "go install " + cliModule,
-		Detail:  "installed " + installedVersion,
+		Detail:  "upgrade from " + installedVersion + " to latest",
 	}
 }
 
