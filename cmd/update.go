@@ -51,6 +51,12 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	doCLI, doSkills, doMigrate := resolveUpdateSteps()
+
+	// Skip migrations when not inside a flexspec setup directory.
+	if doMigrate && !isFlexspecDir(root) {
+		doMigrate = false
+	}
+
 	apply := !updateDryRun && !updateCheck
 	dryPlan := updateDryRun || updateCheck
 
@@ -211,6 +217,11 @@ func embeddedTemplatesFS() (fs.FS, error) {
 		return nil, nil
 	}
 	return fs.Sub(TemplatesFS, embedRootDir)
+}
+
+func isFlexspecDir(root string) bool {
+	_, err := os.Stat(filepath.Join(root, ".flexspec", "config.yaml"))
+	return err == nil
 }
 
 func init() {
