@@ -51,6 +51,11 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	doCLI, doSkills, doMigrate := resolveUpdateSteps()
+
+	if doMigrate && !isFlexspecDir(root) {
+		doMigrate = false
+	}
+
 	apply := !updateDryRun && !updateCheck
 	dryPlan := updateDryRun || updateCheck
 
@@ -211,6 +216,11 @@ func embeddedTemplatesFS() (fs.FS, error) {
 		return nil, nil
 	}
 	return fs.Sub(TemplatesFS, embedRootDir)
+}
+
+func isFlexspecDir(root string) bool {
+	_, err := os.Stat(config.ConfigPath(root))
+	return err == nil
 }
 
 func init() {
