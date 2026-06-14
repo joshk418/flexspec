@@ -111,16 +111,16 @@ sequenceDiagram
 
 ### 3.2 Task List
 
-- **T-001** — Add an Ambiguity Interview Gate to `skills/flexspec/SKILL.md`, including trigger conditions, question groups, structured-tool usage, and answer-to-spec mapping. _(satisfies: FR-001, FR-002, FR-005, NF-001, NF-002)_
+- **T-001** — Add an Ambiguity Interview Gate to `skills/flexspec/SKILL.md`, including trigger conditions, question groups, structured-tool usage, answer-to-spec mapping, and skip-rationale guidance. _(satisfies: FR-001, FR-002, FR-005, FR-006, NF-001, NF-002)_
 - **T-002** — Expand the UI Interview Gate in `skills/flexspec/SKILL.md` with design areas for visual identity, layout system, component library, motion/feedback, UX flows/content, and accessibility/input. _(satisfies: FR-003, FR-004, NF-001, NF-002)_
-- **T-003** — Update `.flexspec/charter.md` capabilities and revision history for the strengthened ambiguity and UI interview gates; run `flexspec validate`. _(satisfies: FR-006, NF-002)_
+- **T-003** — Update `.flexspec/charter.md` capabilities and revision history for the strengthened ambiguity and UI interview gates; run `flexspec validate`. _(satisfies: NF-002)_
 
 ## 4. Testing Criteria
 
 | Test ID | Verifies | Description | Type |
 | --- | --- | --- | --- |
 | TC-001 | FR-001, FR-002 | `skills/flexspec/SKILL.md` defines Ambiguity Interview Gate trigger conditions and question groups | manual read |
-| TC-002 | FR-003, FR-004 | `skills/flexspec/SKILL.md` lists all six expanded UI design areas and requires answer mapping into requirements/tasks/tests/assumptions | manual read |
+| TC-002 | FR-003, FR-004 | `skills/flexspec/SKILL.md` lists the expanded UI design areas and requires answer mapping into requirements/tasks/tests/assumptions | manual read |
 | TC-003 | FR-005 | Ambiguity gate requires answer mapping into goals, scope, success criteria, constraints, tasks, tests, and assumptions | manual read |
 | TC-004 | FR-006 | Skill documents gate-skip rationale for tiny edits in §5 Other | manual read |
 | TC-005 | NF-001 | Question-tool guidance remains runtime-agnostic with named examples only | manual read |

@@ -147,7 +147,7 @@ Goal: complete, unambiguous, testable spec on disk; move status to `planned`.
 7. If the request includes UI work, run the UI Interview Gate before filling design details.
 8. Fill CLI-created spec files (do not re-scaffold).
 9. Surface unknowns; ask user in grouped questions; resolve all blocking items.
-10. Map ambiguity interview answers into clarified goals, scope, success criteria, constraints, requirements, tasks, tests, and §5 assumptions/risks.
+10. If the Ambiguity Interview Gate ran, map its answers into clarified goals, scope, success criteria, constraints, requirements, tasks, tests, and §5 assumptions/risks.
 11. For UI specs, map UI interview answers into requirements, tasks, testing criteria, and §5 assumptions/risks.
 12. Run readiness checks (sections, IDs, tests, mappings, token budgets).
 13. Run charter freshness check: update charter automatically for in-scope deltas; only §7/§8 conflicts are blocking.
