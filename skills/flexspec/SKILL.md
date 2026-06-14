@@ -143,15 +143,54 @@ Goal: complete, unambiguous, testable spec on disk; move status to `planned`.
 3. Choose template using resolution/heuristic rules.
 4. Initialize if needed (`flexspec init`).
 5. Scaffold with CLI (`flexspec new <name> --template <simple|expanded>`).
-6. If the request includes UI work, run the UI Interview Gate before filling design details.
-7. Fill CLI-created spec files (do not re-scaffold).
-8. Surface unknowns; ask user in grouped questions; resolve all blocking items.
-9. For UI specs, map UI interview answers into requirements, tasks, testing criteria, and §5 assumptions/risks.
-10. Run readiness checks (sections, IDs, tests, mappings, token budgets).
-11. Run charter freshness check: update charter automatically for in-scope deltas; only §7/§8 conflicts are blocking.
-12. Run glossary gate: record clear terms, ask for unclear ones.
-13. Set `status` to `planned` with `flexspec status set <spec> --status planned` (specs are authored in `draft`).
-14. End phase; summarize and ask user to run `/flexspec` again (unless one-shot).
+6. Classify the request for ambiguity. If goals, scope, success criteria, constraints, or key unknowns are missing or vague, run the Ambiguity Interview Gate before filling design details.
+7. If the request includes UI work, run the UI Interview Gate before filling design details.
+8. Fill CLI-created spec files (do not re-scaffold).
+9. Surface unknowns; ask user in grouped questions; resolve all blocking items.
+10. Map ambiguity interview answers into clarified goals, scope, success criteria, constraints, requirements, tasks, tests, and §5 assumptions/risks.
+11. For UI specs, map UI interview answers into requirements, tasks, testing criteria, and §5 assumptions/risks.
+12. Run readiness checks (sections, IDs, tests, mappings, token budgets).
+13. Run charter freshness check: update charter automatically for in-scope deltas; only §7/§8 conflicts are blocking.
+14. Run glossary gate: record clear terms, ask for unclear ones.
+15. Set `status` to `planned` with `flexspec status set <spec> --status planned` (specs are authored in `draft`).
+16. End phase; summarize and ask user to run `/flexspec` again (unless one-shot).
+
+## Ambiguity Interview Gate (Phase 1)
+
+Run this gate when the request is vague or underspecified, regardless of whether
+it includes UI. Ambiguous signals include missing goals, missing scope
+boundaries, missing success criteria, missing constraints, unknown user
+workflows, undefined data models, or unspecified integration points. For tiny
+copy/style fixes or other obviously trivial edits, you may skip both gates and
+record the skip rationale in §5 Other.
+
+Use the integrated structured question system available in the current agent
+runtime when it exists (for example Cursor `AskQuestion`, or equivalent Claude,
+Codex, or other agent multiple-choice tools). Prefer grouped multiple-choice
+questions, with multi-select when several choices can apply. If no structured
+question tool exists, ask the same options in concise text and record the fallback
+in §5 Other.
+
+Ask only the groups needed for the feature, but cover all high-risk unknowns
+before `planned`:
+
+| Area | Example options to offer |
+| --- | --- |
+| Goal clarity | specific user outcome, business metric, engineering outcome, exploration/spike |
+| Scope boundaries | in-scope features, out-of-scope features, MVP vs future, files not to touch |
+| Success criteria | observable behavior, acceptance threshold, performance target, test expectation |
+| Constraints | existing tech, deadlines, dependencies, backwards compatibility, offline/air-gapped |
+| Unknowns | data model, external API, auth/permissions, deployment, analytics, migration |
+| Risk/rollback | blast radius, feature flag, rollback plan, user communication |
+
+Before setting `status: planned`, translate answers into:
+
+- Clarified in-scope and out-of-scope statements in §1.
+- Concrete FR/NF requirements.
+- §2.1 file/component plan.
+- §3 tasks with dependency order.
+- §4 tests mapped to requirements.
+- §5 assumptions/risks for any unresolved or deferred items.
 
 ## UI Interview Gate (Phase 1)
 
@@ -167,18 +206,19 @@ questions, with multi-select when several choices can apply. If no structured
 question tool exists, ask the same options in concise text and record the fallback
 in §5 Other.
 
-Ask only the groups needed for the feature, but cover all high-risk unknowns before
-`planned`:
+Ask only the groups needed for the feature, but cover all high-risk unknowns
+before `planned`:
 
 | Area | Example options to offer |
 | --- | --- |
-| Visual direction | reuse existing app style, polished SaaS, playful/illustrated, minimal utility, dense admin |
-| Layout density | spacious marketing, balanced app, compact dashboard, mobile-first |
+| Visual identity | reuse existing app style, polished SaaS, playful/illustrated, minimal utility, dense admin |
+| Layout system | spacious marketing, balanced app, compact dashboard, mobile-first; grid, spacing scale, breakpoints |
+| Component library | existing components to reuse, design-system constraints, third-party library, custom components |
 | Component details | icons on primary/secondary buttons, avatars/illustrations, cards vs flat sections, dividers/borders |
-| Interaction affordances | password show/hide, loading states, disabled states, inline validation, keyboard shortcuts |
-| State coverage | empty, loading, error, success, permission/unauthenticated, skeletons |
-| Accessibility | labels, focus states, contrast needs, reduced motion, screen-reader text |
-| App fit | existing components to reuse, routes/screens to match, design system constraints |
+| Motion & feedback | transitions, hover/focus/active states, loading states, skeletons, toasts/snackbars, inline validation |
+| UX flows & content | empty/zero/error/success states, user flow steps, confirmation patterns, copy tone, error messaging |
+| Accessibility & input | labels, focus order, contrast, keyboard shortcuts, reduced motion, screen-reader text, touch targets |
+| App fit | routes/screens to match, navigation patterns, existing conventions, dark/light/system mode |
 
 For auth and form-heavy UI, explicitly decide password visibility toggles, icon
 usage, field validation timing, submit/loading behavior, forgot/reset links, and
@@ -343,6 +383,8 @@ Task constraints:
 - [ ] Tasks mapped to requirements.
 - [ ] Every FR mapped to >=1 TC.
 - [ ] No blocking open questions remain.
+- [ ] Ambiguity Interview Gate run for vague requests; answers mapped into goals, scope, success criteria, constraints, requirements, tasks, tests, and assumptions.
+- [ ] UI Interview Gate run for UI specs; answers mapped into requirements, tasks, tests, and assumptions.
 - [ ] Charter read; no unresolved conflict with §7/§8.
 - [ ] Charter updated automatically for in-scope deltas; any §7/§8 conflicts resolved with user.
 - [ ] Optional/project habit: `flexspec validate` has no errors.
