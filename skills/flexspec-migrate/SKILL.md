@@ -23,8 +23,8 @@ for supported tools.
 2. **CLI only for scaffolding.** `flexspec new`, `flexspec status set` — never hand-create spec dirs, sequence numbers, or frontmatter status.
 3. **Non-destructive default.** Keep source files unless user explicitly confirms deletion for this run.
 4. **No web without permission.** If detection fails, ask user to allow web lookup; if denied or still unknown, ask for the source directory path.
-5. **Draft end-state.** Port content into `draft` specs; do not fabricate §2.2/§3.1 code maps or TC rows. User runs `/flexspec` next to finish design.
-6. **Never invent content.** Unmapped fields → report in migration summary + note in spec §5 Other.
+5. **Draft end-state.** Port content into `draft` specs; do not fabricate Section 6 workflow graphs, Section 8 test rows, or unresolved requirements. User runs `/flexspec` next to finish design.
+6. **Never invent content.** Unmapped fields -> report in migration summary + note in spec Section 2 under assumptions/risks/open questions.
 
 ## Prerequisites
 
@@ -91,13 +91,15 @@ Fill CLI-created files only:
 
 | FlexSpec section | Source (typical) |
 | --- | --- |
-| §1 Summary | overview, problem, goals, in/out scope |
-| §2.1 Architecture | plan/design file prose + file lists (best-effort) |
-| §2.2 Code Map | **Leave placeholder** — "Complete via `/flexspec` Phase 1" |
-| §2.3 FR/NF | requirements, user stories, acceptance criteria, NFRs |
-| §3 Tasks | task items → T-XXX list or expanded `tasks/` files |
-| §4 Testing | port acceptance/checklist items only if explicit; else placeholder |
-| §5 Other | unmapped content, migration notes, "run `/flexspec` to reach planned" |
+| Section 1 Summary | overview, problem, goals, in/out scope |
+| Section 2 Reasons For Change | rationale, assumptions, risks, unmapped content, migration notes |
+| Section 3 Intended Use Case | actors, workflows, scenarios, user stories |
+| Sections 4-5 Bug Results | expected/actual behavior for bug specs; otherwise not applicable |
+| Section 6 Workflow Graph | **Leave placeholder** - "Complete via `/flexspec` Phase 1" |
+| Section 7 Implementation Plan | plan/design file prose + file lists (best-effort) |
+| Section 8 Test Plan | port acceptance/checklist items only if explicit; else placeholder |
+| Section 9 FR/NF | requirements, user stories, acceptance criteria, NFRs |
+| Section 10 Tasks | task items -> T-XXX table or expanded `tasks/` files |
 
 Renumber IDs as new FR-/NF-/T-/TC- sequences. Preserve source titles/IDs in prose where helpful.
 
@@ -128,7 +130,7 @@ If user chose delete: remove only confirmed source paths after all migrations su
 
 **Next steps**
 1. Review migrated specs in `<specs_dir>/`.
-2. Run `/flexspec` on each spec to complete code maps, testing criteria, and reach `planned`.
+2. Run `/flexspec` on each spec to complete workflow graphs, test plans, requirements, and reach `planned`.
 3. Optionally run `/flexspec-charter` if migration revealed product deltas.
 4. When satisfied, archive or delete original tool dirs (if kept).
 ```
@@ -157,13 +159,13 @@ Run `flexspec validate` after migration.
 | review, in-review, validating, analyzing | `in_review` |
 | complete, done, archived, shipped, accepted | `complete` |
 
-Tool-specific values: see each reference doc. When ambiguous → `draft` + note in §5.
+Tool-specific values: see each reference doc. When ambiguous -> `draft` + note in Section 2.
 
 ## Forbidden
 
 - Hand-create `specs/NNN-*` directories or copy FlexSpec templates manually
 - Edit spec `status` in frontmatter by hand (use `flexspec status set`)
-- Fabricate code maps, mermaid traces, or test criteria during migration
+- Fabricate workflow graphs, mermaid traces, requirements, or test criteria during migration
 - Web-search without user permission
 - Delete source files without explicit per-run confirmation
 

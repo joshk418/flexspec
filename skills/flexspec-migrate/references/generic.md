@@ -42,15 +42,15 @@ Map by **semantic role**, not filename (filenames vary by tool):
 | --- | --- | --- |
 | Intent / problem / scope | `spec.md`, `README.md`, `requirements.md`, `proposal.md` | §1 Summary |
 | Out of scope | non-goals section, `OUT_OF_SCOPE.md` | §1 out-of-scope |
-| Requirements | FR lists, user stories, EARS, scenarios | §2.3 FR-* |
-| Constraints / NFR | performance, security sections | §2.3 NF-* |
-| Design / architecture | `plan.md`, `design.md`, `ARCHITECTURE.md` | §2.1 |
-| Tasks / work items | `tasks.md`, `TASKS.md`, `tasks/*`, checklists | §3 |
-| Tests / acceptance | `TESTING.md`, acceptance criteria, test links | §4 (explicit only) |
-| Metadata | YAML frontmatter, `meta.json` | FlexSpec frontmatter + §5 |
-| Unknown sections | — | §5 Other verbatim summary |
+| Requirements | FR lists, user stories, EARS, scenarios | Section 9 FR-* |
+| Constraints / NFR | performance, security sections | Section 9 NF-* |
+| Design / architecture | `plan.md`, `design.md`, `ARCHITECTURE.md` | Section 7 implementation plan |
+| Tasks / work items | `tasks.md`, `TASKS.md`, `tasks/*`, checklists | Section 10 tasks |
+| Tests / acceptance | `TESTING.md`, acceptance criteria, test links | Section 8 (explicit only) |
+| Metadata | YAML frontmatter, `meta.json` | FlexSpec frontmatter + Section 2 |
+| Unknown sections | — | Section 2 verbatim summary |
 
-**Never fabricate** §2.2 code maps or TC rows without explicit source content.
+**Never fabricate** Section 6 workflow graphs or TC rows without explicit source content.
 
 ## Status map (fallback)
 

@@ -54,11 +54,11 @@ Tessl specs are usually single-file → default **`simple`**.
 | Tessl `.spec.md` | FlexSpec target |
 | --- | --- |
 | Frontmatter `name`, `description` | FlexSpec frontmatter |
-| Frontmatter `targets` | §2.1 file table (glob targets as reference rows) |
-| Body headings — requirements, behavior | §1 Summary + §2.3 FR-* |
-| `[@test] path/to/test.py` inline links | §4 TC-* rows referencing test path (port link text; do not invent tests) |
-| Error handling / edge case sections | §2.3 FR/NF |
-| Non-goals section | §1 out-of-scope |
+| Frontmatter `targets` | Section 7 file table (glob targets as reference rows) |
+| Body headings — requirements, behavior | Section 1 + Section 9 FR-* |
+| `[@test] path/to/test.py` inline links | Section 8 TC-* rows referencing test path (port link text; do not invent tests) |
+| Error handling / edge case sections | Section 9 FR/NF |
+| Non-goals section | Section 1 out-of-scope |
 
 Example Tessl requirement line:
 
@@ -90,5 +90,5 @@ From filename: `auth.spec.md` → `auth`.
 
 - `.tessl/RULES.md` and tile skills — not feature specs.
 - Tessl also documents OpenSpec-style `openspec/` init via some tiles — if both Tessl `.spec.md` and `openspec/` exist, treat as separate tools; user picks.
-- `[@test]` links must remain verbatim in §4; flag broken links in migration report.
+- `[@test]` links must remain verbatim in Section 8; flag broken links in migration report.
 - Variant layouts less documented — fall back to `generic.md` if frontmatter/schema mismatch.

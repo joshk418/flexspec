@@ -47,15 +47,15 @@ Official repo: [github/spec-kit](https://github.com/github/spec-kit). Slash comm
 
 | Spec Kit file / section | FlexSpec target |
 | --- | --- |
-| `spec.md` — Overview, User Stories, Requirements, Success Criteria, Edge Cases | §1 Summary + §2.3 FR/NF |
-| `spec.md` — Out of scope / Non-goals | §1 out-of-scope |
-| `plan.md` — Technical Context, Architecture, Project Structure | §2.1 Architecture (prose + file table best-effort) |
-| `plan.md` — Constitution Check, Constraints | §2.3 NF-* |
-| `data-model.md` | §2.1 reference row; expanded: note in §2 Design Data Model placeholder |
-| `contracts/*` | §2.1 file table; §2.3 FR for API contracts |
-| `tasks.md` — phases, task lines, `[P]` markers | §3.2 T-* list or expanded `tasks/T-XXX-*.md` |
-| `research.md`, `quickstart.md` | §5 Other (links/summary); do not invent design from empty sections |
-| User story priorities P1/P2/P3 | §3 task ordering; priority in frontmatter if clear |
+| `spec.md` — Overview, User Stories, Requirements, Success Criteria, Edge Cases | Section 1 + Section 3 + Section 9 FR/NF |
+| `spec.md` — Out of scope / Non-goals | Section 1 out-of-scope |
+| `plan.md` — Technical Context, Architecture, Project Structure | Section 7 implementation plan (prose + file table best-effort) |
+| `plan.md` — Constitution Check, Constraints | Section 9 NF-* |
+| `data-model.md` | Section 7.2 data model placeholder |
+| `contracts/*` | Section 7 interfaces; Section 9 FR for API contracts |
+| `tasks.md` — phases, task lines, `[P]` markers | Section 10 task table or expanded `tasks/T-XXX-*.md` |
+| `research.md`, `quickstart.md` | Section 2 notes (links/summary); do not invent design from empty sections |
+| User story priorities P1/P2/P3 | Section 10 task ordering; priority in frontmatter if clear |
 
 ## Status map
 
@@ -78,4 +78,4 @@ From folder name: `001-create-taskify` → `create-taskify` (drop numeric prefix
 
 - Git feature branches created by Spec Kit are not migrated.
 - `constitution.md` → suggest `/flexspec-charter`, not a feature spec.
-- Constitution violations / gate sections → §5 Other only.
+- Constitution violations / gate sections -> Section 2 notes only.

@@ -6,6 +6,7 @@ status: [todo,in_progress,in_review,blocked,done]
 satisfies: []        # requirement IDs, e.g. [FR-001, NF-001]
 depends_on: []       # task IDs that must complete first, e.g. [T-001]
 verified_by: []      # test IDs from the spec, e.g. [TC-001]
+blocks: []           # task IDs this task unblocks, e.g. [T-002]
 ---
 
 <!--
@@ -17,6 +18,7 @@ spec instead of restating it. If the task can't fit, split it into smaller tasks
 
 > **Parent spec**: [{spec name}](../README.md) · **Status**: {status}
 > **Satisfies**: {FR/NF ids} · **Depends on**: {task ids} · **Verified by**: {TC ids}
+> **Blocks**: {task ids}
 
 ## Objective
 
@@ -31,9 +33,10 @@ it satisfies. The reader should know "done" means after this line.
 
 <!--
 Everything the agent needs to start WITHOUT reading the rest of the codebase.
-Summarize the relevant existing behavior, patterns to follow, and constraints.
-Link to the parent spec sections for the bigger picture, but make this task
-self-contained enough to avoid context rot.
+Summarize the relevant existing behavior, patterns to follow, constraints,
+workflow graph steps, and requirement/test mappings. Link to the parent spec
+sections for the bigger picture, but make this task self-contained enough to
+avoid context rot.
 -->
 
 {context}
@@ -45,6 +48,15 @@ self-contained enough to avoid context rot.
 | File | Action | Notes |
 | --- | --- | --- |
 | `path/to/file` | create / modify / read | What changes / why referenced |
+
+### Workflow / Requirement Mapping
+
+| Parent Section | Mapping |
+| --- | --- |
+| Workflow graph steps | {steps from §6 this task enables or verifies} |
+| Implementation plan steps | {steps from §7 this task implements} |
+| Requirements | {FR/NF ids} |
+| Tests | {TC ids} |
 
 ## Implementation Steps
 

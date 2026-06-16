@@ -56,12 +56,12 @@ Each `kitty-specs/NNN-feature-name/` folder.
 
 | Spec Kitty file | FlexSpec target |
 | --- | --- |
-| `meta.json` — title, mission, metadata | frontmatter name/description; §1 Summary intro |
-| `spec.md` | §1 + §2.3 FR/NF |
-| `checklists/requirements.md` | §2.3 FR + §4 TC seeds |
-| `plan.md` | §2.1 Architecture |
-| `research.md`, `data-model.md` | §2.1 references; §5 for research notes |
-| `tasks.md` — WP index, checkboxes | §3 index table |
+| `meta.json` — title, mission, metadata | frontmatter name/description; Section 1 Summary intro |
+| `spec.md` | Section 1 + Section 9 FR/NF |
+| `checklists/requirements.md` | Section 9 FR + Section 8 TC seeds |
+| `plan.md` | Section 7 implementation plan |
+| `research.md`, `data-model.md` | Section 7 references; Section 2 for research notes |
+| `tasks.md` — WP index, checkboxes | Section 10 task table |
 | `tasks/WP*.md` — work packages | expanded `tasks/T-XXX-<slug>.md` (map WP01 → T-001) |
 | WP frontmatter `lane:` status | task status via `flexspec status set --task` |
 

@@ -1,13 +1,13 @@
 ---
 product_name: "FlexSpec"
 version: "0.2"
-last_updated: "2026-06-14"
+last_updated: "2026-06-15"
 status: active
 ---
 
 # FlexSpec
 
-> **Charter status**: active · **Version**: 0.2 · **Last updated**: 2026-06-14
+> **Charter status**: active · **Version**: 0.2 · **Last updated**: 2026-06-15
 
 ## 1. Product overview
 
@@ -50,7 +50,7 @@ FlexSpec serves both solo developers and teams, but the desired outcome is **ado
 
 - Spec scaffolding — simple (single-file) and expanded (multi-file) templates.
 - Charter management — product-wide context authored via `/flexspec-charter`.
-- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`; task counts from spec `task_count` frontmatter, with computed fallback from §3.2 bullets or `tasks/` files), `flexspec validate` (warns on `task_count` drift), `flexspec update` (upgrade CLI, reinstall skills, run migrations including `task-count` backfill; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter), `flexspec glossary list`/`query`/`add` (project glossary management). Human-readable output for `list`, `config`, `validate`, `update`, and `glossary` uses aligned column tables with headers; `--json` on list/config/glossary for scripts and agents.
+- CLI — `flexspec init`, `flexspec new`, `flexspec config` (read table/JSON; `config set` to update), `flexspec list` (`--json`; task counts from spec `task_count` frontmatter, with computed fallback from simple task rows/bullets or `tasks/` files), `flexspec validate` (warns on `task_count` drift), `flexspec update` (upgrade CLI, reinstall skills, run migrations including `task-count` backfill; `--dry-run`, `--check`), `flexspec ui` (local management dashboard), `flexspec status set` (update spec/task status in frontmatter), `flexspec glossary list`/`query`/`add` (project glossary management). Human-readable output for `list`, `config`, `validate`, `update`, and `glossary` uses aligned column tables with headers; `--json` on list/config/glossary for scripts and agents.
 - Management UI — `flexspec ui` serves an embedded React app: kanban/table board by spec status (all lifecycle columns fit the viewport with a per-user column-visibility picker), spec browser with markdown rendering, structured settings for UI prefs and `.flexspec/config.yaml`; live refresh via filesystem watch (SSE).
 - Spec lifecycle statuses — `draft`, `planned`, `in_progress`, `in_review`, `complete` (the board normalizes legacy `refined`/`initial` for display).
 - Agent skills — `/flexspec` (spec lifecycle with automatic charter updates and glossary awareness), `/flexspec-charter` (application charter and glossary discovery handoff), `/flexspec-migrate` (convert specs from other SDD tools into FlexSpec format), and `/flexspec-glossary-discovery` (scan project language, ask for unclear term meanings, record confirmed definitions), including structured multiple-choice interviews for ambiguous requests and UI-heavy specs. The ambiguity gate clarifies goals, scope, success criteria, constraints, and unknowns before planning; the UI design gate covers visual identity, layout system, component library, motion/feedback, UX flows/content, and accessibility/input. `/flexspec` updates `.flexspec/charter.md` automatically for in-scope charter deltas instead of asking whether to update it; `/flexspec-charter` invokes glossary discovery so charter terminology and `.flexspec/glossary.yaml` stay aligned.
@@ -176,4 +176,4 @@ FlexSpec is a tool for managing specifications to keep AI coding agents (Cursor,
 | 2026-06-03 | §4 — consistent aligned table output with column headers for `list`, `config`, `validate`, and `update`. | 011-cli-table-output |
 | 2026-06-03 | §4 — spec `task_count` frontmatter and metadata header; accurate `list` counts for simple specs; validate drift warning; `task-count` migration. | 012-task-count-metadata |
 | 2026-06-06 | §4/§5/§6/§9 — project glossary metadata, `flexspec glossary` CLI commands, `flexspec-glossary-discovery` skill, `/flexspec-charter` glossary handoff, and automatic `/flexspec` charter updates. | 014-cli-glossary |
-| 2026-06-14 | §4 — strengthened `/flexspec` interviews: Ambiguity Interview Gate for vague requests and expanded UI design interview. | 015-deepen-ui-and-ambiguity-interviews |
+| 2026-06-15 | §4 — spec templates now use exhaustive discovery, workflow graphs, stepwise implementation plans, test plans, FR/NF requirements, and task tables; simple task counts include table rows. | direct request |
