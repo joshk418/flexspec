@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.4](https://github.com/joshk418/flexspec/compare/v0.3.3...v0.3.4) (2026-06-16)
+
+
+### Features
+
+* overhauled skills to make more guided changes ([#33](https://github.com/joshk418/flexspec/issues/33)) ([e32e75c](https://github.com/joshk418/flexspec/commit/e32e75c7e5ef729dda48cc7857265da97921697d))
+
+
+### Bug Fixes
+
+* Added fix for interviews not showing up reliably ([#31](https://github.com/joshk418/flexspec/issues/31)) ([692f9f6](https://github.com/joshk418/flexspec/commit/692f9f6bc432783df36ef45902718be9834c4a23))
+* Tool and skills can be updated outside of flexspec dir ([#29](https://github.com/joshk418/flexspec/issues/29)) ([3ed29b2](https://github.com/joshk418/flexspec/commit/3ed29b2a833991d2a79cf509429fe4737c296464))
+
 ## [0.3.3](https://github.com/joshk418/flexspec/compare/v0.3.2...v0.3.3) (2026-06-10)
 
 
