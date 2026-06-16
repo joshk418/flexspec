@@ -80,44 +80,57 @@ Every spec starts with YAML frontmatter:
 | `in_review` | Implementation complete, under review. |
 | `complete` | Merged and verified against testing criteria. |
 
-A spec must not advance to `planned` while open questions remain in Section 5.
+A spec must not advance to `planned` while open questions remain in Section 2.
 
 ## Spec Sections
 
 Both templates share the same top-level sections; the expanded template adds
-design depth and moves tasks into separate files.
+data/interface depth and moves tasks into separate files.
 
 | # | Section | Simple | Expanded (adds) |
 | --- | --- | --- | --- |
-| 1 | Summary | Overview, scope, outcome. | Same, for a larger feature. |
-| 2 | Design | Architecture + file map, **code execution** map (§2.2: diagram + trace table), FR/NF. | Adds Data Model (`erDiagram`) and External Interfaces. |
-| 3 | Implementation Plan | **§3.2 tasks (required)**; optional **§3.1** map for complex work (diagram + task table). | Task index + per-task files in `tasks/`. |
-| 4 | Testing Criteria | Tests proving each requirement; everything must be testable. | Also maps each test to the implementing task. |
-| 5 | Other | Open questions, assumptions, risks, observations. | Same, plus rollout/migration notes. |
+| 1 | Summary | Problem, outcome, affected users/systems, scope boundaries. | Same, for a larger feature. |
+| 2 | Reasons For Change | Driver, value, consequences, assumptions, risks, charter/glossary updates, open questions. | Same, with rollout/migration risks as needed. |
+| 3 | Intended Use Case | Actors, entry points, preconditions, primary/alternate/security/data edge cases. | Same, with operational cases. |
+| 4 | Expected Result (bugs only) | Expected behavior for bug specs; otherwise explicitly not applicable. | Same. |
+| 5 | Actual Result (bugs only) | Observed broken behavior for bug specs; otherwise explicitly not applicable. | Same. |
+| 6 | Workflow Graph | High-level concept flow from entry point through services/libraries/data/external systems to outcomes. | Multiple graph/table pairs when needed. |
+| 7 | Implementation Plan | Files/interfaces plus ordered implementation steps. | Adds data model, persistence, and external interface detail. |
+| 8 | Test Plan | Tests proving each requirement; everything must be testable. | Also maps each test to the implementing task. |
+| 9 | Functional and Non-Functional Requirements | Stable FR/NF IDs, specific and testable. | Same. |
+| 10 | Tasks | Task number, name, description, blocks, blocked by, requirement mapping. | Task index + per-task files in `tasks/`. |
 
 ### Expanded Task Files
 
 Each `tasks/T-XXX-<slug>.md` is self-contained so an agent can execute it without
 drifting: frontmatter (`id`, `parent_spec`, `status`, `satisfies`, `depends_on`,
-`verified_by`), Objective, Context, Files In Scope, Implementation Steps,
-Acceptance Criteria, Testing, Out of Scope, Open Questions, References.
+`verified_by`, `blocks`), Objective, Context, Files In Scope, Workflow /
+Requirement Mapping, Implementation Steps, Acceptance Criteria, Testing, Out of
+Scope, Open Questions, References.
 
-## Code Map Conventions
+## Workflow Graph Conventions
 
-FlexSpec code maps document **code execution** for humans and LLM reviewers. **§2.2** always requires **mermaid + a markdown table** with matching step numbers. **§3.1** is optional for low-complexity specs; when included, it also requires mermaid + a task execution table. See `skills/flexspec/SKILL.md` → **§3.1 complexity heuristic**.
+FlexSpec workflow graphs document the **conceptual flow** for humans and LLM
+reviewers. **Section 6** always requires **mermaid + a markdown table** with
+matching step numbers. It should show the entry point, decisions, services,
+libraries, data stores, external systems, success outcomes, and material failure
+outcomes without turning into a whole-file architecture diagram.
 
 | Section | Required? | Purpose | Diagram | Table |
 | --- | --- | --- | --- | --- |
-| **§2.2 Code Map** | Yes | Runtime execution (debugger-style) | `sequenceDiagram` + `autonumber` preferred; `alt`/`opt` for branches | Execution trace: Step, Location, Executes, Input, Output, FR/NF |
-| **§3.1 Implementation Code Map** | When complex | Build order + what runtime steps unlock | Tasks + symbols; solid = build order; dotted = enables §2.2 step(s) | Task execution: Task, Build after, Implements §2.2 steps, Symbols, Execution unlocked |
+| **Section 6 Workflow Graph** | Yes | Conceptual end-to-end flow | `flowchart` preferred; `sequenceDiagram` OK for request/response flows | Step, Boundary, What Happens, Input / Condition, Outcome, FR/NF |
 
-**Location format:** `` `path/to/file :: symbol` `` (handler, `Class.method`, route, or CLI command).
+**Boundary format:** route, command, UI action, event, job, service/library,
+database, queue, third-party integration, or visible outcome.
 
-**Interaction labels:** verb + payload — `calls create(dto)`, `returns 201`, `throws ValidationError`, `reads row`.
+**Interaction labels:** verb + payload/result, for example `validates request`,
+`calls billing provider`, `writes audit row`, `returns actionable error`.
 
-**Linkage:** every §2.2 step owned by ≥1 task (§3.2 and/or §3.1); every §2.1 file on a task row; FR/NF on trace rows where applicable. When §3.1 is omitted, §3.2 must carry files, `depends_on`, and §2.2 step references.
+**Linkage:** every Section 6 step should be covered by Section 7 implementation
+steps and Section 10 tasks; FR/NF IDs belong on graph rows where behavior is
+satisfied or constrained.
 
-Authoring rules: `skills/flexspec/SKILL.md` → **Code Map Quality Bar**.
+Authoring rules: `skills/flexspec/SKILL.md` -> **Workflow Graph Quality Bar**.
 
 ## ID Conventions
 

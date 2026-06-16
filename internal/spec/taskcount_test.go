@@ -39,6 +39,39 @@ spec_type: simple
 	}
 }
 
+func TestCountTasks_simpleTaskTableRows(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "README.md")
+	body := `---
+name: Test
+description: d
+status: planned
+spec_type: simple
+---
+
+# Test
+
+| Task | Name | Description | Blocks | Blocked by | Requirements |
+| --- | --- | --- | --- | --- | --- |
+| **T-001** | First | Do one | T-002 | - | FR-001 |
+| T-002 | Second | Do two | - | T-001 | FR-002 |
+`
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	meta, err := ParseSpecMeta(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := CountTasks(path, meta)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != 2 {
+		t.Errorf("CountTasks = %d, want 2", got)
+	}
+}
+
 func TestCountTasks_expandedFiles(t *testing.T) {
 	root := t.TempDir()
 	specDir := filepath.Join(root, "spec")

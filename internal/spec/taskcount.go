@@ -35,6 +35,7 @@ func countExpandedTaskFiles(tasksDir string) (int, error) {
 }
 
 var simpleTaskBullet = regexp.MustCompile(`(?m)^\s*-\s+\*\*T-\d{3}\*\*`)
+var simpleTaskTableRow = regexp.MustCompile(`(?m)^\s*\|\s*(?:\*\*)?T-\d{3}(?:\*\*)?\s*\|`)
 var metadataTasksSegment = regexp.MustCompile(` · \*\*Tasks\*\*: \d+`)
 
 // CountTasks returns the number of implementation tasks for a spec README.
@@ -48,11 +49,11 @@ func CountTasks(readmePath string, meta SpecMeta) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return countSimpleTaskBullets(parts.Body), nil
+	return countSimpleTasks(parts.Body), nil
 }
 
-func countSimpleTaskBullets(body string) int {
-	return len(simpleTaskBullet.FindAllStringIndex(body, -1))
+func countSimpleTasks(body string) int {
+	return len(simpleTaskBullet.FindAllStringIndex(body, -1)) + len(simpleTaskTableRow.FindAllStringIndex(body, -1))
 }
 
 // EffectiveTaskCount returns frontmatter task_count when set, otherwise CountTasks.

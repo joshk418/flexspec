@@ -59,13 +59,13 @@ Ask user which mode:
 
 | OpenSpec artifact | FlexSpec target |
 | --- | --- |
-| `proposal.md` — intent, scope, approach | §1 Summary |
-| `proposal.md` — out of scope | §1 out-of-scope |
-| `design.md` | §2.1 Architecture |
-| `specs/<domain>/spec.md` or change delta `specs/**/spec.md` — Requirements, Scenarios (Given/When/Then) | §2.3 FR-*; scenarios → TC placeholders in §4 or §5 |
-| Delta sections `## ADDED Requirements`, `MODIFIED`, `REMOVED` | §1 note "delta from canonical"; FR in §2.3; REMOVED → §5 |
-| `tasks.md` — `- [ ]` checklist items | §3.2 T-* or expanded task files |
-| `config.yaml` context/rules | §5 Other (charter follow-up); do not copy wholesale into every spec |
+| `proposal.md` — intent, scope, approach | Section 1 + Section 2 |
+| `proposal.md` — out of scope | Section 1 out-of-scope |
+| `design.md` | Section 7 implementation plan |
+| `specs/<domain>/spec.md` or change delta `specs/**/spec.md` — Requirements, Scenarios (Given/When/Then) | Section 9 FR-*; scenarios -> TC placeholders in Section 8 or Section 2 |
+| Delta sections `## ADDED Requirements`, `MODIFIED`, `REMOVED` | Section 1 note "delta from canonical"; FR in Section 9; REMOVED -> Section 2 |
+| `tasks.md` — `- [ ]` checklist items | Section 10 task table or expanded task files |
+| `config.yaml` context/rules | Section 2 (charter follow-up); do not copy wholesale into every spec |
 
 ## Status map
 
@@ -89,6 +89,6 @@ Avoid collision with existing FlexSpec ids.
 
 ## Unmapped / notes
 
-- Delta merge semantics (ADDED/MODIFIED/REMOVED) — preserve verbatim in §5 or appendix section in §2.3.
+- Delta merge semantics (ADDED/MODIFIED/REMOVED) — preserve verbatim in Section 2 or Section 9.
 - `openspec/AGENTS.md` → not a feature spec; optional charter/process note.
 - After migration, user may retire `openspec/` directory manually if confirmed.

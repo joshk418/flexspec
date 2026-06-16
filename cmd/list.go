@@ -25,7 +25,7 @@ var listCmd = &cobra.Command{
 
 Reads specs_dir from .flexspec/config.yaml, then for each spec folder
 (NNN-slug/README.md) prints the directory name, status, and task count
-from YAML frontmatter (task_count, or computed from §3.2 bullets / tasks/ files).
+from YAML frontmatter (task_count, or computed from simple task rows/bullets / tasks/ files).
 Use --json for full spec and task details.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		root, err := os.Getwd()

@@ -46,12 +46,12 @@ Each `.kiro/specs/<feature-name>/` directory with at least one of `requirements.
 
 | Kiro file | FlexSpec target |
 | --- | --- |
-| `requirements.md` — user stories, EARS (WHEN…SHALL…), functional reqs | §1 Summary + §2.3 FR-* |
-| `requirements.md` — acceptance criteria | §2.3 FR + §4 TC placeholders |
-| `bugfix.md` — current/expected behavior | §1 Summary (bugfix framing) |
-| `design.md` — architecture, sequence diagrams, interfaces | §2.1 Architecture (preserve mermaid if present) |
-| `design.md` — testing/error handling | §2.3 NF + §4 seeds |
-| `tasks.md` — checkboxes, dependencies | §3.2 T-* or expanded task files |
+| `requirements.md` — user stories, EARS (WHEN…SHALL…), functional reqs | Section 1 + Section 3 + Section 9 FR-* |
+| `requirements.md` — acceptance criteria | Section 9 FR + Section 8 TC placeholders |
+| `bugfix.md` — current/expected behavior | Section 1 plus Sections 4-5 |
+| `design.md` — architecture, sequence diagrams, interfaces | Section 6/7 (preserve mermaid if present) |
+| `design.md` — testing/error handling | Section 9 NF + Section 8 seeds |
+| `tasks.md` — checkboxes, dependencies | Section 10 task table or expanded task files |
 
 Preserve EARS wording in FR bullets where possible.
 
@@ -75,5 +75,5 @@ From folder: `.kiro/specs/oauth-login/` → `oauth-login`.
 ## Unmapped / notes
 
 - `.kiro/steering/` → suggest charter/agent context update, not a FlexSpec spec.
-- Kiro "living spec" sync with codebase — migrated spec is a point-in-time snapshot; note date in §5.
+- Kiro "living spec" sync with codebase — migrated spec is a point-in-time snapshot; note date in Section 2.
 - Refine/regenerate workflows — not migrated; user uses `/flexspec` after import.

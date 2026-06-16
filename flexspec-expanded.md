@@ -1,11 +1,11 @@
 ---
 name: ''
 description: ''
-status: [draft,planned,in_progress,in_review,complete]
+status: [draft, planned, in_progress, in_review, complete]
 created: '{datetime}'
-implementation_start: 'datetime' 
+implementation_start: 'datetime'
 implementation_finished: 'datetime'
-priority: [low,medium,high,critical]
+priority: [low, medium, high, critical]
 tags: []
 spec_type: expanded
 task_count: 0
@@ -16,114 +16,131 @@ task_count: 0
 > **Status**: {status} · **Priority**: {priority} · **Created**: {date} · **Tasks**: 0
 
 <!--
-EXPANDED SPEC — root document.
-This file is written as `README.md` inside the spec directory. Each task in the
-implementation plan lives as its own markdown file under `tasks/`, so large
-features are broken into focused, self-contained units of work.
+EXPANDED SPEC - root document. Each implementation task lives as a focused file
+under `tasks/`. Keep this README under ~4000 tokens and push execution detail
+into task files instead of bloating the root spec.
 
 Layout:
   NNN-feature-spec/
-    README.md            <- this file (the spec)
+    README.md
     tasks/
-      T-001-<slug>.md    <- one file per task (from flexspec-expanded-task.md)
+      T-001-<slug>.md
       T-002-<slug>.md
-      ...
-
-Keep this README under ~3500 tokens; push working detail into the task files
-(each <~1000 tokens) rather than bloating the root spec.
 -->
 
 ## 1. Summary
 
 <!--
-Detailed, high-level overview of what this spec delivers and why.
-Cover: the problem, the intended outcome, who/what it affects, and the scope
-boundaries (what is explicitly out of scope). For an expanded spec this is a
-large feature — state the major capabilities it introduces and how they fit the
-wider system.
+State the problem, target outcome, who/what is affected, and boundaries. For an
+expanded spec, explain the major capabilities and how they fit the wider system.
 -->
 
-{summary}
+- **Problem**: {problem}
+- **Target outcome**: {target outcome}
+- **Affected users/systems**: {users, roles, systems, commands, routes}
+- **In scope**: {included behavior}
+- **Out of scope**: {excluded behavior}
 
-## 2. Design
-
-<!-- All moving parts and flows of the feature, detailed end to end. -->
-
-### 2.1 Architecture / Technical Plan
+## 2. Reasons For Change
 
 <!--
-Detailed description of how the feature will be implemented across the system.
-Reference concrete files, packages, services, and components an implementer
-(human or LLM) must touch or read. List every relevant file/component below.
+Explain why this change is worth doing now. Include the driver, observed pain,
+expected value, consequences of not changing, and any charter/glossary updates.
+Open questions must be resolved before `planned`.
 -->
 
-{architecture_overview}
+- **Driver**: {request, bug, product need, technical debt, compliance, etc.}
+- **Value**: {user/business/engineering value}
+- **If unchanged**: {cost, risk, broken workflow, missed opportunity}
+- **Assumptions**: {confirmed assumptions or "None"}
+- **Risks**: {known risks or "None"}
+- **Charter updates applied automatically**: {updates or "None"}
+- **Glossary updates**: {terms added or "None"}
+- **Open questions**: {must be "None" before planned}
+
+## 3. Intended Use Case
+
+<!--
+Describe how the change is used in practice. Include all actors, triggers,
+preconditions, happy paths, alternate paths, negative paths, permissions, data
+boundaries, and UX/state expectations.
+-->
+
+- **Actor(s)**: {who or what starts the flow}
+- **Entry point(s)**: {routes, commands, UI actions, events, jobs, APIs}
+- **Preconditions**: {required state, config, auth, data}
+- **Primary flow**: {step-by-step user/system behavior}
+- **Alternate flows**: {empty/loading/error/retry/disabled/permission states}
+- **Security and abuse cases**: {authorization, validation, injection, rate limits}
+- **Data edge cases**: {missing, duplicate, stale, invalid, concurrent, large inputs}
+- **Operational cases**: {migration, rollback, observability, partial failure}
+
+## 4. Expected Result (bugs only)
+
+<!-- For non-bug work, write: Not applicable - this is not a bug fix. -->
+
+{expected result}
+
+## 5. Actual Result (bugs only)
+
+<!-- For non-bug work, write: Not applicable - this is not a bug fix. -->
+
+{actual result}
+
+## 6. Workflow Graph
+
+<!--
+High-level concept flow from entry point to outcome. This is not a whole-file
+architecture map. Show the entry point, decision points, services/libraries/data
+stores/external systems called, success outcome, and material failure outcomes.
+For multiple major paths, add one diagram/table pair per path.
+-->
+
+### 6.1 Primary Path
+
+```mermaid
+flowchart TD
+    S1["1. Entry point: {route/command/ui/event}"] --> S2{"2. Preconditions valid?"}
+    S2 -->|no| S3["3. Return actionable error"]
+    S2 -->|yes| S4["4. Orchestrate workflow: {service/controller}"]
+    S4 --> S5["5. Call library/service: {name}"]
+    S5 --> S6{"6. Data/external dependency available?"}
+    S6 -->|no| S7["7. Handle dependency failure"]
+    S6 -->|yes| S8["8. Persist/compute/update result"]
+    S8 --> S9["9. Emit response/event/side effect"]
+    S9 --> S10["10. User/system observes outcome"]
+```
+
+| Step | Boundary | What Happens | Input / Condition | Outcome | FR/NF |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `{entry point}` | {starts workflow} | {trigger} | {request/event accepted} | FR-001 |
+| 2 | `{validation/auth}` | {checks preconditions} | {state/input/user} | {continue or reject} | FR-001, NF-001 |
+| 3 | `{error path}` | {handles invalid request} | {failed precondition} | {safe/actionable error} | NF-001 |
+| 4 | `{orchestration}` | {coordinates core flow} | {validated input} | {calls service/library} | FR-002 |
+| 5 | `{service/library}` | {performs core work} | {domain input} | {intermediate result} | FR-002 |
+| 6 | `{data/external}` | {reads or calls dependency} | {lookup/call} | {data or unavailable branch} | FR-002, NF-002 |
+| 7 | `{fallback}` | {handles dependency failure} | {missing/unavailable data} | {safe fallback/error} | NF-002 |
+| 8 | `{state change}` | {writes/computes final result} | {valid data} | {state updated/result ready} | FR-003 |
+| 9 | `{integration boundary}` | {emits response/event/side effect} | {completed work} | {observable output} | FR-003 |
+| 10 | `{outcome}` | {user/system receives result} | {output} | {expected result} | FR-003 |
+
+## 7. Implementation Plan
+
+<!--
+Step-by-step instructions for how changes should be made and in what order.
+Reference concrete files, symbols, interfaces, migrations, and task files. Each
+step should be executable without unresolved design decisions.
+-->
+
+### 7.1 Files and Interfaces
 
 | File / Component | Type | Role in this spec |
 | --- | --- | --- |
-| `path/to/file` | new / modified / reference | What it does / why it matters |
+| `path/to/file` | new / modified / reference | What changes or why it must be read |
 
-### 2.2 Code Map
+### 7.2 Data Model / Persistence
 
-<!--
-CODE EXECUTION MAP — runtime path(s) through this feature across subsystems.
-
-Reviewers (human or LLM) must be able to follow execution step-by-step: call order,
-symbols invoked, data in/out, and branch points. Not an architecture overview.
-
-Required per path (happy + material error/async paths):
-1. Mermaid with ordered execution (`sequenceDiagram` + `autonumber` preferred;
-   extra `flowchart` OK for one subsystem). Use `alt`/`opt`/`par` for branches.
-2. Execution trace table — one row per numbered step (split tables if >15 steps).
-
-Diagram: `path/to/file :: symbol`; label edges with verb + payload; FR/NF on steps.
-Large features: multiple diagram+table pairs (e.g. CLI path, worker path).
-
-Avoid: generic nodes; diagram without matching trace rows.
-
-Replace below; add diagrams for additional execution paths as needed.
--->
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant User as shell
-    participant CLI as cmd/validate.go::validateCmd
-    participant Run as internal/validate/validate.go::RunAll
-    participant Specs as internal/validate/specs.go::CheckSpecs
-    participant FS as specs/NNN-slug/README.md
-
-    User->>CLI: flexspec validate FR-001
-    CLI->>Run: RunAll(root, opts)
-    Run->>Specs: CheckSpecs(root, cfg)
-    Specs->>FS: read README + parse frontmatter
-    FS-->>Specs: file bytes
-    alt parse error
-        Specs-->>Run: Finding severity=error
-        Run-->>CLI: findings[], exit 1 NF-001
-    else ok
-        Specs-->>Run: findings[] (maybe warnings)
-        Run-->>CLI: aggregated findings
-        CLI-->>User: stdout + exit 0|1
-    end
-```
-
-| Step | Location | Executes | Input / condition | Output / side effect | FR/NF |
-| --- | --- | --- | --- | --- | --- |
-| 1 | `cmd/validate.go :: validateCmd` | Cobra RunE | argv, cwd | invokes RunAll | FR-001 |
-| 2 | `internal/validate/validate.go :: RunAll` | orchestrate checks | root, opts | calls CheckSpecs | — |
-| 3 | `internal/validate/specs.go :: CheckSpecs` | spec validation | specs dir config | reads each README | FR-001 |
-| 4 | `specs/NNN-slug/README.md` | filesystem read | path | bytes / missing file | — |
-| 5 | `CheckSpecs` | emit findings | parse result | `[]Finding` | NF-001 |
-| 6 | `validateCmd` | exit process | findings | code 0 or 1 | NF-001 |
-
-### 2.3 Data Model
-
-<!--
-Schemas, tables, and entities this feature creates or changes. Include columns,
-types, keys, relationships, and migrations. Omit only if the feature touches no
-persistent data (state that explicitly if so).
--->
+<!-- If no persistent data changes, write: None - no persistent data changes. -->
 
 ```mermaid
 erDiagram
@@ -134,126 +151,68 @@ erDiagram
     }
 ```
 
-| Table / Entity | Change | Key fields | Notes |
+| Table / Entity | Change | Key fields | Migration / Index Notes |
 | --- | --- | --- | --- |
-| `table_name` | new / altered | `id`, `...` | Migration / index notes |
+| `table_name` | new / altered / none | `id`, `...` | {migration or none} |
 
-### 2.4 External Interfaces
+### 7.3 External Interfaces
+
+<!-- Include APIs, CLI commands, routes, events, UI surfaces, integrations. -->
+
+| Interface | Type | Contract / Shape | Auth / Errors / Notes |
+| --- | --- | --- | --- |
+| `METHOD /path` | endpoint / event / CLI / UI | request -> response | {auth, validation, errors} |
+
+### 7.4 Ordered Steps
+
+| Step | Action | Files / Symbols | Depends on | Requirements |
+| --- | --- | --- | --- | --- |
+| 1 | {implementation action} | `path/to/file :: symbol` | - | FR-001 |
+| 2 | {implementation action} | `path/to/file :: symbol` | Step 1 | FR-002, NF-001 |
+| 3 | {integration action} | `path/to/file :: symbol` | Step 2 | FR-003 |
+| 4 | {test/documentation action} | `path/to/test` | Step 3 | TC-001 |
+
+## 8. Test Plan
 
 <!--
-Public surfaces the feature exposes or consumes: API endpoints, CLI commands,
-events/queues, UI routes/components, and third-party integrations. Omit only if
-none apply.
+Define tests and manual checks that prove each requirement. Include command(s),
+test location, key assertions, edge cases, expected failure behavior, and which
+task implements the coverage.
 -->
 
-| Interface | Type | Contract / Shape | Notes |
-| --- | --- | --- | --- |
-| `METHOD /path` | endpoint / event / CLI / UI | request → response | auth, errors |
+| Test ID | Verifies | Implemented by | Type | Location / Command | Assertion |
+| --- | --- | --- | --- | --- | --- |
+| TC-001 | FR-001 | T-001 | unit / integration / e2e / manual | `{command or file}` | {what must be true} |
+| TC-002 | NF-001 | T-002 | unit / integration / e2e / manual | `{command or file}` | {what must be true} |
 
-### 2.5 Requirements
+## 9. Functional and Non-Functional Requirements
 
 <!--
-Functional requirements (what the system must do) and non-functional
-requirements (performance, security, reliability, UX constraints).
-Use stable IDs so other sections, tasks, and tests can reference them.
+Requirements must be specific, testable, and mapped to workflow steps, tasks, and
+tests. Avoid vague verbs like "improve" without measurable behavior.
 -->
 
 **Functional**
 
-- **FR-001** — {requirement}
-- **FR-002** — {requirement}
+- **FR-001** - {observable behavior}
+- **FR-002** - {observable behavior}
+- **FR-003** - {observable behavior}
 
 **Non-Functional**
 
-- **NF-001** — {requirement}
-- **NF-002** — {requirement}
+- **NF-001** - {security, performance, accessibility, reliability, compatibility, etc.}
+- **NF-002** - {security, performance, accessibility, reliability, compatibility, etc.}
 
-## 3. Implementation Plan
-
-<!--
-Built off the technical plan. Enumerate everything created or modified to
-complete the spec. Every task is authored as its own file under `tasks/` using
-the task template, with a stable internal ID (T-001...). Keep tasks small enough
-that an LLM can complete one without losing context.
--->
-
-### 3.1 Implementation Code Map
+## 10. Tasks
 
 <!--
-IMPLEMENTATION + EXECUTION ENABLEMENT MAP.
-
-Link task build order to §2.2 execution steps. Parallel task branches OK; show
-which runtime steps each task implements and what becomes runnable when it merges.
-
-Required:
-- Mermaid: `T-XXX :: file :: symbol`; solid = depends_on; dotted = enables §2.2 step(s).
-- Task execution table (required) — mirrors §3.2 dependencies.
-
-Replace examples below.
+One entry per task file under `tasks/`. Each task must name the work, describe
+exactly what changes, state dependency relationships, and map to requirements.
+Use `-` when nothing blocks or is blocked.
 -->
 
-```mermaid
-flowchart TD
-    subgraph exec [§2.2 steps enabled]
-        e3["steps 3-5: CheckSpecs → FS → findings"]
-        e6["step 6: validateCmd exit"]
-    end
-    subgraph build [Task build order]
-        T001["T-001 :: specs.go :: CheckSpecs"]
-        T002["T-002 :: validate.go :: validateCmd"]
-        T003["T-003 :: specs_test.go"]
-        T004["T-004 :: SKILL.md docs"]
-    end
-
-    T001 --> T002
-    T001 --> T003
-    T002 --> T004
-    T003 --> T004
-    T001 -.->|enables| e3
-    T002 -.->|enables| e6
-```
-
-| Task | Build after | Implements §2.2 steps | Symbols added/changed | Execution unlocked |
-| --- | --- | --- | --- | --- |
-| T-001 | — | 3–5 | `CheckSpecs`, finding types | spec scan path runs |
-| T-002 | T-001 | 1–2, 6 | `validateCmd.RunE` wiring | CLI invokes full pipeline |
-| T-003 | T-001 | 3–5 (assert) | `specs_test.go` | TC proves trace steps |
-| T-004 | T-002, T-003 | — (docs) | `skills/flexspec/SKILL.md` | authoring rules updated |
-
-### 3.2 Task List
-
-<!--
-One entry per task. Each links to its task file under `tasks/` and cites the
-requirement(s) it satisfies and any task dependencies. The task file holds the
-full working detail; this list is the index and dependency overview.
--->
-
-| Task | File | Satisfies | Depends on | Summary |
-| --- | --- | --- | --- | --- |
-| **T-001** | `tasks/T-001-<slug>.md` | FR-001 | — | {one-line summary} |
-| **T-002** | `tasks/T-002-<slug>.md` | FR-002, NF-001 | T-001 | {one-line summary} |
-| **T-003** | `tasks/T-003-<slug>.md` | FR-002 | T-001 | {one-line summary} |
-
-## 4. Testing Criteria
-
-<!--
-Every piece of functionality must be testable. Define the tests that prove each
-requirement is met. If something cannot be tested, rework the implementation
-plan (Section 3) until it can. Each test maps to the requirement it verifies and
-the task(s) that implement it.
--->
-
-| Test ID | Verifies | Implemented by | Description | Type |
-| --- | --- | --- | --- | --- |
-| TC-001 | FR-001 | T-001 | {what is asserted} | unit / integration / e2e |
-| TC-002 | NF-001 | T-002 | {what is asserted} | unit / integration / e2e |
-
-## 5. Other
-
-<!--
-Open questions, assumptions, risks, rollout/migration notes, thoughts, and
-observations. Open questions MUST be resolved before status moves to `planned`
-and implementation begins.
--->
-
-- {open question / note / assumption / risk}
+| Task | File | Name | Description | Blocks | Blocked by | Requirements |
+| --- | --- | --- | --- | --- | --- | --- |
+| **T-001** | `tasks/T-001-<slug>.md` | {task name} | {specific implementation work} | T-002 | - | FR-001 |
+| **T-002** | `tasks/T-002-<slug>.md` | {task name} | {specific implementation work} | T-003 | T-001 | FR-002, NF-001 |
+| **T-003** | `tasks/T-003-<slug>.md` | {task name} | {specific verification work} | - | T-002 | FR-003, TC-001, TC-002 |

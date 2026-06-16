@@ -52,15 +52,15 @@ Run `leanspec capabilities -o json` if CLI available to confirm status vocabular
 | LeanSpec (README.md) | FlexSpec target |
 | --- | --- |
 | Frontmatter: `name`, `description`, `tags`, `priority`, `created` | FlexSpec frontmatter via edit after `flexspec new` (name/description/priority/tags/created) |
-| Problem / Goal / Overview | §1 Summary |
-| Solution / Approach | §1 + §2.1 |
-| Success Criteria / Acceptance Criteria checklists | §2.3 FR + §4 TC placeholders |
-| Non-Goals / Out of Scope | §1 out-of-scope |
-| Links to sub-specs | §2.1 file table |
-| `DESIGN.md` | §2.1 Architecture; expanded root + optional task |
-| `IMPLEMENTATION.md` / `PLAN.md` | §3 tasks source |
-| `TESTING.md` / `TEST.md` | §4 Testing Criteria |
-| `API.md` | §2.1 + §2.3 FR for API behavior |
+| Problem / Goal / Overview | Section 1 Summary |
+| Solution / Approach | Section 2 + Section 7 |
+| Success Criteria / Acceptance Criteria checklists | Section 9 FR + Section 8 TC placeholders |
+| Non-Goals / Out of Scope | Section 1 out-of-scope |
+| Links to sub-specs | Section 7 file table |
+| `DESIGN.md` | Section 7 implementation plan; expanded root + optional task |
+| `IMPLEMENTATION.md` / `PLAN.md` | Section 10 tasks source |
+| `TESTING.md` / `TEST.md` | Section 8 Test Plan |
+| `API.md` | Section 7 + Section 9 FR for API behavior |
 
 Use `leanspec view <id>` output if CLI available to enrich mapping.
 
@@ -87,5 +87,5 @@ From folder: `042-my-feature` → `my-feature` (drop numeric prefix).
 ## Unmapped / notes
 
 - `AGENTS.md` at repo root (LeanSpec template) → not a spec; optional pointer in charter.
-- Relationships (`leanspec link` parent/depends_on) → §5 Other or §3 task depends_on in expanded specs (best-effort).
-- Custom frontmatter fields from `config.json` → §5 Other.
+- Relationships (`leanspec link` parent/depends_on) -> Section 2 notes or Section 10 task dependencies in expanded specs (best-effort).
+- Custom frontmatter fields from `config.json` -> Section 2 notes.
