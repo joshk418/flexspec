@@ -13,6 +13,7 @@ tags:
     - skills
     - glossary
 task_count: 6
+type: feature
 ---
 
 # CLI glossary

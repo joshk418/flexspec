@@ -12,6 +12,7 @@ tags:
     - migration
     - adapters
 task_count: 4
+type: feature
 ---
 
 # flexspec-migrate skill

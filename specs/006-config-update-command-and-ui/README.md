@@ -13,6 +13,7 @@ tags:
     - config
     - dx
 task_count: 3
+type: feature
 ---
 
 # Config update command and UI

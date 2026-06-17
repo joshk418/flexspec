@@ -93,7 +93,7 @@ func TestCreate_simple(t *testing.T) {
 	setupProjectMem(fsys, testRoot)
 	cfg := config.Config{SpecsDir: "specs"}
 
-	result, err := createWithFS(fsys, testRoot, cfg, "user-auth", "simple")
+	result, err := createWithFS(fsys, testRoot, cfg, "user-auth", "simple", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func TestCreate_expanded(t *testing.T) {
 	setupProjectMem(fsys, testRoot)
 	cfg := config.Config{SpecsDir: "specs"}
 
-	result, err := createWithFS(fsys, testRoot, cfg, "billing-export", "expanded")
+	result, err := createWithFS(fsys, testRoot, cfg, "billing-export", "expanded", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -146,7 +146,7 @@ func TestCreate_increments(t *testing.T) {
 	setupProjectMem(fsys, testRoot)
 	cfg := config.Config{SpecsDir: "specs"}
 
-	first, err := createWithFS(fsys, testRoot, cfg, "first", "simple")
+	first, err := createWithFS(fsys, testRoot, cfg, "first", "simple", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +154,7 @@ func TestCreate_increments(t *testing.T) {
 		t.Errorf("first DirName = %q", first.DirName)
 	}
 
-	second, err := createWithFS(fsys, testRoot, cfg, "second", "simple")
+	second, err := createWithFS(fsys, testRoot, cfg, "second", "simple", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,7 +177,7 @@ func TestCreate_existingDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err := createWithFS(fsys, testRoot, cfg, "user-auth", "simple")
+	_, err := createWithFS(fsys, testRoot, cfg, "user-auth", "simple", "")
 	if err == nil {
 		t.Fatal("expected error when spec directory already exists")
 	}
@@ -188,7 +188,7 @@ func TestCreate_invalidTemplate(t *testing.T) {
 	setupProjectMem(fsys, testRoot)
 	cfg := config.Config{SpecsDir: "specs"}
 
-	_, err := createWithFS(fsys, testRoot, cfg, "feature", "invalid")
+	_, err := createWithFS(fsys, testRoot, cfg, "feature", "invalid", "")
 	if err == nil {
 		t.Fatal("expected error for invalid template")
 	}
@@ -198,8 +198,69 @@ func TestCreate_missingTemplate(t *testing.T) {
 	fsys := newMemFS()
 	cfg := config.Config{SpecsDir: "specs"}
 
-	_, err := createWithFS(fsys, testRoot, cfg, "feature", "simple")
+	_, err := createWithFS(fsys, testRoot, cfg, "feature", "simple", "")
 	if err == nil {
 		t.Fatal("expected error for missing template")
+	}
+}
+
+func TestCreate_withType(t *testing.T) {
+	fsys := newMemFS()
+	setupProjectMem(fsys, testRoot)
+	cfg := config.Config{SpecsDir: "specs"}
+
+	result, err := createWithFS(fsys, testRoot, cfg, "bump-go", "simple", "chore")
+	if err != nil {
+		t.Fatal(err)
+	}
+	readme := filepath.Join(result.SpecPath, "README.md")
+	data, err := fsys.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := string(data)
+	if !strings.Contains(body, "type: chore") {
+		t.Errorf("README should contain type: chore, got %q", body)
+	}
+	if !strings.Contains(body, "**Type**: chore") {
+		t.Errorf("README metadata should contain **Type**: chore, got %q", body)
+	}
+}
+
+func TestCreate_withTypeNormalized(t *testing.T) {
+	fsys := newMemFS()
+	setupProjectMem(fsys, testRoot)
+	cfg := config.Config{SpecsDir: "specs"}
+
+	result, err := createWithFS(fsys, testRoot, cfg, "fix-login", "simple", "BUG")
+	if err != nil {
+		t.Fatal(err)
+	}
+	readme := filepath.Join(result.SpecPath, "README.md")
+	data, err := fsys.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "type: bug") {
+		t.Errorf("type should be normalized to lowercase, got %q", string(data))
+	}
+}
+
+func TestCreate_emptyTypeKeepsDefault(t *testing.T) {
+	fsys := newMemFS()
+	setupProjectMem(fsys, testRoot)
+	cfg := config.Config{SpecsDir: "specs"}
+
+	result, err := createWithFS(fsys, testRoot, cfg, "feature", "simple", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	readme := filepath.Join(result.SpecPath, "README.md")
+	data, err := fsys.ReadFile(readme)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "type: feature") {
+		t.Errorf("empty type should keep template default feature, got %q", string(data))
 	}
 }

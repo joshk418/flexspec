@@ -46,12 +46,15 @@ Contributors need Node.js 22+ only to build the embedded UI under `ui/`. End use
 
 Agent skills live under [`skills/`](skills/):
 
-| Skill               | Path                                                           | Command             |
-| ------------------- | -------------------------------------------------------------- | ------------------- |
-| Spec lifecycle      | [`skills/flexspec/`](skills/flexspec/SKILL.md)                 | `/flexspec`         |
-| Application charter | [`skills/flexspec-charter/`](skills/flexspec-charter/SKILL.md) | `/flexspec-charter` |
+| Skill               | Path                                                                           | Command                     |
+| ------------------- | ------------------------------------------------------------------------------ | --------------------------- |
+| Spec lifecycle      | [`skills/flexspec/`](skills/flexspec/SKILL.md)                                 | `/flexspec`                 |
+| Application charter | [`skills/flexspec-charter/`](skills/flexspec-charter/SKILL.md)                 | `/flexspec-charter`         |
+| Migration           | [`skills/flexspec-migrate/`](skills/flexspec-migrate/SKILL.md)                 | `/flexspec-migrate`         |
+| Glossary discovery  | [`skills/flexspec-glossary-discovery/`](skills/flexspec-glossary-discovery/SKILL.md) | `flexspec-glossary-discovery` |
+| AI slop review      | [`skills/flexspec-slop-cleanup/`](skills/flexspec-slop-cleanup/SKILL.md)       | `/flexspec-slop-cleanup`    |
 
-Install both into your coding agent with [`npx skills`](https://github.com/vercel-labs/skills):
+Install all five into your coding agent with [`npx skills`](https://github.com/vercel-labs/skills):
 
 ```bash
 npx skills add joshk418/flexspec

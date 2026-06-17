@@ -75,12 +75,12 @@ func nextSequenceWithFS(fsys fileSystem, specsDir string) (int, error) {
 	return max + 1, nil
 }
 
-// Create scaffolds a new spec directory under cfg.SpecsDir relative to root.
-func Create(root string, cfg config.Config, slug string, template string) (CreateResult, error) {
-	return createWithFS(defaultFS, root, cfg, slug, template)
+// Create scaffolds a new spec directory. specType sets the `type` frontmatter field; empty keeps the default.
+func Create(root string, cfg config.Config, slug string, template string, specType string) (CreateResult, error) {
+	return createWithFS(defaultFS, root, cfg, slug, template, specType)
 }
 
-func createWithFS(fsys fileSystem, root string, cfg config.Config, slug string, template string) (CreateResult, error) {
+func createWithFS(fsys fileSystem, root string, cfg config.Config, slug string, template string, specType string) (CreateResult, error) {
 	if template != "simple" && template != "expanded" {
 		return CreateResult{}, fmt.Errorf("invalid template %q; must be simple or expanded", template)
 	}
@@ -114,6 +114,10 @@ func createWithFS(fsys fileSystem, root string, cfg config.Config, slug string, 
 		return CreateResult{}, fmt.Errorf("read template %s: %w", templatePath, err)
 	}
 
+	if specType != "" {
+		data = applySpecType(data, specType)
+	}
+
 	if err := fsys.MkdirAll(specDir, dirPerm); err != nil {
 		return CreateResult{}, fmt.Errorf("create spec directory %s: %w", specDir, err)
 	}
@@ -135,6 +139,38 @@ func createWithFS(fsys fileSystem, root string, cfg config.Config, slug string, 
 		SpecPath: specDir,
 	}, nil
 }
+
+// applySpecType sets the `type` frontmatter field and fills the `{type}` metadata placeholder.
+func applySpecType(data []byte, specType string) []byte {
+	normalized := NormalizeType(specType)
+	content := string(data)
+	content = upsertFrontmatterField(content, "type", normalized)
+	content = specTypeMetaRE.ReplaceAllString(content, "**Type**: "+normalized)
+	return []byte(content)
+}
+
+// upsertFrontmatterField inserts or replaces a top-level frontmatter key, line-by-line to avoid substring misfires.
+func upsertFrontmatterField(content, key, value string) string {
+	lines := strings.Split(content, "\n")
+	if len(lines) == 0 || strings.TrimSpace(lines[0]) != "---" {
+		return content
+	}
+	prefix := key + ":"
+	for i := 1; i < len(lines); i++ {
+		if strings.TrimSpace(lines[i]) == "---" {
+			lines = append(lines[:i], append([]string{prefix + " " + value}, lines[i:]...)...)
+			return strings.Join(lines, "\n")
+		}
+		trimmed := strings.TrimSpace(lines[i])
+		if strings.HasPrefix(trimmed, prefix) {
+			lines[i] = prefix + " " + value
+			return strings.Join(lines, "\n")
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+var specTypeMetaRE = regexp.MustCompile(`\*\*Type\*\*: \{type\}`)
 
 func templatePathFor(fsys fileSystem, root, template string) (string, error) {
 	var rel string

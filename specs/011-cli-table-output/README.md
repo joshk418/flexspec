@@ -12,6 +12,7 @@ tags:
     - dx
     - consistency
 task_count: 4
+type: feature
 ---
 
 # CLI table output

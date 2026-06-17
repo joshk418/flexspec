@@ -14,6 +14,7 @@ tags:
     - interviews
     - ambiguity
 task_count: 3
+type: feature
 ---
 
 # Deepen UI and ambiguity interviews

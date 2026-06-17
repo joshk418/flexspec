@@ -6,6 +6,7 @@ export const SPEC_COLUMNS = [
   "in_progress",
   "in_review",
   "complete",
+  "proposed",
 ] as const;
 
 export type SpecColumn = (typeof SPEC_COLUMNS)[number];

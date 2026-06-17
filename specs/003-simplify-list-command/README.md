@@ -11,6 +11,7 @@ tags:
     - cli
     - ux
 task_count: 2
+type: feature
 ---
 
 # Simplify list command

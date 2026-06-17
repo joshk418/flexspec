@@ -5,7 +5,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path/filepath"
+	"path"
 
 	"github.com/spf13/cobra"
 
@@ -212,7 +212,8 @@ func embeddedTemplatesFS() (fs.FS, error) {
 	if TemplatesFS == nil {
 		return nil, nil
 	}
-	if _, err := fs.ReadFile(TemplatesFS, filepath.Join(embedRootDir, "flexspec-simple.md")); err != nil {
+	// fs.FS requires forward slashes; filepath.Join breaks on Windows.
+	if _, err := fs.ReadFile(TemplatesFS, path.Join(embedRootDir, "flexspec-simple.md")); err != nil {
 		return nil, nil
 	}
 	return fs.Sub(TemplatesFS, embedRootDir)

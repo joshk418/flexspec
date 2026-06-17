@@ -11,7 +11,10 @@ import (
 	"github.com/joshk418/flexspec/internal/spec"
 )
 
-var newTemplate string
+var (
+	newTemplate string
+	newType     string
+)
 
 // newCmd represents the new command
 var newCmd = &cobra.Command{
@@ -27,7 +30,11 @@ Simple:
 Expanded:
 - <specs_dir>/002-<spec_name>/
 - <specs_dir>/002-<spec_name>/README.md
-- <specs_dir>/002-<spec_name>/tasks/`,
+- <specs_dir>/002-<spec_name>/tasks/
+
+Use --type to set the spec kind (feature, bug, chore, refactor, docs, infra,
+spike, research). When omitted, the template default (feature) is kept; the
+/flexspec skill infers the type during authoring.`,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		root, err := os.Getwd()
@@ -45,12 +52,17 @@ Expanded:
 			return err
 		}
 
+		specType, err := resolveNewType()
+		if err != nil {
+			return err
+		}
+
 		slug, err := spec.Slugify(strings.Join(args, " "))
 		if err != nil {
 			return err
 		}
 
-		result, err := spec.Create(root, cfg, slug, template)
+		result, err := spec.Create(root, cfg, slug, template, specType)
 		if err != nil {
 			return err
 		}
@@ -63,6 +75,11 @@ Expanded:
 		}
 		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "  template: %s\n", template); err != nil {
 			return err
+		}
+		if specType != "" {
+			if _, err := fmt.Fprintf(cmd.OutOrStdout(), "  type: %s\n", specType); err != nil {
+				return err
+			}
 		}
 		return nil
 	},
@@ -84,8 +101,19 @@ func resolveNewTemplate(cfg config.Config) (string, error) {
 	return "simple", nil
 }
 
+func resolveNewType() (string, error) {
+	if newType == "" {
+		return "", nil
+	}
+	if !spec.IsValidType(newType) {
+		return "", fmt.Errorf("invalid type %q; must be one of %v", newType, spec.ValidTypes)
+	}
+	return spec.NormalizeType(newType), nil
+}
+
 func init() {
 	rootCmd.AddCommand(newCmd)
 
 	newCmd.Flags().StringVarP(&newTemplate, "template", "t", "", "Template to use: simple or expanded")
+	newCmd.Flags().StringVar(&newType, "type", "", "Spec kind: feature, bug, chore, refactor, docs, infra, spike, research")
 }

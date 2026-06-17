@@ -14,6 +14,7 @@ tags:
     - dx
     - agents
 task_count: 7
+type: feature
 ---
 
 # Update command

@@ -53,7 +53,7 @@ func TestColumnForSpecStatus(t *testing.T) {
 }
 
 func TestSpecStatuses(t *testing.T) {
-	want := []string{"draft", "planned", "in_progress", "in_review", "complete"}
+	want := []string{"draft", "planned", "in_progress", "in_review", "complete", "proposed"}
 	if got := SpecStatuses(); !reflect.DeepEqual(got, want) {
 		t.Errorf("SpecStatuses() = %v, want %v", got, want)
 	}

@@ -13,6 +13,7 @@ tags:
     - dx
     - react
 task_count: 12
+type: feature
 ---
 
 # Management UI

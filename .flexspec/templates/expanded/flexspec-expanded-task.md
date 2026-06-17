@@ -10,8 +10,9 @@ blocks: []           # task IDs this task unblocks, e.g. [T-002]
 ---
 
 <!--
-Keep this file under ~1000 tokens (~130 lines). Be terse — link to the parent
-spec instead of restating it. If the task can't fit, split it into smaller tasks.
+Keep this file under ~1000 tokens (~130 lines, advisory not enforced). Be terse
+— link to the parent spec instead of restating it. If the task can't fit, split
+it into smaller tasks.
 -->
 
 # {id}: {task title}

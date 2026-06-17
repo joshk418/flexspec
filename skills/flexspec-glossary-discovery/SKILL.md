@@ -28,9 +28,9 @@ updates so the charter and glossary are built together.
    - Build a case-insensitive set of known terms and aliases.
 
 2. **Scan candidate sources**
-   - `rg -o '[A-Z][a-zA-Z]{3,}'` across specs, charter, code identifiers, and docs.
-   - Include config key names, package names, and domain identifiers.
-   - Exclude common language keywords and standard library names.
+   - Run `flexspec glossary scan --json` to get candidate terms from specs, charter, code identifiers, and docs. This is cross-platform (no ripgrep dependency).
+   - If the CLI subcommand is unavailable (older flexspec), fall back to `rg -o '[A-Z][a-zA-Z]{3,}'` when ripgrep is present, or `grep -oE '[A-Z][a-zA-Z]{3,}'` / `findstr` on systems without ripgrep.
+   - The scan includes config key names, package names, and domain identifiers, and excludes common language keywords and standard library names.
 
 3. **Rank and filter**
    - Count frequencies; rank repeated or domain-like terms higher.
@@ -54,6 +54,7 @@ updates so the charter and glossary are built together.
 
 ## Filtering rules
 
+- The `flexspec glossary scan` subcommand applies these exclusions natively; the fallback `rg`/`grep` path requires manual exclusion.
 - Exclude common words: `true`, `false`, `null`, `error`, `string`, `int`, `return`, `func`, `function`, `class`, `interface`, `struct`, `package`, `import`, `var`, `const`, `let`, `this`, `self`, `static`, `public`, `private`.
 - Exclude standard library and framework names unless the project extends them.
 - Exclude file extensions and generic abbreviations.

@@ -25,6 +25,7 @@ func encodeSpec(e spec.SpecEntry) SpecJSON {
 		Description: e.Meta.Description,
 		Status:      e.Meta.Status,
 		SpecType:    e.Meta.SpecType,
+		Type:        e.Meta.Type,
 		TaskCount:   e.TaskCount,
 	}
 	for _, t := range e.Tasks {

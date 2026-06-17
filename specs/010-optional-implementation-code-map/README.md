@@ -12,6 +12,7 @@ tags:
     - skills
     - token-efficiency
 task_count: 5
+type: feature
 ---
 
 # Optional implementation code map
