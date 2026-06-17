@@ -18,6 +18,7 @@ var (
 	addAliases    []string
 	addCategory   string
 	addSources    []string
+	scanMax       int
 )
 
 var glossaryCmd = &cobra.Command{
@@ -161,11 +162,63 @@ var glossaryAddCmd = &cobra.Command{
 	},
 }
 
+var glossaryScanCmd = &cobra.Command{
+	Use:   "scan",
+	Short: "Scan the project for candidate glossary terms",
+	Long: `Scan specs, charter, code, and docs for project-specific terms not yet
+in .flexspec/glossary.yaml. Cross-platform (no ripgrep dependency).
+
+Use --json for machine-readable output. Use --max to cap the number of
+candidates returned (default 20).`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		root, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("resolve working directory: %w", err)
+		}
+
+		doc, err := glossary.Load(root)
+		if err != nil {
+			return err
+		}
+
+		max := scanMax
+		if max == 0 {
+			max = 20
+		}
+		candidates, err := glossary.Scan(root, doc.Terms, glossary.ScanOptions{Max: max})
+		if err != nil {
+			return err
+		}
+
+		out := cmd.OutOrStdout()
+		if glossaryJSON {
+			enc := json.NewEncoder(out)
+			enc.SetIndent("", "  ")
+			return enc.Encode(candidates)
+		}
+
+		if len(candidates) == 0 {
+			_, _ = fmt.Fprintln(out, "No candidate terms")
+			return nil
+		}
+
+		rows := make([][]string, 0, len(candidates))
+		for _, c := range candidates {
+			rows = append(rows, []string{c.Term, fmt.Sprintf("%d", c.Count)})
+		}
+		return clioutput.WriteTable(out,
+			[]string{"TERM", "COUNT"},
+			rows,
+		)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(glossaryCmd)
 	glossaryCmd.AddCommand(glossaryListCmd)
 	glossaryCmd.AddCommand(glossaryQueryCmd)
 	glossaryCmd.AddCommand(glossaryAddCmd)
+	glossaryCmd.AddCommand(glossaryScanCmd)
 
 	glossaryListCmd.Flags().BoolVar(&glossaryJSON, "json", false, "Output glossary as JSON")
 	glossaryQueryCmd.Flags().BoolVar(&glossaryJSON, "json", false, "Output matches as JSON")
@@ -173,4 +226,6 @@ func init() {
 	glossaryAddCmd.Flags().StringSliceVar(&addAliases, "alias", nil, "Alias for the term (repeatable)")
 	glossaryAddCmd.Flags().StringVar(&addCategory, "category", "", "Term category")
 	glossaryAddCmd.Flags().StringSliceVar(&addSources, "source", nil, "Source marker (repeatable)")
+	glossaryScanCmd.Flags().BoolVar(&glossaryJSON, "json", false, "Output candidates as JSON")
+	glossaryScanCmd.Flags().IntVar(&scanMax, "max", 20, "Max number of candidates to return")
 }

@@ -19,6 +19,7 @@ type SpecMeta struct {
 	Description string `yaml:"description"`
 	Status      string `yaml:"status"`
 	SpecType    string `yaml:"spec_type"`
+	Type        string `yaml:"type"`
 	TaskCount   *int   `yaml:"task_count,omitempty"`
 }
 

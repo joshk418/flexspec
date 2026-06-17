@@ -13,6 +13,7 @@ tags:
     - migration
     - self-update
 task_count: 3
+type: feature
 ---
 
 # Update command order

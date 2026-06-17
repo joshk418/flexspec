@@ -12,5 +12,6 @@ func Registry(templatesFS fs.FS, force bool) []Migration {
 		&configKeysMigration{},
 		&charterCheckMigration{templates: templatesFS},
 		&glossaryMigration{},
+		&typeBackfillMigration{},
 	}
 }

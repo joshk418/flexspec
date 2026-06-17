@@ -13,6 +13,7 @@ tags:
     - ux
     - interviews
 task_count: 5
+type: feature
 ---
 
 # Enhance UI interviews

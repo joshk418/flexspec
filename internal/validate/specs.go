@@ -111,6 +111,23 @@ func CheckSpecs(root string, cfg config.Config, _ Options) []Finding {
 			})
 		}
 
+		normalizedType := spec.NormalizeType(meta.Type)
+		if normalizedType == "" {
+			findings = append(findings, Finding{
+				Severity: SeverityWarning,
+				Path:     readmeRel,
+				Rule:     "specs.type_missing",
+				Message:  "spec frontmatter missing `type`; run `flexspec update --migrate` to backfill",
+			})
+		} else if !spec.IsValidType(normalizedType) {
+			findings = append(findings, Finding{
+				Severity: SeverityWarning,
+				Path:     readmeRel,
+				Rule:     "specs.type_invalid",
+				Message:  "invalid type " + strconv.Quote(meta.Type) + "; must be one of feature, bug, chore, refactor, docs, infra, spike, research",
+			})
+		}
+
 		if !strings.EqualFold(meta.SpecType, "expanded") {
 			continue
 		}

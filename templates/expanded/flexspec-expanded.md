@@ -1,24 +1,33 @@
 ---
 name: ''
 description: ''
-status: [draft, planned, in_progress, in_review, complete]
+status: [draft, planned, in_progress, in_review, complete, proposed]
 created: '{datetime}'
 implementation_start: 'datetime'
 implementation_finished: 'datetime'
 priority: [low, medium, high, critical]
 tags: []
 spec_type: expanded
+type: feature
 task_count: 0
 ---
 
 # {name}
 
-> **Status**: {status} · **Priority**: {priority} · **Created**: {date} · **Tasks**: 0
+> **Status**: {status} · **Priority**: {priority} · **Type**: {type} · **Created**: {date} · **Tasks**: 0
 
 <!--
 EXPANDED SPEC - root document. Each implementation task lives as a focused file
-under `tasks/`. Keep this README under ~4000 tokens and push execution detail
-into task files instead of bloating the root spec.
+under `tasks/`. Keep this README under ~4000 tokens (advisory, not enforced) and
+push execution detail into task files instead of bloating the root spec.
+
+The `type` field (feature | bug | chore | refactor | docs | infra | spike |
+research) drives which sections are required. See the /flexspec skill's per-type
+section matrix. Sections 4/5 are bug-only; Section 6 is optional for chore/docs/
+spike; Sections 8/9 may be light or omitted for spike/research; Section 10 tasks
+are omitted for spike/research (plan is the deliverable, status ends at
+`proposed`). The agent omits inapplicable sections rather than leaving
+placeholder text.
 
 Layout:
   NNN-feature-spec/

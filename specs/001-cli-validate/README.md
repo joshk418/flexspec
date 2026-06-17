@@ -12,6 +12,7 @@ tags:
     - validation
     - dx
 task_count: 5
+type: feature
 ---
 
 # CLI validate command

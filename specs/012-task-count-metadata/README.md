@@ -11,6 +11,7 @@ tags:
     - metadata
     - dx
 task_count: 5
+type: feature
 ---
 
 # Task count metadata

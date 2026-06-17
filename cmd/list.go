@@ -65,10 +65,11 @@ Use --json for full spec and task details.`,
 				displayOrDash(e.Meta.Status),
 				strconv.Itoa(e.TaskCount),
 				e.Meta.SpecType,
+				displayOrDash(e.Meta.Type),
 			})
 		}
 		return clioutput.WriteTable(out,
-			[]string{"IDENTIFIER", "STATUS", "TASKS", "TEMPLATE"},
+			[]string{"IDENTIFIER", "STATUS", "TASKS", "TEMPLATE", "TYPE"},
 			rows,
 		)
 	},

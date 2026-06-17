@@ -5,7 +5,28 @@ description: Detect and optionally fix AI slop in code — semantic duplication,
 
 # AI Slop Review
 
-Catch the failure modes AI-generated code is most prone to: it compiles, passes tests, and looks polished — but duplicates logic, over-engineers simple problems, mirrors implementation in tests, drifts from existing patterns, and narrates itself with comments. Patterns are drawn from Larridin's AI Slop analysis and the repo's `AGENTS.md` rules.
+Catch the failure modes AI-generated code is most prone to: it compiles, passes tests, and looks polished — but duplicates logic, over-engineers simple problems, mirrors implementation in tests, drifts from existing patterns, and narrates itself with comments. Patterns are drawn from Larridin's AI Slop analysis and the FlexSpec charter §7 standards.
+
+This skill is the **canonical slop reviewer** for FlexSpec projects. It is
+invoked by `/flexspec` Phase 3 and is also usable standalone outside the
+lifecycle. It supersedes the user-installed `ai-slop` skill — if you have
+`ai-slop` installed, remove it (`npx skills remove ai-slop`).
+
+## FlexSpec Phase 3 integration
+
+When `/flexspec` reaches Phase 3 (status `in_review`), it delegates slop
+review to this skill with the spec's files-in-scope (Section 7 file list):
+
+```
+/flexspec-slop-cleanup <files-in-scope>
+```
+
+Contract:
+- **Input**: the files created/modified by the spec's Section 7 implementation plan.
+- **Output**: findings grouped by pattern (see below). Any finding = review failure in the lifecycle.
+- **`--fix`**: in one-shot mode, `/flexspec` passes `--fix` so auto-fixable findings are applied automatically.
+- **Comment policy**: the "useless comments" pattern below enforces the `/flexspec` Phase 2 Code Comment Policy at review time. Authoring-time rules live in `/flexspec`; this skill does not duplicate them.
+- **Standalone use**: outside the lifecycle, run `/flexspec-slop-cleanup` on any files or the current git diff.
 
 ## Inputs
 
@@ -28,9 +49,9 @@ Catch the failure modes AI-generated code is most prone to: it compiles, passes 
 
 **3. Test-implementation coupling.** Tests assert _how_ code works, not _what_ it does. Red flags: tests that mock the unit under test, assertions on internal call order/counts when behavior is what matters, snapshot tests of implementation detail, tests that would still pass if the function returned wrong values, 1:1 mirroring of branches in the impl. Fix: rewrite to assert observable behavior (return value, side effect on a real dependency, rendered output).
 
-**4. Pattern mimicry / architectural drift.** New code uses a pattern foreign to the surrounding module. Examples: a 4th data-fetching style when 3 exist, a new state container when Zustand is already chosen, manual fetch when `axiosClient` is the convention, relative imports when `@/` is enforced, a new module shape when `src/modules/*/index.ts` has a contract. Cross-reference `AGENTS.md` and neighboring files. Fix: rewrite to match the existing pattern.
+**4. Pattern mimicry / architectural drift.** New code uses a pattern foreign to the surrounding module. Examples: a 4th data-fetching style when 3 exist, a new state container when Zustand is already chosen, manual fetch when `axiosClient` is the convention, relative imports when `@/` is enforced, a new module shape when `src/modules/*/index.ts` has a contract. Cross-reference the FlexSpec charter §7 standards and neighboring files. Fix: rewrite to match the existing pattern.
 
-**5. Useless comments.** Comments that restate code, reference the current task ("added for X flow"), narrate what is being done, or wrap obvious behavior. Allowed: comments explaining a non-obvious _why_ (hidden constraint, workaround, surprising invariant), and linter-required doc comments (e.g. Go exported identifiers). Fix: delete the comment. Keep the rare ones that pay rent.
+**5. Useless comments.** Comments that restate code, reference the current task ("added for X flow"), narrate what is being done, or wrap obvious behavior. This pattern enforces the `/flexspec` Phase 2 Code Comment Policy at review time. Allowed: comments explaining a non-obvious _why_ (hidden constraint, workaround, surprising invariant), and linter-required doc comments (e.g. Go exported identifiers). Fix: delete the comment. Keep the rare ones that pay rent.
 
 ## Reporting format
 

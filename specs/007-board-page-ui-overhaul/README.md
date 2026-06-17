@@ -14,6 +14,7 @@ tags:
     - status
     - skills
 task_count: 4
+type: feature
 ---
 
 # Board page UI overhaul

@@ -12,6 +12,7 @@ tags:
     - dx
     - agents
 task_count: 3
+type: feature
 ---
 
 # Config command

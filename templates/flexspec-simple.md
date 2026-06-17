@@ -1,24 +1,31 @@
 ---
 name: ""
 description: ""
-status: [draft, planned, in_progress, in_review, complete]
+status: [draft, planned, in_progress, in_review, complete, proposed]
 created: "{datetime}"
 implementation_start: "datetime"
 implementation_finished: "datetime"
 priority: [low, medium, high, critical]
 tags: []
 spec_type: simple
+type: feature
 task_count: 0
 ---
 
 # {name}
 
-> **Status**: {status} · **Priority**: {priority} · **Created**: {date} · **Tasks**: 0
+> **Status**: {status} · **Priority**: {priority} · **Type**: {type} · **Created**: {date} · **Tasks**: 0
 
 <!--
-SIMPLE SPEC - keep this file under ~2500 tokens. If the workflow graph,
-implementation plan, or task table needs more detail than fits here, use the
-expanded template instead.
+SIMPLE SPEC - keep this file under ~2500 tokens (advisory, not enforced). If
+the workflow graph, implementation plan, or task table needs more detail than
+fits here, use the expanded template instead.
+
+The `type` field (feature | bug | chore | refactor | docs | infra | spike |
+research) drives which sections are required. See the /flexspec skill's per-type
+section matrix. Sections 4/5 are bug-only; Section 6 is optional for chore/docs/
+spike; Sections 8/9 may be light or omitted for spike/research. The agent omits
+inapplicable sections rather than leaving placeholder text.
 -->
 
 ## 1. Summary

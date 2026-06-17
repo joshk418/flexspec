@@ -1,6 +1,9 @@
 package spec
 
-import "strings"
+import (
+	"slices"
+	"strings"
+)
 
 // UnassignedColumn is the board column for specs whose status is empty or not
 // a known lifecycle status.
@@ -14,6 +17,7 @@ var specStatuses = []string{
 	"in_progress",
 	"in_review",
 	"complete",
+	"proposed",
 }
 
 // legacyStatusAliases maps removed/renamed statuses to their current value.
@@ -44,10 +48,8 @@ func NormalizeSpecStatus(status string) string {
 // legacy values first; anything not in the canonical list maps to Unassigned.
 func ColumnForSpecStatus(status string) string {
 	s := NormalizeSpecStatus(status)
-	for _, known := range specStatuses {
-		if s == known {
-			return s
-		}
+	if slices.Contains(specStatuses, s) {
+		return s
 	}
 	return UnassignedColumn
 }
