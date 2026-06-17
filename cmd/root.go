@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -10,6 +11,9 @@ import (
 const version = "0.3.4" // x-release-please-version
 
 var template string
+
+// SkillsFS holds the embedded skills tree mounted by main before Execute runs.
+var SkillsFS fs.FS
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -30,8 +34,7 @@ adapters for Jira, Shortcut, GitHub Issues, and other issue trackers.`,
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// Execute runs the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

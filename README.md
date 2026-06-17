@@ -40,7 +40,7 @@ make build    # builds web UI then compiles flexspec
 # or: make build-ui && go build -o flexspec .
 ```
 
-Contributors need Node.js 22+ only to build the embedded UI under `ui/`. End users of the released binary do not need Node.
+Contributors need Node.js 22+ only to build the embedded UI under `ui/`. End users of the released binary do not need Node or Go — `flexspec update` downloads prebuilt binaries from GitHub Releases directly.
 
 ## Installing FlexSpec Skills
 
@@ -54,23 +54,24 @@ Agent skills live under [`skills/`](skills/):
 | Glossary discovery  | [`skills/flexspec-glossary-discovery/`](skills/flexspec-glossary-discovery/SKILL.md) | `flexspec-glossary-discovery` |
 | AI slop review      | [`skills/flexspec-slop-cleanup/`](skills/flexspec-slop-cleanup/SKILL.md)       | `/flexspec-slop-cleanup`    |
 
-Install all five into your coding agent with [`npx skills`](https://github.com/vercel-labs/skills):
+Skills are embedded in the flexspec binary and installed by `flexspec update --skills` directly into each detected coding agent's skills directory:
+
+| Agent       | Global path                      | Project path            |
+| ----------- | -------------------------------- | ----------------------- |
+| Claude Code | `~/.claude/skills/`              | `./.claude/skills/`     |
+| Cursor      | `~/.cursor/skills/`              | `./.agents/skills/`     |
+| Codex       | `~/.codex/skills/`               | `./.agents/skills/`     |
+| OpenCode    | `~/.config/opencode/skills/`     | `./.agents/skills/`     |
+| Cline       | `~/.agents/skills/`              | `./.agents/skills/`     |
+
+An agent is "detected" when its config root (e.g. `~/.claude/`) exists; the `skills/` subdir is created on install if missing. Skills are version-pinned to the CLI binary — the exact skills shipped with `flexspec` v0.3.5 are the ones installed by v0.3.5's `update`.
+
+For unsupported agents, the legacy `npx skills` path is still available (requires Node):
 
 ```bash
-npx skills add joshk418/flexspec
-```
-
-This auto-detects your installed agents (Cursor, Claude Code, Codex, and 50+ others) and installs all skills in the repo. Useful variants:
-
-```bash
-# Install for all projects instead of just the current one
 npx skills add joshk418/flexspec --global
-
-# Target a specific agent
+# or target a specific agent
 npx skills add joshk418/flexspec --agent cursor
-
-# Preview the skills in the repo without installing
-npx skills add joshk418/flexspec --list
 ```
 
 ### Recommended workflow
@@ -97,11 +98,14 @@ From your project root (after `flexspec init`):
 | `flexspec list`                                     | Compact table of spec directory identifiers, statuses, and task counts (`task_count` frontmatter, or computed) |
 | `flexspec list --json`                              | Same data as JSON, including `task_count` (scripts, CI)             |
 | `flexspec validate`                                 | Check config, charter, templates, and specs for structural problems |
-| `flexspec update`                                   | Upgrade CLI, reinstall skills, and run project migrations (default: all three) |
-| `flexspec update --dry-run`                         | Preview update steps without writing or executing external commands |
-| `flexspec update --check`                           | CI gate: exit 1 when migrations are pending (detect only)           |
-| `flexspec ui`                                       | Start local management UI (default http://127.0.0.1:3000)           |
-| `flexspec status set <spec> --status <s>`           | Update spec or task frontmatter status (`--task` for task files)      |
+| `flexspec update`                                   | Check for a newer CLI binary and update; then reinstall skills and run migrations (default: all three) |
+| `flexspec update --dry-run`                         | Preview update steps without writing or executing external commands           |
+| `flexspec update --check`                           | CI gate: exit 1 when migrations are pending (detect only)                     |
+| `flexspec update --cli`                             | Update only the CLI binary (download + swap from GitHub Releases)             |
+| `flexspec update --skills`                          | Reinstall embedded skills into each detected agent's skills dir               |
+| `flexspec update --migrate`                         | Run only in-project migrations                                                |
+| `flexspec ui`                                       | Start local management UI (default http://127.0.0.1:3000)                     |
+| `flexspec status set <spec> --status <s>`           | Update spec or task frontmatter status (`--task` for task files)              |
 
 ```bash
 flexspec --help
@@ -114,6 +118,7 @@ flexspec validate
 flexspec update
 flexspec update --dry-run
 flexspec update --migrate --only status-rename
+flexspec update --skills --skills-method npx
 flexspec ui --no-open
 flexspec status set 001-my-feature --status in_progress
 ```
@@ -122,7 +127,7 @@ flexspec status set 001-my-feature --status in_progress
 
 `flexspec validate` prints findings in a `SEVERITY / PATH / RULE / MESSAGE` table, then a summary. It exits **0** when there are no errors and **1** when any error-severity finding exists (warnings alone do not fail). If config is missing, it reports that and skips deeper checks.
 
-`flexspec update` runs migrations first (legacy spec statuses, `task_count` backfill, template re-sync, config keys, charter checks), then reinstalls skills via `npx`, then upgrades the CLI via `go install`. Human output uses aligned tables for migration changes (`MIGRATION / PATH / KIND / DETAIL`) and self-update steps (`TARGET / COMMAND / ACTION / DETAIL`). Use `--cli`, `--skills`, or `--migrate` to run individual steps. The skills step requires Node/`npx` on PATH; the CLI step requires Go. Re-run `flexspec update` after upgrading the CLI to apply migrations shipped in the newer version.
+`flexspec update` runs three steps in order: (1) check the latest GitHub release and, if newer, download the matching prebuilt binary, verify its SHA256 against `checksums.txt`, atomically swap the running executable, and re-exec into the new binary so the remaining steps run under the new code; (2) install the embedded skills into each detected coding agent's skills directory (falls back to `npx skills add --global` if no supported agent is detected); (3) run in-project migrations (spec statuses, `task_count` backfill, template re-sync, config keys, charter checks, glossary, type backfill) — only when inside a `.flexspec/` project. No Go toolchain or Node install is required for the binary or skills steps. Use `--cli`, `--skills`, or `--migrate` to run individual steps. `--skills-method auto|embedded|npx` controls the skills install path (default `auto`: embedded if an agent is detected, else npx). `--no-reexec` downloads and swaps the binary but does not re-exec; re-run `flexspec update --skills --migrate` manually to finish. `--force` re-downloads the binary even when already latest and overwrites differing template files on migrate.
 
 ## License
 

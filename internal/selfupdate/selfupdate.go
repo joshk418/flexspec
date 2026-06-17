@@ -4,22 +4,19 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 )
 
-const (
-	cliModule     = "github.com/joshk418/flexspec@latest"
-	skillsPackage = "joshk418/flexspec"
-)
+// skillsPackage is the npm package name for the npx fallback (no supported agent detected).
+const skillsPackage = "joshk418/flexspec"
 
-// Action describes a CLI or skills self-update step.
+// Action describes a CLI or skills self-update step, for dry-run reporting.
 type Action struct {
 	Target  string // cli | skills
 	Command string
 	Detail  string
 }
 
-// Runner executes an external command. Tests inject a fake runner.
+// Runner executes an external command; tests inject a fake runner.
 type Runner func(name string, args ...string) error
 
 // DefaultRunner runs a command via exec.LookPath.
@@ -35,54 +32,21 @@ func DefaultRunner(name string, args ...string) error {
 	return cmd.Run()
 }
 
-// PlanCLI returns the action that would upgrade the flexspec binary.
-func PlanCLI(installedVersion string) Action {
-	return Action{
-		Target:  "cli",
-		Command: "go install " + cliModule,
-		Detail:  "upgrade from " + installedVersion + " to latest",
-	}
-}
-
-// ApplyCLI runs go install to upgrade flexspec.
-func ApplyCLI(installedVersion string, run Runner) (Action, error) {
-	if run == nil {
-		run = DefaultRunner
-	}
-	action := PlanCLI(installedVersion)
-	if err := run("go", "install", cliModule); err != nil {
-		return action, fmt.Errorf("go install %s: %w", cliModule, err)
-	}
-	return action, nil
-}
-
-// ApplyLatestUpdate runs the latest flexspec update command for selected steps.
-func ApplyLatestUpdate(run Runner, args ...string) error {
-	if run == nil {
-		run = DefaultRunner
-	}
-	runArgs := append([]string{"run", cliModule, "update"}, args...)
-	if err := run("go", runArgs...); err != nil {
-		return fmt.Errorf("go %s: %w", strings.Join(runArgs, " "), err)
-	}
-	return nil
-}
-
-// PlanSkills returns the action that would reinstall flexspec skills.
-func PlanSkills() Action {
+// PlanSkillsFallback returns the action that would install flexspec skills via npx (fallback only).
+func PlanSkillsFallback() Action {
 	return Action{
 		Target:  "skills",
 		Command: "npx skills add " + skillsPackage + " --global",
-		Detail:  "reinstall flexspec skills",
+		Detail:  "install flexspec skills via npx (no supported agent detected)",
 	}
 }
 
-// ApplySkills runs npx skills to reinstall flexspec skills globally.
-func ApplySkills(run Runner) (Action, error) {
+// ApplySkillsFallback runs npx skills to install flexspec skills globally (fallback path).
+func ApplySkillsFallback(run Runner) (Action, error) {
 	if run == nil {
 		run = DefaultRunner
 	}
-	action := PlanSkills()
+	action := PlanSkillsFallback()
 	if err := run("npx", "skills", "add", skillsPackage, "--global"); err != nil {
 		return action, fmt.Errorf("npx skills add: %w", err)
 	}
