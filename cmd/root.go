@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const version = "0.3.4" // x-release-please-version
+const version = "0.3.5" // x-release-please-version
 
 var template string
 
