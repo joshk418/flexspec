@@ -78,7 +78,7 @@ func TestApplyBinary_fullApply(t *testing.T) {
 	// Build a real tar.gz containing a "flexspec" binary so ExtractBinary succeeds.
 	archiveBody := makeTarGZ(t, "flexspec", "fake new binary")
 	// Compute the real sha256 of archiveBody so checksum verification passes.
-	wantSum, _ := sha256Hex(archiveBody)
+	wantSum := sha256Hex(archiveBody)
 	rel := Release{
 		Tag: "v0.3.5", Version: "0.3.5",
 		Assets: []Asset{
@@ -156,7 +156,7 @@ func TestApplyBinary_checksumMismatch(t *testing.T) {
 
 func TestApplyBinary_forceReapplies(t *testing.T) {
 	archiveBody := makeTarGZ(t, "flexspec", "forced binary")
-	wantSum, _ := sha256Hex(archiveBody)
+	wantSum := sha256Hex(archiveBody)
 	rel := Release{
 		Tag: "v0.3.5", Version: "0.3.5",
 		Assets: []Asset{
@@ -193,7 +193,7 @@ func TestApplyBinary_forceReapplies(t *testing.T) {
 
 func TestApplyBinary_swapError(t *testing.T) {
 	archiveBody := makeTarGZ(t, "flexspec", "fake binary")
-	wantSum, _ := sha256Hex(archiveBody)
+	wantSum := sha256Hex(archiveBody)
 	rel := Release{
 		Tag: "v0.3.5", Version: "0.3.5",
 		Assets: []Asset{

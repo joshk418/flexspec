@@ -10,7 +10,6 @@ import (
 	"testing/fstest"
 
 	"github.com/joshk418/flexspec/internal/selfupdate"
-	"github.com/joshk418/flexspec/internal/skills"
 )
 
 // resetUpdateFlags zeroes all update command package-level state between tests.
@@ -454,6 +453,26 @@ func TestUpdateCmd_skillsMethodEmbeddedNoAgentsPrintsFallback(t *testing.T) {
 	}
 }
 
+func TestUpdateCmd_invalidSkillsMethod(t *testing.T) {
+	resetUpdateFlags()
+	chdirTemp(t)
+
+	updateSkills = true
+	updateCLI = true
+	updateSkillsMethod = "bogus"
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called with invalid --skills-method")
+		return selfupdate.ApplyResult{}, nil
+	}
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err == nil || !strings.Contains(err.Error(), "invalid --skills-method") {
+		t.Fatalf("expected invalid skills method error, got %v", err)
+	}
+}
+
 func TestUpdateCmd_skillsDryRunPrintsPlan(t *testing.T) {
 	resetUpdateFlags()
 	chdirTemp(t)
@@ -484,6 +503,3 @@ func TestUpdateCmd_skillsDryRunPrintsPlan(t *testing.T) {
 		t.Errorf("output should be plan not exec:\n%s", out.String())
 	}
 }
-
-// sanity: the skills package's Agent type is usable from cmd tests.
-var _ = skills.ScopeGlobal

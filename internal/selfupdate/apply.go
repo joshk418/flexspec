@@ -73,10 +73,7 @@ func ApplyBinary(ctx context.Context, currentVersion string, opts ApplyOpts) (Ap
 		}
 		want = asset.DigestSHA256
 	}
-	got, err := sha256Hex(archiveBytes)
-	if err != nil {
-		return res, err
-	}
+	got := sha256Hex(archiveBytes)
 	if got != want {
 		return res, fmt.Errorf("checksum mismatch for %s: want %s, got %s", asset.Name, want, got)
 	}
@@ -108,9 +105,9 @@ func downloadAsset(ctx context.Context, asset Asset) ([]byte, error) {
 }
 
 // sha256Hex returns the lowercase hex sha256 of data.
-func sha256Hex(data []byte) (string, error) {
+func sha256Hex(data []byte) string {
 	sum := sha256.Sum256(data)
-	return hex.EncodeToString(sum[:]), nil
+	return hex.EncodeToString(sum[:])
 }
 
 // versionEqual compares two version strings, tolerating a leading 'v'.

@@ -18,13 +18,19 @@ func ReexecSelf(args ...string) error {
 }
 
 // ResumeArgs builds argv for the re-exec'd binary so it skips the binary-download step.
-func ResumeArgs(prevVersion string, doSkills, doMigrate, force bool, only []string) []string {
+func ResumeArgs(prevVersion string, doSkills, doMigrate, force bool, only []string, skillsMethod string, skillsProject bool) []string {
 	args := []string{
 		"update",
 		"--self-update-resume", prevVersion,
 	}
 	if doSkills {
 		args = append(args, "--skills")
+		if skillsMethod != "" && skillsMethod != "auto" {
+			args = append(args, "--skills-method", skillsMethod)
+		}
+		if skillsProject {
+			args = append(args, "--project")
+		}
 	}
 	if doMigrate {
 		args = append(args, "--migrate")

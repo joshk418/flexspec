@@ -198,20 +198,26 @@ func TestVersionEqual(t *testing.T) {
 }
 
 func TestResumeArgs(t *testing.T) {
-	got := ResumeArgs("0.3.4", true, true, true, []string{"a", "b"})
+	got := ResumeArgs("0.3.4", true, true, true, []string{"a", "b"}, "", false)
 	want := "update --self-update-resume 0.3.4 --skills --migrate --force --only a --only b"
 	if strings.Join(got, " ") != want {
 		t.Fatalf("got %q, want %q", strings.Join(got, " "), want)
 	}
 
-	got = ResumeArgs("0.3.4", false, false, false, nil)
+	got = ResumeArgs("0.3.4", false, false, false, nil, "", false)
 	want = "update --self-update-resume 0.3.4"
 	if strings.Join(got, " ") != want {
 		t.Fatalf("got %q, want %q", strings.Join(got, " "), want)
 	}
 
-	got = ResumeArgs("0.3.4", true, false, false, nil)
+	got = ResumeArgs("0.3.4", true, false, false, nil, "", false)
 	want = "update --self-update-resume 0.3.4 --skills"
+	if strings.Join(got, " ") != want {
+		t.Fatalf("got %q, want %q", strings.Join(got, " "), want)
+	}
+
+	got = ResumeArgs("0.3.4", true, false, false, nil, "embedded", true)
+	want = "update --self-update-resume 0.3.4 --skills --skills-method embedded --project"
 	if strings.Join(got, " ") != want {
 		t.Fatalf("got %q, want %q", strings.Join(got, " "), want)
 	}

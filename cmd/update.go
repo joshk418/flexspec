@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -87,6 +88,11 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	if updateCheck {
 		return runUpdateCheck(cmd, root, doMigrate)
 	}
+	if doSkills {
+		if _, err := normalizedSkillsMethod(); err != nil {
+			return err
+		}
+	}
 
 	// Resume path: this process is the freshly-swapped binary, so skip binary download.
 	if updateResume != "" {
@@ -106,13 +112,13 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 			}
 			if applied && !updateNoReexec {
 				// Re-exec into the new binary; this process ends here.
-				resumeArgs := selfupdate.ResumeArgs(version, doSkills, doMigrate, updateForce, updateOnly)
+				resumeArgs := selfupdate.ResumeArgs(version, doSkills, doMigrate, updateForce, updateOnly, updateSkillsMethod, updateSkillsProject)
 				if err := reexecSelf(resumeArgs...); err != nil {
-					bestEffortFprintf(cmd.ErrOrStderr(), "Updated binary to latest but could not re-exec: %v\n", err)
-					bestEffortFprintf(cmd.ErrOrStderr(), "Re-run `flexspec update --skills --migrate` to finish.\n")
-					return nil
+					_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Updated binary to latest but could not finish the resumed update: %v\n", err)
+					_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "Re-run `flexspec update --skills --migrate` to finish.")
+					return err
 				}
-				// Unix exec does not return; Windows spawn does, so exit the parent.
+				// Unix exec does not return; Windows returns after the child exits.
 				exitAfterReexec(0)
 			}
 			// Already latest or --no-reexec: run skills + migrate in this process.
@@ -184,47 +190,60 @@ func runSkillsStep(cmd *cobra.Command, doSkills, apply bool) error {
 	}
 	out := cmd.OutOrStdout()
 
+	method, err := normalizedSkillsMethod()
+	if err != nil {
+		return err
+	}
+	if method == "embedded" {
+		return installEmbeddedSkills(cmd, out, apply)
+	}
+	if method == "npx" {
+		return installSkillsViaNpx(cmd, out, apply)
+	}
+	// auto = embedded if any agent detected, else npx fallback.
+	detected, scope, home, err := detectSkillsTargets()
+	if err != nil {
+		return err
+	}
+	if len(detected) > 0 {
+		return installEmbeddedSkillsFor(cmd, out, apply, detected, scope, home)
+	}
+	return installSkillsViaNpx(cmd, out, apply)
+}
+
+func normalizedSkillsMethod() (string, error) {
 	method := updateSkillsMethod
 	if method == "" {
 		method = "auto"
 	}
 	switch method {
-	case "embedded":
-		return installEmbeddedSkills(cmd, out, apply)
-	case "npx":
-		return installSkillsViaNpx(cmd, out, apply)
-	case "auto":
-		fallthrough
+	case "auto", "embedded", "npx":
+		return method, nil
 	default:
-		// auto = embedded if any agent detected, else npx fallback.
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return fmt.Errorf("resolve home directory: %w", err)
-		}
-		scope := skills.ScopeGlobal
-		if updateSkillsProject {
-			scope = skills.ScopeProject
-		}
-		detected := skills.DetectAgents(scope, home, ".")
-		if len(detected) > 0 {
-			return installEmbeddedSkillsFor(cmd, out, apply, detected, scope, home)
-		}
-		return installSkillsViaNpx(cmd, out, apply)
+		return "", fmt.Errorf("invalid --skills-method %q (want auto, embedded, or npx)", method)
 	}
 }
 
 // installEmbeddedSkills installs via the embedded FS, detecting agents itself.
 func installEmbeddedSkills(cmd *cobra.Command, out io.Writer, apply bool) error {
+	detected, scope, home, err := detectSkillsTargets()
+	if err != nil {
+		return err
+	}
+	return installEmbeddedSkillsFor(cmd, out, apply, detected, scope, home)
+}
+
+func detectSkillsTargets() ([]skills.Agent, skills.Scope, string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return fmt.Errorf("resolve home directory: %w", err)
+		return nil, skills.ScopeGlobal, "", fmt.Errorf("resolve home directory: %w", err)
 	}
 	scope := skills.ScopeGlobal
 	if updateSkillsProject {
 		scope = skills.ScopeProject
 	}
 	detected := skills.DetectAgents(scope, home, ".")
-	return installEmbeddedSkillsFor(cmd, out, apply, detected, scope, home)
+	return detected, scope, home, nil
 }
 
 // installEmbeddedSkillsFor writes the embedded skills to the given agents.
@@ -233,7 +252,7 @@ func installEmbeddedSkillsFor(cmd *cobra.Command, out io.Writer, apply bool, det
 		return fmt.Errorf("embedded skills FS not mounted (binary built without skills/ embed)")
 	}
 	if len(detected) == 0 {
-		bestEffortFprintln(out, "No supported coding agent detected.")
+		_, _ = fmt.Fprintln(out, "No supported coding agent detected.")
 		skills.PrintFallbackInstruction(out)
 		return nil
 	}
@@ -267,7 +286,7 @@ func skillsDirForDisplay(a skills.Agent, scope skills.Scope, home string) string
 	if scope == skills.ScopeProject {
 		return a.ProjectDir
 	}
-	return home + "/" + a.GlobalDir
+	return filepath.Join(home, filepath.FromSlash(a.GlobalDir))
 }
 
 // installSkillsViaNpx shells out to the npx skills CLI (legacy fallback).
@@ -334,7 +353,7 @@ func runUpdateCheck(cmd *cobra.Command, root string, doMigrate bool) error {
 // runUpdateResume skips the binary step because this process is already the new binary.
 func runUpdateResume(cmd *cobra.Command, root, prevVersion string, doSkills, doMigrate bool) error {
 	out := cmd.OutOrStdout()
-	bestEffortFprintf(out, "Restarted as v%s (from v%s). Finishing update.\n", version, prevVersion)
+	_, _ = fmt.Fprintf(out, "Restarted as v%s (from v%s). Finishing update.\n", version, prevVersion)
 
 	if err := runSkillsStep(cmd, doSkills, true); err != nil {
 		return err
@@ -342,18 +361,8 @@ func runUpdateResume(cmd *cobra.Command, root, prevVersion string, doSkills, doM
 	if err := runMigrateStep(cmd, root, doMigrate, true); err != nil {
 		return err
 	}
-	bestEffortFprintf(out, "Update complete: v%s -> v%s\n", prevVersion, version)
+	_, _ = fmt.Fprintf(out, "Update complete: v%s -> v%s\n", prevVersion, version)
 	return nil
-}
-
-// bestEffortFprintf writes a formatted status message and ignores write errors.
-func bestEffortFprintf(w io.Writer, format string, args ...any) {
-	_, _ = fmt.Fprintf(w, format, args...)
-}
-
-// bestEffortFprintln writes a line to w, ignoring errors.
-func bestEffortFprintln(w io.Writer, args ...any) {
-	_, _ = fmt.Fprintln(w, args...)
 }
 
 func loadUpdateMigrations(root string) (config.Config, []migrate.Migration, error) {

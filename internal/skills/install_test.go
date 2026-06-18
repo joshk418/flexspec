@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"testing/fstest"
 )
@@ -191,17 +192,8 @@ func TestInstall_emptyAgentList(t *testing.T) {
 func TestAgentNames(t *testing.T) {
 	got := AgentNames()
 	for _, want := range []string{"claude-code", "cursor", "codex", "opencode", "cline"} {
-		if !contains(got, want) {
+		if !strings.Contains(got, want) {
 			t.Errorf("AgentNames() = %q, missing %q", got, want)
 		}
 	}
-}
-
-func contains(s, sub string) bool {
-	for i := 0; i+len(sub) <= len(s); i++ {
-		if s[i:i+len(sub)] == sub {
-			return true
-		}
-	}
-	return false
 }
