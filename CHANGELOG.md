@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.5](https://github.com/joshk418/flexspec/compare/v0.3.4...v0.3.5) (2026-06-18)
+
+
+### Features
+
+* Improved self updater ([#36](https://github.com/joshk418/flexspec/issues/36)) ([704648a](https://github.com/joshk418/flexspec/commit/704648a678897e9264e4788520e9397f3aa9a2b8))
+* new skills and better glossary scanning ([#34](https://github.com/joshk418/flexspec/issues/34)) ([80c2686](https://github.com/joshk418/flexspec/commit/80c2686e1aaa47ea0bfb4649841992e3d767706c))
+
 ## [0.3.4](https://github.com/joshk418/flexspec/compare/v0.3.3...v0.3.4) (2026-06-16)
 
 
