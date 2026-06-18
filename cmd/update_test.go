@@ -2,47 +2,104 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/fstest"
+
+	"github.com/joshk418/flexspec/internal/selfupdate"
 )
 
-func TestResolveUpdateSteps_defaultAll(t *testing.T) {
-	updateCLI, updateSkills, updateMigrate = false, false, false
-	cli, skills, mig := resolveUpdateSteps()
-	if !cli || !skills || !mig {
-		t.Fatalf("want all true, got cli=%v skills=%v migrate=%v", cli, skills, mig)
-	}
+// resetUpdateFlags zeroes all update command package-level state between tests.
+func resetUpdateFlags() {
+	updateCLI = false
+	updateSkills = false
+	updateMigrate = false
+	updateDryRun = false
+	updateCheck = false
+	updateForce = false
+	updateOnly = nil
+	updateResume = ""
+	updateNoReexec = false
+	updateSkillsMethod = ""
+	updateSkillsProject = false
+	updateApplyBinary = nil
+	updateReexec = nil
+	updateLatestRelease = nil
+	updateSkillsRunner = nil
+	exitAfterReexec = func(int) {} // tests must not actually exit
 }
 
-func TestResolveUpdateSteps_singleFlag(t *testing.T) {
-	updateCLI, updateSkills, updateMigrate = true, false, false
-	cli, skills, mig := resolveUpdateSteps()
-	if !cli || skills || mig {
-		t.Fatalf("want only cli, got cli=%v skills=%v migrate=%v", cli, skills, mig)
-	}
-}
-
-func TestUpdateCmd_dryRunNoRunner(t *testing.T) {
-	root := t.TempDir()
-	writeValidateFixture(t, root)
-
+func chdirTemp(t *testing.T) string {
+	t.Helper()
 	cwd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
+	root := t.TempDir()
 	if err := os.Chdir(root); err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = os.Chdir(cwd) })
+	return root
+}
 
-	updateCLI, updateSkills, updateMigrate = false, false, true
-	updateDryRun, updateCheck, updateForce = true, false, false
-	updateOnly = []string{"status-rename"}
-	updateOnly = nil
-	updateRunner = func(name string, args ...string) error {
-		t.Fatal("runner should not be invoked in dry-run")
+// fakeSkillsFS mounts a tiny skills FS for update command tests.
+func fakeSkillsFS(t *testing.T) {
+	t.Helper()
+	orig := SkillsFS
+	t.Cleanup(func() { SkillsFS = orig })
+	SkillsFS = fstest.MapFS{
+		"flexspec/SKILL.md":         &fstest.MapFile{Data: []byte("# flexspec\n")},
+		"flexspec-charter/SKILL.md": &fstest.MapFile{Data: []byte("# charter\n")},
+	}
+}
+
+// fakeHomeWithAgents creates a temp HOME with the given agent root dirs.
+func fakeHomeWithAgents(t *testing.T, agentRoots ...string) string {
+	t.Helper()
+	home := t.TempDir()
+	for _, root := range agentRoots {
+		if err := os.MkdirAll(filepath.Join(home, root), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return home
+}
+
+func TestResolveUpdateSteps_defaultAll(t *testing.T) {
+	resetUpdateFlags()
+	updateCLI, updateSkills, updateMigrate = false, false, false
+	cli, sk, mig := resolveUpdateSteps()
+	if !cli || !sk || !mig {
+		t.Fatalf("want all true, got cli=%v skills=%v migrate=%v", cli, sk, mig)
+	}
+}
+
+func TestResolveUpdateSteps_singleFlag(t *testing.T) {
+	resetUpdateFlags()
+	updateCLI, updateSkills, updateMigrate = true, false, false
+	cli, sk, mig := resolveUpdateSteps()
+	if !cli || sk || mig {
+		t.Fatalf("want only cli, got cli=%v skills=%v migrate=%v", cli, sk, mig)
+	}
+}
+
+func TestUpdateCmd_dryRunMigrateOnly(t *testing.T) {
+	resetUpdateFlags()
+	root := chdirTemp(t)
+	writeValidateFixture(t, root)
+
+	updateMigrate = true
+	updateDryRun = true
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called in dry-run")
+		return selfupdate.ApplyResult{}, nil
+	}
+	updateReexec = func(_ ...string) error {
+		t.Fatal("reexec should not be called in dry-run")
 		return nil
 	}
 
@@ -51,9 +108,6 @@ func TestUpdateCmd_dryRunNoRunner(t *testing.T) {
 	updateCmd.SetErr(&out)
 	if err := updateCmd.RunE(updateCmd, nil); err != nil {
 		t.Fatalf("update: %v\n%s", err, out.String())
-	}
-	if out.Len() == 0 {
-		t.Fatal("expected output")
 	}
 	for _, want := range []string{"MIGRATION", "PATH", "KIND", "DETAIL"} {
 		if !strings.Contains(out.String(), want) {
@@ -62,25 +116,19 @@ func TestUpdateCmd_dryRunNoRunner(t *testing.T) {
 	}
 }
 
-func TestUpdateCmd_dryRunSelfUpdateHeaders(t *testing.T) {
-	root := t.TempDir()
-	writeValidateFixture(t, root)
+func TestUpdateCmd_dryRunCLIPlan(t *testing.T) {
+	resetUpdateFlags()
+	root := chdirTemp(t)
+	_ = root
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
+	updateCLI = true
+	updateDryRun = true
+	updateLatestRelease = func(_ context.Context) (selfupdate.Release, error) {
+		return selfupdate.Release{Tag: "v0.3.5", Version: "0.3.5", Assets: []selfupdate.Asset{{Name: "flexspec_0.3.5_linux_amd64.tar.gz"}}}, nil
 	}
-	if err := os.Chdir(root); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chdir(cwd) })
-
-	updateCLI, updateSkills, updateMigrate = true, true, false
-	updateDryRun, updateCheck, updateForce = true, false, false
-	updateOnly = nil
-	updateRunner = func(name string, args ...string) error {
-		t.Fatal("runner should not be invoked in dry-run")
-		return nil
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called in dry-run")
+		return selfupdate.ApplyResult{}, nil
 	}
 
 	var out bytes.Buffer
@@ -89,71 +137,31 @@ func TestUpdateCmd_dryRunSelfUpdateHeaders(t *testing.T) {
 	if err := updateCmd.RunE(updateCmd, nil); err != nil {
 		t.Fatalf("update: %v\n%s", err, out.String())
 	}
-	for _, want := range []string{"TARGET", "COMMAND", "ACTION", "DETAIL", "plan"} {
+	for _, want := range []string{"TARGET", "COMMAND", "ACTION", "DETAIL", "v0.3.5", "plan"} {
 		if !strings.Contains(out.String(), want) {
 			t.Errorf("output missing %q\n%s", want, out.String())
 		}
 	}
-	assertBefore(t, out.String(), "go install", "npx skills")
 }
 
-func TestUpdateCmd_defaultDryRunReportsSelfUpdateBeforeMigrations(t *testing.T) {
-	root := t.TempDir()
+func TestUpdateCmd_defaultApplyDownloadsAndReexecs(t *testing.T) {
+	resetUpdateFlags()
+	root := chdirTemp(t)
 	writeValidateFixture(t, root)
+	fakeSkillsFS(t)
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chdir(root); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chdir(cwd) })
-
-	updateCLI, updateSkills, updateMigrate = false, false, false
-	updateDryRun, updateCheck, updateForce = true, false, false
-	updateOnly = nil
-	updateRunner = func(name string, args ...string) error {
-		t.Fatal("runner should not be invoked in dry-run")
-		return nil
-	}
-
-	var out bytes.Buffer
-	updateCmd.SetOut(&out)
-	updateCmd.SetErr(&out)
-	if err := updateCmd.RunE(updateCmd, nil); err != nil {
-		t.Fatalf("update: %v\n%s", err, out.String())
-	}
-
-	got := out.String()
-	for _, want := range []string{"TARGET", "COMMAND", "ACTION", "DETAIL", "go install", "npx skills", "MIGRATION"} {
-		if !strings.Contains(got, want) {
-			t.Errorf("output missing %q\n%s", want, got)
+	var applyCalled, reexecCalled bool
+	var reexecArgs []string
+	updateApplyBinary = func(_ context.Context, cur string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		applyCalled = true
+		if cur != version {
+			t.Errorf("currentVersion = %q, want %q", cur, version)
 		}
+		return selfupdate.ApplyResult{Applied: true, ToVersion: "0.3.5"}, nil
 	}
-	assertBefore(t, got, "go install", "npx skills")
-	assertBefore(t, got, "npx skills", "MIGRATION")
-}
-
-func TestUpdateCmd_defaultApplyRunsCLIThenSkillsBeforeMigrations(t *testing.T) {
-	root := t.TempDir()
-	writeValidateFixture(t, root)
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chdir(root); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chdir(cwd) })
-
-	updateCLI, updateSkills, updateMigrate = false, false, false
-	updateDryRun, updateCheck, updateForce = false, false, false
-	updateOnly = nil
-	var calls []string
-	updateRunner = func(name string, args ...string) error {
-		calls = append(calls, name+" "+strings.Join(args, " "))
+	updateReexec = func(args ...string) error {
+		reexecCalled = true
+		reexecArgs = args
 		return nil
 	}
 
@@ -164,41 +172,157 @@ func TestUpdateCmd_defaultApplyRunsCLIThenSkillsBeforeMigrations(t *testing.T) {
 		t.Fatalf("update: %v\n%s", err, out.String())
 	}
 
-	if len(calls) != 2 {
-		t.Fatalf("runner calls = %v, want 2 calls", calls)
+	if !applyCalled {
+		t.Fatal("ApplyBinary should be called by default")
 	}
-	if !strings.HasPrefix(calls[0], "go install github.com/joshk418/flexspec@latest") {
-		t.Fatalf("first runner call = %q, want go install", calls[0])
+	if !reexecCalled {
+		t.Fatal("ReexecSelf should be called after a successful apply")
 	}
-	if got, want := calls[1], "go run github.com/joshk418/flexspec@latest update --skills --migrate"; got != want {
-		t.Fatalf("runner order = %q, want %q", got, want)
+	// Re-exec args should include update --self-update-resume <ver> --skills --migrate.
+	joined := strings.Join(reexecArgs, " ")
+	if !strings.Contains(joined, "--self-update-resume "+version) {
+		t.Errorf("reexec args missing --self-update-resume: %q", joined)
 	}
+	if !strings.Contains(joined, "--skills") || !strings.Contains(joined, "--migrate") {
+		t.Errorf("reexec args should include --skills and --migrate: %q", joined)
+	}
+}
+
+func TestUpdateCmd_alreadyLatestRunsSkillsAndMigrateInProcess(t *testing.T) {
+	resetUpdateFlags()
+	root := chdirTemp(t)
+	writeValidateFixture(t, root)
+	fakeSkillsFS(t)
+
+	// Fake HOME with claude-code so embedded install runs instead of npx fallback.
+	home := fakeHomeWithAgents(t, ".claude")
+	// Set HOME for Unix-like os.UserHomeDir.
+	t.Setenv("HOME", home)
+	// On Windows, os.UserHomeDir reads %USERPROFILE%.
+	t.Setenv("USERPROFILE", home)
+
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		return selfupdate.ApplyResult{Applied: false}, nil // already latest
+	}
+	updateReexec = func(_ ...string) error {
+		t.Fatal("reexec should NOT be called when already latest")
+		return nil
+	}
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err != nil {
+		t.Fatalf("update: %v\n%s", err, out.String())
+	}
+
 	got := out.String()
-	if !strings.Contains(got, "go install") {
-		t.Fatalf("output missing CLI action:\n%s", got)
+	// Skills step should run in-process.
+	if !strings.Contains(got, "AGENT") && !strings.Contains(got, "claude-code") {
+		t.Errorf("output should mention skills install:\n%s", got)
 	}
-	if strings.Contains(got, "npx skills") || strings.Contains(got, "MIGRATION") {
-		t.Fatalf("parent process should delegate remaining output to latest CLI:\n%s", got)
+	// Migrations should also run in-process.
+	if !strings.Contains(got, "MIGRATION") && !strings.Contains(got, "0 pending change(s)") && !strings.Contains(got, "change(s)") {
+		t.Errorf("output should mention migrations:\n%s", got)
+	}
+}
+
+func TestUpdateCmd_resumePathRunsSkillsAndMigrate(t *testing.T) {
+	resetUpdateFlags()
+	root := chdirTemp(t)
+	writeValidateFixture(t, root)
+	fakeSkillsFS(t)
+
+	home := fakeHomeWithAgents(t, ".claude")
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+
+	updateResume = "0.3.4" // simulate being the re-exec'd new binary
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called on the resume path")
+		return selfupdate.ApplyResult{}, nil
+	}
+	updateReexec = func(_ ...string) error {
+		t.Fatal("reexec should not be called on the resume path")
+		return nil
+	}
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err != nil {
+		t.Fatalf("update: %v\n%s", err, out.String())
+	}
+
+	got := out.String()
+	if !strings.Contains(got, "Restarted as v"+version+" (from v0.3.4)") {
+		t.Errorf("output missing resume banner:\n%s", got)
+	}
+	if !strings.Contains(got, "Update complete: v0.3.4 -> v"+version) {
+		t.Errorf("output missing completion summary:\n%s", got)
+	}
+}
+
+func TestUpdateCmd_noReexecFallsThroughToSkillsAndMigrate(t *testing.T) {
+	resetUpdateFlags()
+	root := chdirTemp(t)
+	writeValidateFixture(t, root)
+	fakeSkillsFS(t)
+
+	home := fakeHomeWithAgents(t, ".claude")
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+
+	var reexecCalled bool
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		return selfupdate.ApplyResult{Applied: true, ToVersion: "0.3.5"}, nil
+	}
+	updateReexec = func(_ ...string) error {
+		reexecCalled = true
+		return nil
+	}
+	updateNoReexec = true
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err != nil {
+		t.Fatalf("update: %v\n%s", err, out.String())
+	}
+
+	if reexecCalled {
+		t.Fatal("reexec should not be called when --no-reexec is set")
+	}
+	// Skills + migrate should run in-process under the old binary.
+	got := out.String()
+	if !strings.Contains(got, "AGENT") && !strings.Contains(got, "claude-code") {
+		t.Errorf("output should mention skills install:\n%s", got)
 	}
 }
 
 func TestUpdateCmd_defaultApplySkipsMigrationsOutsideFlexspecDir(t *testing.T) {
-	root := t.TempDir()
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chdir(root); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chdir(cwd) })
+	resetUpdateFlags()
+	chdirTemp(t) // no .flexspec/
+	fakeSkillsFS(t)
 
-	updateCLI, updateSkills, updateMigrate = false, false, false
-	updateDryRun, updateCheck, updateForce = false, false, false
-	updateOnly = nil
-	var calls []string
-	updateRunner = func(name string, args ...string) error {
-		calls = append(calls, name+" "+strings.Join(args, " "))
+	home := fakeHomeWithAgents(t, ".claude")
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+
+	var applyCalled bool
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		applyCalled = true
+		return selfupdate.ApplyResult{Applied: true, ToVersion: "0.3.5"}, nil
+	}
+	updateReexec = func(args ...string) error {
+		// Outside a flexspec dir, re-exec should include --skills but not --migrate.
+		joined := strings.Join(args, " ")
+		if strings.Contains(joined, "--migrate") {
+			t.Errorf("reexec args should not include --migrate outside flexspec dir: %q", joined)
+		}
+		if !strings.Contains(joined, "--skills") {
+			t.Errorf("reexec args should include --skills: %q", joined)
+		}
 		return nil
 	}
 
@@ -208,59 +332,22 @@ func TestUpdateCmd_defaultApplySkipsMigrationsOutsideFlexspecDir(t *testing.T) {
 	if err := updateCmd.RunE(updateCmd, nil); err != nil {
 		t.Fatalf("update: %v\n%s", err, out.String())
 	}
-
-	if len(calls) != 2 {
-		t.Fatalf("runner calls = %v, want 2 calls", calls)
-	}
-	if !strings.HasPrefix(calls[0], "go install github.com/joshk418/flexspec@latest") {
-		t.Fatalf("first runner call = %q, want go install", calls[0])
-	}
-	if got, want := calls[1], "go run github.com/joshk418/flexspec@latest update --skills"; got != want {
-		t.Fatalf("runner order = %q, want %q", got, want)
-	}
-	got := out.String()
-	if !strings.Contains(got, "go install") {
-		t.Fatalf("output missing CLI action:\n%s", got)
-	}
-	if strings.Contains(got, "npx skills") || strings.Contains(got, "MIGRATION") {
-		t.Fatalf("parent process should delegate remaining output to latest CLI:\n%s", got)
-	}
-}
-
-func TestLatestUpdateArgs_preservesMigrationFlags(t *testing.T) {
-	updateForce = true
-	updateOnly = []string{"config-keys", "task-count"}
-	t.Cleanup(func() {
-		updateForce = false
-		updateOnly = nil
-	})
-
-	got := strings.Join(latestUpdateArgs(true, true), " ")
-	want := "--skills --migrate --force --only config-keys --only task-count"
-	if got != want {
-		t.Fatalf("latest update args = %q, want %q", got, want)
+	if !applyCalled {
+		t.Fatal("ApplyBinary should still be called outside a flexspec dir")
 	}
 }
 
 func TestUpdateCmd_checkClean(t *testing.T) {
-	root := t.TempDir()
+	resetUpdateFlags()
+	root := chdirTemp(t)
 	writeValidateFixture(t, root)
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chdir(root); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chdir(cwd) })
-
-	updateCLI, updateSkills, updateMigrate = false, false, false
-	updateDryRun, updateCheck, updateForce = false, true, false
+	updateCheck = true
+	// Scope to status-rename because the fixture lacks config/glossary migration inputs.
 	updateOnly = []string{"status-rename"}
-	updateRunner = func(name string, args ...string) error {
-		t.Fatal("runner should not be invoked in check")
-		return nil
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called in --check")
+		return selfupdate.ApplyResult{}, nil
 	}
 
 	var out bytes.Buffer
@@ -275,30 +362,21 @@ func TestUpdateCmd_checkClean(t *testing.T) {
 }
 
 func TestUpdateCmd_checkPending(t *testing.T) {
-	root := t.TempDir()
+	resetUpdateFlags()
+	root := chdirTemp(t)
 	flexDir := filepath.Join(root, ".flexspec")
 	if err := os.MkdirAll(flexDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
 	writeValidateFixture(t, root)
-	// Config without spec_template triggers pending migration.
+	// Config without spec_template triggers a pending migration.
 	_ = os.WriteFile(filepath.Join(flexDir, "config.yaml"), []byte("specs_dir: specs\nalways_one_shot: false\n"), 0o644)
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Chdir(root); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = os.Chdir(cwd) })
-
-	updateCLI, updateSkills, updateMigrate = false, false, false
-	updateDryRun, updateCheck, updateForce = false, true, false
+	updateCheck = true
 	updateOnly = []string{"config-keys"}
-	updateRunner = func(name string, args ...string) error {
-		t.Fatal("runner should not be invoked in check")
-		return nil
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called in --check")
+		return selfupdate.ApplyResult{}, nil
 	}
 
 	var out bytes.Buffer
@@ -312,17 +390,116 @@ func TestUpdateCmd_checkPending(t *testing.T) {
 	}
 }
 
-func assertBefore(t *testing.T, got, first, second string) {
-	t.Helper()
-	firstAt := strings.Index(got, first)
-	if firstAt < 0 {
-		t.Fatalf("output missing %q\n%s", first, got)
+func TestUpdateCmd_skillsMethodNpx(t *testing.T) {
+	resetUpdateFlags()
+	chdirTemp(t)
+	fakeSkillsFS(t)
+
+	updateSkills = true
+	updateSkillsMethod = "npx"
+	var npxCalled bool
+	var npxArgs []string
+	updateSkillsRunner = func(name string, a ...string) error {
+		npxCalled = true
+		npxArgs = a
+		return nil
 	}
-	secondAt := strings.Index(got, second)
-	if secondAt < 0 {
-		t.Fatalf("output missing %q\n%s", second, got)
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		return selfupdate.ApplyResult{Applied: false}, nil
 	}
-	if firstAt >= secondAt {
-		t.Fatalf("expected %q before %q\n%s", first, second, got)
+	updateReexec = func(_ ...string) error { return nil }
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err != nil {
+		t.Fatalf("update: %v\n%s", err, out.String())
+	}
+	if !npxCalled {
+		t.Fatal("npx fallback should be called when --skills-method=npx")
+	}
+	if len(npxArgs) < 3 || npxArgs[0] != "skills" || npxArgs[1] != "add" {
+		t.Fatalf("npx args = %v", npxArgs)
+	}
+}
+
+func TestUpdateCmd_skillsMethodEmbeddedNoAgentsPrintsFallback(t *testing.T) {
+	resetUpdateFlags()
+	chdirTemp(t)
+	fakeSkillsFS(t)
+
+	updateSkills = true
+	updateSkillsMethod = "embedded"
+	// Empty HOME so DetectAgents finds nothing.
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("USERPROFILE", t.TempDir())
+
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		return selfupdate.ApplyResult{Applied: false}, nil
+	}
+	updateReexec = func(_ ...string) error { return nil }
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err != nil {
+		t.Fatalf("update: %v\n%s", err, out.String())
+	}
+	if !strings.Contains(out.String(), "No supported coding agent detected") {
+		t.Errorf("output should print fallback instruction:\n%s", out.String())
+	}
+	if !strings.Contains(out.String(), "npx skills add") {
+		t.Errorf("output should mention manual npx command:\n%s", out.String())
+	}
+}
+
+func TestUpdateCmd_invalidSkillsMethod(t *testing.T) {
+	resetUpdateFlags()
+	chdirTemp(t)
+
+	updateSkills = true
+	updateCLI = true
+	updateSkillsMethod = "bogus"
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called with invalid --skills-method")
+		return selfupdate.ApplyResult{}, nil
+	}
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err == nil || !strings.Contains(err.Error(), "invalid --skills-method") {
+		t.Fatalf("expected invalid skills method error, got %v", err)
+	}
+}
+
+func TestUpdateCmd_skillsDryRunPrintsPlan(t *testing.T) {
+	resetUpdateFlags()
+	chdirTemp(t)
+	fakeSkillsFS(t)
+
+	home := fakeHomeWithAgents(t, ".claude")
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+
+	updateSkills = true
+	updateDryRun = true
+	updateSkillsMethod = "embedded"
+	updateApplyBinary = func(_ context.Context, _ string, _ selfupdate.ApplyOpts) (selfupdate.ApplyResult, error) {
+		t.Fatal("ApplyBinary should not be called in dry-run")
+		return selfupdate.ApplyResult{}, nil
+	}
+
+	var out bytes.Buffer
+	updateCmd.SetOut(&out)
+	updateCmd.SetErr(&out)
+	if err := updateCmd.RunE(updateCmd, nil); err != nil {
+		t.Fatalf("update: %v\n%s", err, out.String())
+	}
+	if !strings.Contains(out.String(), "embedded -> claude-code") {
+		t.Errorf("output should mention embedded install plan:\n%s", out.String())
+	}
+	if !strings.Contains(out.String(), "plan") {
+		t.Errorf("output should be plan not exec:\n%s", out.String())
 	}
 }

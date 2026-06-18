@@ -5,44 +5,34 @@ import (
 	"testing"
 )
 
-func TestPlanCLI(t *testing.T) {
-	a := PlanCLI("0.2.1")
-	if !strings.Contains(a.Command, "go install") {
+func TestPlanSkillsFallback(t *testing.T) {
+	a := PlanSkillsFallback()
+	if !strings.Contains(a.Command, "npx skills") {
 		t.Fatalf("command = %q", a.Command)
 	}
-	if got, want := a.Detail, "upgrade from 0.2.1 to latest"; got != want {
-		t.Fatalf("detail = %q", a.Detail)
+	if a.Target != "skills" {
+		t.Fatalf("target = %q", a.Target)
 	}
 }
 
-func TestApplyCLI_invokesRunner(t *testing.T) {
-	var called bool
-	var name string
+func TestApplySkillsFallback_invokesRunner(t *testing.T) {
 	var args []string
-	run := func(n string, a ...string) error {
-		called = true
-		name = n
+	run := func(name string, a ...string) error {
 		args = a
 		return nil
 	}
-	_, err := ApplyCLI("0.2.1", run)
+	_, err := ApplySkillsFallback(run)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !called || name != "go" {
-		t.Fatalf("runner not called correctly: %v %q %v", called, name, args)
-	}
-	if len(args) != 2 || args[0] != "install" || args[1] != cliModule {
+	if len(args) < 3 || args[0] != "skills" || args[1] != "add" {
 		t.Fatalf("args = %v", args)
 	}
 }
 
-func TestApplyCLI_runnerError(t *testing.T) {
-	_, err := ApplyCLI("0.2.1", func(name string, args ...string) error {
-		if name != "go" {
-			t.Fatalf("name = %q", name)
-		}
-		return &execError{msg: "install failed"}
+func TestApplySkillsFallback_runnerError(t *testing.T) {
+	_, err := ApplySkillsFallback(func(name string, a ...string) error {
+		return &execError{msg: "npx failed"}
 	})
 	if err == nil {
 		t.Fatal("expected error")
@@ -52,38 +42,3 @@ func TestApplyCLI_runnerError(t *testing.T) {
 type execError struct{ msg string }
 
 func (e *execError) Error() string { return e.msg }
-
-func TestApplyLatestUpdate_invokesLatestModule(t *testing.T) {
-	var name string
-	var args []string
-	err := ApplyLatestUpdate(func(n string, a ...string) error {
-		name = n
-		args = a
-		return nil
-	}, "--skills", "--migrate")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if name != "go" {
-		t.Fatalf("name = %q", name)
-	}
-	want := []string{"run", cliModule, "update", "--skills", "--migrate"}
-	if strings.Join(args, " ") != strings.Join(want, " ") {
-		t.Fatalf("args = %v, want %v", args, want)
-	}
-}
-
-func TestApplySkills_invokesRunner(t *testing.T) {
-	var args []string
-	run := func(name string, a ...string) error {
-		args = a
-		return nil
-	}
-	_, err := ApplySkills(run)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(args) < 3 || args[0] != "skills" || args[1] != "add" {
-		t.Fatalf("args = %v", args)
-	}
-}
