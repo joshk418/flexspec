@@ -12,6 +12,7 @@ AI coding agents share the same definition of done.
 | `flexspec-simple.md` | `.flexspec/templates/` | Small, focused changes (bug fixes, copy/styling tweaks, adding one form). |
 | `expanded/flexspec-expanded.md` | `.flexspec/templates/expanded/` | Large features spanning multiple layers/subsystems (new endpoint sets + DB + UI, auth systems, adding a test suite). |
 | `expanded/flexspec-expanded-task.md` | `.flexspec/templates/expanded/` | One self-contained task file under an expanded spec's `tasks/` directory. |
+| `brainstorm.md` | `.flexspec/templates/` | Pre-spec exploration; scaffolded per-session by `flexspec brainstorm new <name>`, filled via `/flexspec-brainstorm`; not a feature spec. |
 
 > `charter.md` is embedded from this folder but written to `.flexspec/charter.md` only — it is **not** copied into `.flexspec/templates/`.
 
@@ -32,6 +33,7 @@ AI coding agents share the same definition of done.
 | `flexspec validate` | Structural validation of config, charter, templates, and specs |
 | `flexspec ui` | Local management UI (board, spec browser, settings) |
 | `flexspec status set <spec> --status <s>` | Update spec or task status in frontmatter |
+| `flexspec brainstorm new <name> [--force]` | Create `.flexspec/brainstorms/<slug>.md` for pre-spec exploration |
 
 ## Where Specs Live
 
@@ -54,6 +56,19 @@ itself is always the `README.md` inside that folder.
 For expanded specs, every implementation task is a separate file under `tasks/`
 so each unit of work stays focused enough for an agent to complete without
 context rot.
+
+## Brainstorm Docs
+
+Brainstorm docs live flat under `.flexspec/brainstorms/<slug>.md` — one file per
+pre-spec exploration session, no sequence numbering and no `tasks/` directory.
+They have no status lifecycle and are not returned by `flexspec list`,
+`flexspec validate`, or the management UI board; `/flexspec` Phase 1 may read
+one (read-only) as discovery context when a matching doc exists.
+
+```
+.flexspec/brainstorms/export-feature.md
+.flexspec/brainstorms/billing-webhooks.md
+```
 
 ## Frontmatter Metadata
 
