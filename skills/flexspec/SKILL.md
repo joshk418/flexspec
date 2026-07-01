@@ -189,6 +189,37 @@ Phase 2 (implementation) and Phase 3 (review): only **record** clear terms
 silently via `flexspec glossary add`. Never interview during implementation or
 review — discovery belongs to Phase 1.
 
+## Brainstorm Ingestion Gate (Phase 1)
+
+Before running the Discovery Gate, check for a pre-spec brainstorm doc
+(`/flexspec-brainstorm`, `.flexspec/brainstorms/<slug>.md`) that already
+answers some of what the Discovery Gate would otherwise ask.
+
+Matching algorithm:
+- Scan `.flexspec/brainstorms/*.md` (skip silently, no error, if the directory
+  doesn't exist).
+- Compute the candidate slug from the user's request the same way `flexspec
+  new` would, and treat a brainstorm filename as a candidate if its slug
+  exactly matches, is a prefix/suffix of, or shares significant keyword
+  overlap with the request's slug.
+- Also treat any brainstorm doc the user explicitly names or describes in
+  their request (e.g. "using the export-feature brainstorm") as a candidate,
+  taking priority over the heuristic match.
+- **Zero candidates**: proceed with the standard Discovery Gate unchanged; do
+  not mention brainstorms in the spec.
+- **Exactly one candidate**: read it (strictly read-only — never edit or
+  delete it); treat each topic it already answers as resolved discovery
+  input; only ask Discovery Gate questions for topics the doc leaves
+  unanswered or unclear; cite it in the new spec's Section 2 under a
+  "Brainstorm reference" line naming the doc path.
+- **Multiple candidates**: ask the user (one grouped question) which doc to
+  use, or none.
+
+This runs for every type, not just feature/bug — a brainstorm doc can precede
+any kind of work, though its main value is for the Exhaustive discovery
+types. The Discovery Gate itself is unchanged by this gate: it still runs;
+this gate only changes which of its questions already have known answers.
+
 ## Template Choice Heuristic
 
 Use `simple` for localized/small work (few files, low architectural impact).
@@ -206,19 +237,20 @@ matrix); move status to `planned`, or `proposed` for spike/research types.
 
 1. Read charter, user request, and relevant repo context.
 2. Read `.flexspec/glossary.yaml` and note known terms.
-3. Resolve `type` (see Type Resolution) and template (see Template Resolution).
-4. Initialize if needed (`flexspec init`).
-5. Scaffold with CLI (`flexspec new <name> --template <simple|expanded> --type <value>`).
-6. Run the Discovery Gate scaled to type before finalizing design details.
-7. If the request includes UI work, run the UI Interview Gate too.
-8. Fill CLI-created spec files per the per-type section matrix (omit NA sections; do not re-scaffold).
-9. Surface unknowns; ask user in grouped questions; resolve all blocking items.
-10. Map answers into the sections the type requires.
-11. Run readiness checks (sections per matrix, IDs, tests, mappings).
-12. Run charter freshness check: update charter automatically for in-scope deltas; only §7/§8 conflicts are blocking. Spike/research skip this.
-13. Run glossary gate: record clear terms, ask for unclear ones.
-14. Set `status` with `flexspec status set <spec> --status <planned|proposed>` (specs are authored in `draft`).
-15. End phase; summarize and ask user to run `/flexspec` again (unless one-shot). For spike/research, the spec is complete at `proposed` — summarize findings and open questions.
+3. Run the Brainstorm Ingestion Gate: scan `.flexspec/brainstorms/` for a matching doc before design work begins.
+4. Resolve `type` (see Type Resolution) and template (see Template Resolution).
+5. Initialize if needed (`flexspec init`).
+6. Scaffold with CLI (`flexspec new <name> --template <simple|expanded> --type <value>`).
+7. Run the Discovery Gate scaled to type before finalizing design details.
+8. If the request includes UI work, run the UI Interview Gate too.
+9. Fill CLI-created spec files per the per-type section matrix (omit NA sections; do not re-scaffold).
+10. Surface unknowns; ask user in grouped questions; resolve all blocking items.
+11. Map answers into the sections the type requires.
+12. Run readiness checks (sections per matrix, IDs, tests, mappings).
+13. Run charter freshness check: update charter automatically for in-scope deltas; only §7/§8 conflicts are blocking. Spike/research skip this.
+14. Run glossary gate: record clear terms, ask for unclear ones.
+15. Set `status` with `flexspec status set <spec> --status <planned|proposed>` (specs are authored in `draft`).
+16. End phase; summarize and ask user to run `/flexspec` again (unless one-shot). For spike/research, the spec is complete at `proposed` — summarize findings and open questions.
 
 ## Discovery Gate Scaling (Phase 1)
 
@@ -316,6 +348,7 @@ Section 1 Summary:
 Section 2 Reasons For Change:
 - driver, value, consequences if unchanged
 - assumptions, risks, charter updates, glossary updates
+- if the Brainstorm Ingestion Gate matched a doc, cite it under a "Brainstorm reference" line naming the doc path
 - open questions must be `None` before `planned` (feature/bug/refactor/infra/docs/chore); for spike/research, open questions live in Section 9 and may remain open at `proposed`
 
 Section 3 Intended Use Case:
@@ -439,6 +472,7 @@ The exit checklist varies by type. Apply the matching variant.
 - [ ] No blocking open questions remain in Section 2 or task files.
 - [ ] Charter read; no unresolved conflict with §7/§8.
 - [ ] Charter updated automatically for in-scope deltas; any §7/§8 conflicts resolved with user.
+- [ ] If a brainstorm doc was ingested, its "Brainstorm reference" citation appears in Section 2 (descriptive only — absence of a brainstorm doc is never a DoR failure).
 - [ ] Optional/project habit: `flexspec validate` has no errors.
 - [ ] Spec `status: planned`.
 
