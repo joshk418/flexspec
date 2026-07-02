@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.6](https://github.com/joshk418/flexspec/compare/v0.3.5...v0.3.6) (2026-07-01)
+
+
+### Features
+
+* Added brainstorming support for preplanning stage ([#37](https://github.com/joshk418/flexspec/issues/37)) ([2a401dd](https://github.com/joshk418/flexspec/commit/2a401dd382a08886a946855482793714328c68b1))
+
 ## [0.3.5](https://github.com/joshk418/flexspec/compare/v0.3.4...v0.3.5) (2026-06-18)
 
 
